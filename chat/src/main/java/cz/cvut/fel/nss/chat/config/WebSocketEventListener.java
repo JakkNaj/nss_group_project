@@ -1,7 +1,7 @@
 package cz.cvut.fel.nss.chat.config;
 
-import cz.cvut.fel.nss.chat.chat.ChatMessage;
-import cz.cvut.fel.nss.chat.chat.MessageType;
+import cz.cvut.fel.nss.chat.chat.entities.ChatMessage;
+import cz.cvut.fel.nss.chat.chat.entities.ChatMessage.MessageType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -26,7 +26,7 @@ public class WebSocketEventListener {
         if (username != null) {
             log.info("User Disconnected : " + username);
             var chatMessage = ChatMessage.builder()
-                    .type(MessageType.LEAVE)
+                    .type(ChatMessage.MessageType.LEAVE)
                     .sender(username)
                     .build();
             messagingTemplate.convertAndSend("/topic/public", chatMessage);
