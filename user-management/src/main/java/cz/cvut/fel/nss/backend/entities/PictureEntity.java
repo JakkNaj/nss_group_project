@@ -7,16 +7,19 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Picture {
+public class PictureEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    @Basic
+    @Basic(optional = false)
+    @Column(name = "format", nullable = false)
     private PictureFormat format;
-    @Basic
+    @Basic(optional = false)
+    @Column(name = "stored_picture", nullable = false)
     private byte[] storedPicture;
-    @Basic
+    @Basic(optional = false)
+    @Column(name = "thumbnail", nullable = false)
     private byte[] thumbnail;
     @OneToOne(mappedBy = "picture")
-    private User user;
+    private UserEntity userEntity;
 }
