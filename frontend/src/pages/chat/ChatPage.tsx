@@ -1,8 +1,10 @@
+import {ChatHeader} from "./ChatHeader.tsx";
+
 const styles = {
     chatPageContainer: {
         display: 'grid',
         gridTemplateColumns: '2fr 4fr 1fr',
-        gridTemplateRows: '1fr 9fr',
+        gridTemplateRows: '1fr 14fr',
         gridTemplateAreas: `
             "header header header"
             "leftSection main rightSection"
@@ -34,7 +36,7 @@ export const ChatPage = () => {
     return (
         <div style={styles.chatPageContainer}>
             <header style={styles.header}>
-                <h1>Chat App HEADER</h1>
+                <ChatHeader />
             </header>
             <section style={styles.leftSection}>
                 <h2>Chats left section</h2>
