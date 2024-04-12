@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
-import Avatar from '@mui/material/Avatar';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { UserContext } from '../../context/UserContext';
-import {deepOrange} from "@mui/material/colors";
+import UserAvatar from "../../components/UserAvatar.tsx";
 
 const styles = {
     heading : {
@@ -16,7 +15,7 @@ const styles = {
         alignItems: 'center',
         borderBottom: '1px solid #000',
         height: '100%',
-        padding: '0 20px',
+        padding: '0 30px',
     },
     avatarLayout: {
         display: 'flex',
@@ -33,7 +32,6 @@ const styles = {
 
 export const ChatHeader: React.FC = () => {
     const { username, photoUrl } = useContext(UserContext);
-    const initials = username.split(' ').map(word => word[0]).join('').toUpperCase();
 
     return(
         <>
@@ -41,11 +39,7 @@ export const ChatHeader: React.FC = () => {
                 <h2 style={styles.heading}>Messages</h2>
                 <aside style={styles.avatarLayout}>
                     <span style={styles.username}>{username}</span>
-                    {photoUrl ? (
-                        <Avatar alt={username + " avatar"} src={photoUrl} />
-                    ) : (
-                        <Avatar sx={{bgcolor: deepOrange[500]}}>{initials}</Avatar>
-                    )}
+                    <UserAvatar username={username} photoUrl={photoUrl}/>
                     <KeyboardArrowDownIcon />
                 </aside>
             </div>
