@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
@@ -15,8 +17,6 @@ import lombok.NoArgsConstructor;
 )
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
     @Basic(optional = false)
     @Column(name = "username", nullable = false, length = 255, unique = true)
     private String username;
@@ -26,6 +26,13 @@ public class UserEntity {
     @Basic(optional = false)
     @Column(name = "name", nullable = false, length = 255)
     private String name;
+    @Basic(optional = false)
+    @Column(name = "email", nullable = false, length = 255, unique = true)
+    private String email;
+    @Column(name = "account_created", nullable = false)
+    private LocalDate accountCreated;
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted;
     @OneToOne
     @JoinColumn(name = "picture_id")
     private PictureEntity pictureEntity;
