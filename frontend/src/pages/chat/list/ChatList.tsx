@@ -1,7 +1,9 @@
 import { SearchField } from "./SearchField.tsx";
 import ChatListItems from "./ChatListItems.tsx";
 import styled from "styled-components";
-import { chats, groupChats } from "../../../MockData.ts";
+import { State } from "../../../context/ChatStore.ts";
+
+import { ChatStore } from "../../../context/ChatStore.ts";
 
 const StyledChatListLayout = styled.div({
 	padding: "2rem",
@@ -13,10 +15,15 @@ const StyledChatListLayout = styled.div({
 });
 
 export const ChatList = () => {
+	const { directChats, groupChats } = ChatStore.useStore((state: State) => ({
+		directChats: state.directChats,
+		groupChats: state.groupChats,
+	}));
+
 	return (
 		<StyledChatListLayout>
 			<SearchField />
-			<ChatListItems sectionName="Friends" chats={chats} displayRowsNumber={6} />
+			<ChatListItems sectionName="Friends" chats={directChats} displayRowsNumber={6} />
 			<ChatListItems sectionName="Groups" chats={groupChats} displayRowsNumber={4} />
 		</StyledChatListLayout>
 	);

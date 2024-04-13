@@ -1,8 +1,7 @@
 import styled from "styled-components";
-import { useContext } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { UserContext } from "../../context/UserContext";
-import { UserAvatar } from "../../components/UserAvatar.tsx";
+import { UserAvatar } from "../../../components/UserAvatar.tsx";
+import { UserStore } from "../../../context/UserStore.ts";
 
 const Styled = {
 	HeaderLayout: styled("div")({
@@ -31,15 +30,18 @@ const Styled = {
 	}),
 };
 
-export const ChatHeader = () => {
-	const { username, photoUrl } = useContext(UserContext);
+export const ChatPageHeader = () => {
+	const { username, avatar } = UserStore.useStore((state) => ({
+		username: state.loggedInUser.name,
+		avatar: state.loggedInUser.avatar,
+	}));
 
 	return (
 		<Styled.HeaderLayout>
 			<Styled.Heading>Messages</Styled.Heading>
 			<Styled.AvatarLayout>
 				<Styled.Username>{username}</Styled.Username>
-				<UserAvatar username={username} photoUrl={photoUrl} />
+				<UserAvatar username={username} photoUrl={avatar} />
 				<KeyboardArrowDownIcon />
 			</Styled.AvatarLayout>
 		</Styled.HeaderLayout>

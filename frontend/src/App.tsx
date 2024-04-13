@@ -1,7 +1,6 @@
 import { colors } from "./styles/colors.ts";
 import { ChatPage } from "./pages/chat/ChatPage.tsx";
 import styled, { createGlobalStyle } from "styled-components";
-import { UserProvider } from "./context/UserContext.tsx";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -21,19 +20,12 @@ const Styled = {
 };
 
 const App = () => {
-	const user = {
-		username: "John Doe",
-		photoUrl: "",
-	};
-
 	return (
 		<>
 			<GlobalStyle />
-			<UserProvider value={user}>
-				<Styled.AppWrapper>
-					<ChatPage />
-				</Styled.AppWrapper>
-			</UserProvider>
+			<Styled.AppWrapper>
+				<ChatPage />
+			</Styled.AppWrapper>
 		</>
 	);
 };

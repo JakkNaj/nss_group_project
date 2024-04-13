@@ -1,7 +1,8 @@
-import { ChatHeader } from "./ChatHeader.tsx";
+import { ChatPageHeader } from "./header/ChatPageHeader.tsx";
 import { ChatList } from "./list/ChatList.tsx";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import styled from "styled-components";
+import { ChatWindow } from "./main/ChatWindow.tsx";
 
 const theme = createTheme({
 	typography: {
@@ -12,11 +13,11 @@ const theme = createTheme({
 const Styled = {
 	ChatPageContainer: styled("div")({
 		display: "grid",
-		gridTemplateColumns: "2fr 4fr 1fr",
+		gridTemplateColumns: "2fr 4fr",
 		gridTemplateRows: "1fr 14fr",
 		gridTemplateAreas: `
-            "header header header"
-            "leftSection main rightSection"
+            "header header"
+            "leftSection main"
         `,
 		height: "100vh",
 	}),
@@ -31,10 +32,6 @@ const Styled = {
 	Main: styled("main")({
 		gridArea: "main",
 	}),
-	RightSection: styled("aside")({
-		gridArea: "rightSection",
-		borderLeft: "0.0625rem solid black",
-	}),
 };
 
 export const ChatPage = () => {
@@ -42,17 +39,14 @@ export const ChatPage = () => {
 		<ThemeProvider theme={theme}>
 			<Styled.ChatPageContainer>
 				<Styled.Header>
-					<ChatHeader />
+					<ChatPageHeader />
 				</Styled.Header>
 				<Styled.LeftSection>
 					<ChatList />
 				</Styled.LeftSection>
 				<Styled.Main>
-					<h2>Main chat</h2>
+					<ChatWindow />
 				</Styled.Main>
-				<Styled.RightSection>
-					<h2>Users right section</h2>
-				</Styled.RightSection>
 			</Styled.ChatPageContainer>
 		</ThemeProvider>
 	);
