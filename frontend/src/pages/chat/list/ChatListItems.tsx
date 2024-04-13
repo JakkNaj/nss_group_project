@@ -2,6 +2,8 @@ import { List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
 import { UserAvatar } from "../../../components/UserAvatar.tsx";
 import { ChatType } from "../../../model/types/ChatType.ts";
 import { ChatStore } from "../../../context/ChatStore.ts";
+import { EChatType } from "../../../model/enums/EChatType.ts";
+import { UserStore } from "../../../context/UserStore.ts";
 
 type ChatListItemsProps = {
 	sectionName: string;
@@ -19,6 +21,19 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber }: ChatListItemsP
 		}
 	};
 
+	const getChatName = (chatId: number) => {
+		const chat = chats.find((chat) => chat.id === chatId);
+		if (chat && chat.type === EChatType.DIRECT) {
+			for (let i = 0; i < chat.users.length; i++) {
+				if (chat.users[i] !== UserStore.getLoggedInUser().id) {
+					const otherUser = UserStore.getUserById(chat.users[i]);
+					return otherUser ? otherUser.name : "Unknown user";
+				}
+			}
+		}
+		return chat ? chat.name : "Unknown chat";
+	};
+
 	return (
 		<List>
 			<h3>{sectionName}</h3>
@@ -30,7 +45,7 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber }: ChatListItemsP
 					onClick={() => ChatStore.updateActiveChat(chat.id)}
 				>
 					<ListItemAvatar>
-						<UserAvatar username={chat.name} photoUrl={chat.avatar} />
+						<UserAvatar username={getChatName(chat.id)} photoUrl={chat.avatar} />
 					</ListItemAvatar>
 					<div
 						style={{
@@ -40,7 +55,7 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber }: ChatListItemsP
 							maxWidth: "100%",
 						}}
 					>
-						<ListItemText primary={chat.name} secondary={getLastMessage(chat.id)} />
+						<ListItemText primary={getChatName(chat.id)} secondary={getLastMessage(chat.id)} />
 					</div>
 				</ListItem>
 			))}

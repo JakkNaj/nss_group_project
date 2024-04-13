@@ -74,9 +74,9 @@ export const chatsData: ChatType[] = [
 		messages: [
 			{ text: "Hello everyone!", idSender: 3 },
 			{ text: "Hi!", idSender: 4 },
-			{ text: "Hey!", idSender: 5 },
+			{ text: "Hey!", idSender: 1 },
 		],
-		users: [3, 4, 5],
+		users: [3, 4, 1],
 	},
 	{
 		id: 3,
@@ -85,9 +85,9 @@ export const chatsData: ChatType[] = [
 		name: "Direct Chat 2",
 		messages: [
 			{ text: "Did you finish the task?", idSender: 6 },
-			{ text: "Yes, I just submitted it.", idSender: 7 },
+			{ text: "Yes, I just submitted it.", idSender: 1 },
 		],
-		users: [6, 7],
+		users: [6, 1],
 	},
 	{
 		id: 4,
@@ -108,9 +108,9 @@ export const chatsData: ChatType[] = [
 		name: "Direct Chat 3",
 		messages: [
 			{ text: "Are you coming to the meeting?", idSender: 4 },
-			{ text: "Yes, I'll be there in 10 minutes.", idSender: 2 },
+			{ text: "Yes, I'll be there in 10 minutes.", idSender: 1 },
 		],
-		users: [4, 2],
+		users: [4, 1],
 	},
 	{
 		id: 6,
@@ -131,8 +131,8 @@ export const chatsData: ChatType[] = [
 		name: "Direct Chat 4",
 		messages: [
 			{ text: "Can you help me with this bug?", idSender: 5 },
-			{ text: "Sure, let's look at it together.", idSender: 3 },
+			{ text: "Sure, let's look at it together.", idSender: 1 },
 		],
-		users: [5, 3],
+		users: [5, 1],
 	},
 ];

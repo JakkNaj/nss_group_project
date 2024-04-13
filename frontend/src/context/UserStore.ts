@@ -25,5 +25,6 @@ const useUserStore = create<UserState>(() => defaultUserState);
 export const UserStore = {
 	useStore: useUserStore,
 	updateLoggedInUser: (user: UserType) => useUserStore.setState({ loggedInUser: user }),
+	getLoggedInUser: () => useUserStore.getState().loggedInUser,
 	getUserById: getUserById,
 };
