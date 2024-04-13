@@ -10,15 +10,9 @@ Before running the application, ensure you have performed a clean install of the
 
 2. **Configure Application Properties:**
     - Navigate to `src/main/resources/application.properties`.
-    - Fill out the password. If you don't have it, please contact Tobias for assistance.
-    - Alternatively, you can set up and run your own instance of MongoDB.
 
 3. **Start Kafka and Zookeeper:**
-    - Download Kafka and Zookeeper from the <a href="https://kafka.apache.org/downloads">official Apache Kafka website.</a>
-    - replace `/config/server.properties` with `src/main/resources/kafka/server.properties`
-    - replace `/config/zookeeper.properties` with `src/main/resources/kafka/zookeeper.properties`
-    - Start Zookeeper: `bin/zookeeper-server-start.sh config/zookeeper.properties`
-    - Start Kafka: `bin/kafka-server-start.sh config/server.properties`
+    - Run command `docker-compose --file docker-compose.json up` in the root directory of the project.
 
 3. **Run the Application:**
     - Execute the application.
