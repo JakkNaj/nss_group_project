@@ -1,0 +1,14 @@
+{
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "jsxBracketSameLine": false,
+  "jsxSingleQuote": false,
+  "trailingComma": "es5",
+  "printWidth": 140,
+  "singleQuote": false,
+  "semi": true,
+  "tabWidth": 4,
+  "useTabs": true,
+  "importOrder": ["^react$", "^@?\\w", "^", "^\\u0000"]
+}

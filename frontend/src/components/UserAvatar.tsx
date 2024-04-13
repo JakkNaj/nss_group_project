@@ -1,4 +1,3 @@
-import React from 'react';
 import Avatar from '@mui/material/Avatar';
 
 type UserAvatarProps = {
@@ -6,8 +5,9 @@ type UserAvatarProps = {
     photoUrl: string | null;
 };
 
-const UserAvatar: React.FC<UserAvatarProps> = ({ username, photoUrl }) => {
-    const initials = username.split(' ').map(word => word[0]).join('').toUpperCase();
+export const UserAvatar = (props: UserAvatarProps) => {
+    const initials = props.username.split(' ').map(word => word[0]).join('').toUpperCase();
+
 
     const generateColor = (initials: string) => {
         let hash = 0;
@@ -15,18 +15,16 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ username, photoUrl }) => {
             hash = initials.charCodeAt(i) + ((hash << 5) - hash);
         }
         let hue = hash % 360;
-        return `hsl(${hue}, 100%, 40%)`; // Lightness reduced to 40%
+        return `hsl(${hue}, 100%, 40%)`;
     };
 
     const avatarColor = generateColor(initials);
 
     return (
-        photoUrl ? (
-            <Avatar alt={username + " avatar"} src={photoUrl} />
+        props.photoUrl ? (
+            <Avatar alt={props.username + " avatar"} src={props.photoUrl} />
         ) : (
             <Avatar style={{backgroundColor: avatarColor}}>{initials}</Avatar>
         )
     );
 };
-
-export default UserAvatar;
