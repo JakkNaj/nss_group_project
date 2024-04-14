@@ -26,13 +26,8 @@ public class UserEntity {
     @Basic(optional = false)
     @Column(name = "name", nullable = false, length = 255)
     private String name;
-    @Basic(optional = false)
-    @Column(name = "email", nullable = false, length = 255, unique = true)
-    private String email;
-    @Column(name = "account_created", nullable = false)
-    private LocalDate accountCreated;
-    @Column(name = "deleted", nullable = false)
-    private boolean deleted;
+    @Column(name = "account_state", nullable = false)
+    private AccountState accountState;
     @OneToOne
     @JoinColumn(name = "picture_id")
     private PictureEntity pictureEntity;

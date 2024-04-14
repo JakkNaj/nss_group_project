@@ -20,6 +20,6 @@ public class PictureEntity {
     @Basic(optional = false)
     @Column(name = "thumbnail", nullable = false)
     private byte[] thumbnail;
-    @OneToOne(mappedBy = "picture")
+    @OneToOne(mappedBy = "pictureEntity")
     private UserEntity userEntity;
 }
