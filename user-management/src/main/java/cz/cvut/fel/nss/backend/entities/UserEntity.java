@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Entity
 @Getter
 @Setter
@@ -17,13 +15,10 @@ import java.time.LocalDate;
 )
 public class UserEntity {
     @Id
-    @Basic(optional = false)
     @Column(name = "username", nullable = false, length = 255, unique = true)
     private String username;
-    @Basic(optional = false)
     @Column(name = "password", nullable = false, length = 255)
     private String password;
-    @Basic(optional = false)
     @Column(name = "name", nullable = false, length = 255)
     private String name;
     @Column(name = "account_state", nullable = false)

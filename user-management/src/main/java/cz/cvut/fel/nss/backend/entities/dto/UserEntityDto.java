@@ -13,6 +13,7 @@ public class UserEntityDto {
     private String username;
     private String name;
     private AccountState accountState;
+    private String password;
 
     public UserEntityDto(UserEntity userEntity) {
         this.username = userEntity.getUsername();
