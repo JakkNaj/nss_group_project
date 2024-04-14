@@ -1,4 +1,4 @@
-import create from "zustand";
+import { create } from "zustand";
 import { UserType } from "../model/types/UserType";
 import { usersData } from "../MockData.ts";
 

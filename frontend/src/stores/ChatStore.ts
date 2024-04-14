@@ -1,8 +1,9 @@
-import create from "zustand";
+import { create } from "zustand";
 import { chatsData } from "../MockData";
 import { EChatType } from "../model/enums/EChatType";
 import { ChatType } from "../model/types/ChatType";
 import { UserStore } from "./UserStore.ts";
+import { UserType } from "../model/types/UserType.ts";
 
 export type State = {
 	chats: typeof chatsData;
@@ -44,15 +45,12 @@ export const ChatStore = {
 		}
 		return chat ? chat.name : "Unknown chat";
 	},
-	getDirectChatUser(chatId: number) {
+	getChatUsers(chatId: number): UserType[] {
 		const chat = this.findChat(chatId);
-		if (chat && chat.type === EChatType.DIRECT) {
-			for (let i = 0; i < chat.users.length; i++) {
-				if (chat.users[i] !== UserStore.getLoggedInUser().id) {
-					return UserStore.getUserById(chat.users[i]);
-				}
-			}
+		if (chat) {
+			return chat.users.map((userId) => UserStore.getUserById(userId)).filter((user): user is UserType => user !== undefined);
 		}
+		return [];
 	},
 };
 

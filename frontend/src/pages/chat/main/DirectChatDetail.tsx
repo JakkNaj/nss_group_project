@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { UserAvatar } from "../../../components/UserAvatar.tsx";
 import { ChatStore, State } from "../../../stores/ChatStore.ts";
 import { colors } from "../../../styles/colors.ts";
+import { UserStore } from "../../../stores/UserStore.ts";
 
 const Styled = {
 	ProfileDetail: styled.section`
@@ -13,7 +14,6 @@ const Styled = {
 	`,
 	Avatar: styled(UserAvatar)`
 		align-self: center;
-		width: 100rem;
 	`,
 	ChatName: styled.h4`
 		align-self: center;
@@ -65,10 +65,21 @@ export const DirectChatDetail = () => {
 		return <div>Error: No active chat found.</div>;
 	}
 
-	const otherUser = ChatStore.getDirectChatUser(activeChat.id);
+	const otherUsers = ChatStore.getChatUsers(activeChat.id);
 
 	//this should not happen
-	if (!otherUser) {
+	if (!otherUsers) {
+		return <div>Error: No other user in chat found.</div>;
+	}
+
+	//this should not happen
+	if (!UserStore.getLoggedInUser()) {
+		return <div>Error: No logged-in user found.</div>;
+	}
+
+	const otherUser = otherUsers.filter((user) => user.id !== UserStore.getLoggedInUser().id)[0];
+
+	if (!otherUsers) {
 		return <div>Error: No other user in chat found.</div>;
 	}
 
