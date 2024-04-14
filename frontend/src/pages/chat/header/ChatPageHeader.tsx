@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { UserAvatar } from "../../../components/UserAvatar.tsx";
-import { UserStore } from "../../../context/UserStore.ts";
+import { UserStore } from "../../../stores/UserStore.ts";
 
 const Styled = {
 	HeaderLayout: styled("div")({
@@ -41,7 +41,7 @@ export const ChatPageHeader = () => {
 			<Styled.Heading>Messages</Styled.Heading>
 			<Styled.AvatarLayout>
 				<Styled.Username>{username}</Styled.Username>
-				<UserAvatar username={username} photoUrl={avatar} />
+				<UserAvatar username={username} avatar={avatar} />
 				<KeyboardArrowDownIcon />
 			</Styled.AvatarLayout>
 		</Styled.HeaderLayout>

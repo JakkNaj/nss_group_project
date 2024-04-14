@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { UserAvatar } from "../../../components/UserAvatar.tsx";
-import { ChatStore, State } from "../../../context/ChatStore.ts";
+import { ChatStore, State } from "../../../stores/ChatStore.ts";
 
 const Styled = {
 	ChatHeader: styled("div")({
@@ -44,7 +44,6 @@ export const ChatHeader = (props: ChatHeaderProps) => {
 	const { activeChat } = ChatStore.useStore((state: State) => ({
 		activeChat: state.activeChat,
 	}));
-	console.log(activeChat);
 
 	if (!activeChat) {
 		return <div>Error: No active chat found.</div>;
@@ -53,9 +52,9 @@ export const ChatHeader = (props: ChatHeaderProps) => {
 	return (
 		<Styled.ChatHeader>
 			<Styled.AvatarLayout>
-				<UserAvatar username={activeChat.name} photoUrl={activeChat?.avatar} />
+				<UserAvatar username={ChatStore.getChatName(activeChat.id)} avatar={activeChat?.avatar} />
 				<Styled.UsernameStatusLayout>
-					<Styled.Username>{activeChat?.name}</Styled.Username>
+					<Styled.Username>{ChatStore.getChatName(activeChat.id)}</Styled.Username>
 					<Styled.Status>online 7m ago</Styled.Status>
 				</Styled.UsernameStatusLayout>
 			</Styled.AvatarLayout>

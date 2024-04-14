@@ -9,7 +9,7 @@ const Styled = {
 		boxShadow: "0.2315625rem 0.2315625rem 0 0 #000",
 		"& fieldset": {
 			borderRadius: "0.6rem",
-			border: "1px solid #000",
+			border: "0.0625rem solid #000",
 			borderColor: "#000",
 		},
 		"&:hover fieldset": {

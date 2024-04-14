@@ -1,12 +1,12 @@
 import styled from "styled-components";
 import { ChatHeader } from "./ChatHeader.tsx";
 import { useState } from "react";
-import { ProfileDetail } from "./ProfileDetail.tsx";
+import { DirectChatDetail } from "./DirectChatDetail.tsx";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
 		display: grid;
-		grid-template-columns: ${(props) => (props.$rightSectionVisible ? "3fr 1fr" : "1fr")};
+		grid-template-columns: ${(props) => (props.$rightSectionVisible ? "2fr 1fr" : "1fr")};
 		grid-template-areas: "content rightSection";
 		height: 100%;
 	`,
@@ -27,7 +27,7 @@ export const ChatWindow = () => {
 			<ChatHeader toggleRightSection={toggleRightSection} />
 			{rightSectionVisible && (
 				<Styled.RightSection>
-					<ProfileDetail />
+					<DirectChatDetail />
 				</Styled.RightSection>
 			)}
 		</Styled.ChatWindow>

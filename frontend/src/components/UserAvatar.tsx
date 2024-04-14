@@ -2,7 +2,9 @@ import Avatar from "@mui/material/Avatar";
 
 type UserAvatarProps = {
 	username: string;
-	photoUrl: string | undefined;
+	avatar: string | undefined;
+	className?: string;
+	width?: number;
 };
 
 export const UserAvatar = (props: UserAvatarProps) => {
@@ -23,9 +25,19 @@ export const UserAvatar = (props: UserAvatarProps) => {
 
 	const avatarColor = generateColor(initials);
 
-	return props.photoUrl ? (
-		<Avatar alt={props.username + " avatar"} src={props.photoUrl} />
+	return props.avatar ? (
+		<Avatar
+			className={props.className}
+			alt={props.username + " avatar"}
+			src={props.avatar}
+			style={{ width: `${props?.width}rem`, height: `${props?.width}rem` }}
+		/>
 	) : (
-		<Avatar style={{ backgroundColor: avatarColor }}>{initials}</Avatar>
+		<Avatar
+			className={props.className}
+			style={{ backgroundColor: avatarColor, width: `${props?.width}rem`, height: `${props?.width}rem` }}
+		>
+			{initials}
+		</Avatar>
 	);
 };

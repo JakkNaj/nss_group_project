@@ -1,9 +1,9 @@
 import { SearchField } from "./SearchField.tsx";
 import ChatListItems from "./ChatListItems.tsx";
 import styled from "styled-components";
-import { State } from "../../../context/ChatStore.ts";
+import { State } from "../../../stores/ChatStore.ts";
 
-import { ChatStore } from "../../../context/ChatStore.ts";
+import { ChatStore } from "../../../stores/ChatStore.ts";
 
 const StyledChatListLayout = styled.div({
 	padding: "2rem",

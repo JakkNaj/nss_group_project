@@ -2,6 +2,7 @@ import create from "zustand";
 import { chatsData } from "../MockData";
 import { EChatType } from "../model/enums/EChatType";
 import { ChatType } from "../model/types/ChatType";
+import { UserStore } from "./UserStore.ts";
 
 export type State = {
 	chats: typeof chatsData;
@@ -21,11 +22,36 @@ const useStore = create<State>(() => defaultState);
 
 export const ChatStore = {
 	useStore,
+	findChat(chatId: number) {
+		return chatsData.find((chat) => chat.id === chatId);
+	},
 	updateActiveChat: (chatId: number) => useStore.setState({ activeChat: chatsData.find((chat) => chat.id === chatId) || null }),
 	getLastMessageFromChat(chatId: number) {
-		const chat = chatsData.find((chat) => chat.id === chatId);
+		const chat = this.findChat(chatId);
 		if (chat) {
 			return chat.messages[chat.messages.length - 1];
+		}
+	},
+	getChatName(chatId: number) {
+		const chat = this.findChat(chatId);
+		if (chat && chat.type === EChatType.DIRECT) {
+			for (let i = 0; i < chat.users.length; i++) {
+				if (chat.users[i] !== UserStore.getLoggedInUser().id) {
+					const otherUser = UserStore.getUserById(chat.users[i]);
+					return otherUser ? otherUser.name : "Unknown user";
+				}
+			}
+		}
+		return chat ? chat.name : "Unknown chat";
+	},
+	getDirectChatUser(chatId: number) {
+		const chat = this.findChat(chatId);
+		if (chat && chat.type === EChatType.DIRECT) {
+			for (let i = 0; i < chat.users.length; i++) {
+				if (chat.users[i] !== UserStore.getLoggedInUser().id) {
+					return UserStore.getUserById(chat.users[i]);
+				}
+			}
 		}
 	},
 };
