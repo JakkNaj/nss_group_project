@@ -2,10 +2,11 @@ import styled from "styled-components";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
 import { ChatStore, State } from "../../../../stores/ChatStore.ts";
 import { useState } from "react";
-import { UserDetail } from "./GroupUserDetail.tsx";
+import { GroupUserDetail } from "./GroupUserDetail.tsx";
 import { UserType } from "../../../../model/types/UserType.ts";
 import { colors } from "../../../../styles/colors.ts";
 import { ChatNameWithIcon } from "./ChatNameWithIcon.tsx";
+import CloseIcon from "@mui/icons-material/Close";
 
 const Styled = {
 	ProfileDetail: styled.section`
@@ -40,9 +41,17 @@ const Styled = {
 		border: 0.0625rem solid #000;
 		box-shadow: 0.11578125rem 0.11578125rem 0 0 #000;
 	`,
+	CloseIcon: styled(CloseIcon)`
+		cursor: pointer;
+		position: absolute;
+	`,
 };
 
-export const GroupChatDetail = () => {
+interface GroupChatProps {
+	onBackClick: () => void;
+}
+
+export const GroupChatDetail = ({ onBackClick }: GroupChatProps) => {
 	const { activeChat } = ChatStore.useStore((state: State) => ({
 		activeChat: state.activeChat,
 	}));
@@ -77,11 +86,12 @@ export const GroupChatDetail = () => {
 	};
 
 	return (
-		<Styled.ProfileDetail>
+		<div>
 			{selectedUser ? (
-				<UserDetail user={selectedUser} onBackClick={handleBackClick} onRemoveClick={handleRemoveClick} />
+				<GroupUserDetail user={selectedUser} onBackClick={handleBackClick} onRemoveClick={handleRemoveClick} />
 			) : (
-				<>
+				<Styled.ProfileDetail>
+					<Styled.CloseIcon onClick={onBackClick} />
 					<Styled.Avatar username={activeChat.name} avatar={activeChat.avatar} width={7} />
 					<Styled.ChatName>{activeChat.name}</Styled.ChatName>
 					<Styled.UserList>
@@ -90,8 +100,8 @@ export const GroupChatDetail = () => {
 						))}
 					</Styled.UserList>
 					<Styled.LeaveButton onClick={handleLeaveClick}>Leave Group</Styled.LeaveButton>
-				</>
+				</Styled.ProfileDetail>
 			)}
-		</Styled.ProfileDetail>
+		</div>
 	);
 };

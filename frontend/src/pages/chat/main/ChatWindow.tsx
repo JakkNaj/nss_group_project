@@ -9,19 +9,20 @@ import { MessageInput } from "./messages/MessageInput.tsx";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
-		display: grid;
-		grid-template-rows: 1fr auto;
-		grid-template-columns: ${(props) => (props.$rightSectionVisible ? "3fr 1fr" : "1fr")};
-		grid-template-areas: ${(props) => (props.$rightSectionVisible ? "'content rightSection'" : "'content' 'content'")};
+		display: flex;
 		height: 100%;
-		gap: 0.0625rem;
 	`,
-	RightSection: styled.aside`
-		grid-area: rightSection;
+	RightSection: styled.aside<{ $isVisible: boolean }>`
 		border-left: 0.0625rem solid black;
+		width: ${(props) => (props.$isVisible ? "40%" : "0")};
+		transform: ${(props) => (props.$isVisible ? "translateX(0)" : "translateX(100%)")};
+		transition:
+			transform 0.3s ease-in-out,
+			width 0.3s ease-in-out;
+		overflow: hidden;
 	`,
 	Content: styled.div`
-		grid-area: content;
+		flex-grow: 1;
 		height: 100%;
 		display: flex;
 		flex-direction: column;
@@ -55,9 +56,13 @@ export const ChatWindow = () => {
 				</div>
 				<MessageInput onSend={sendMessage} />
 			</Styled.Content>
-			{rightSectionVisible && (
-				<Styled.RightSection>{activeChat?.type === "DIRECT" ? <DirectChatDetail /> : <GroupChatDetail />}</Styled.RightSection>
-			)}
+			<Styled.RightSection $isVisible={rightSectionVisible}>
+				{activeChat?.type === "DIRECT" ? (
+					<DirectChatDetail onBackClick={toggleRightSection} />
+				) : (
+					<GroupChatDetail onBackClick={toggleRightSection} />
+				)}
+			</Styled.RightSection>
 		</Styled.ChatWindow>
 	);
 };

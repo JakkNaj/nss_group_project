@@ -3,6 +3,7 @@ import { UserAvatar } from "../../../components/UserAvatar.tsx";
 import { ChatStore, State } from "../../../stores/ChatStore.ts";
 import { colors } from "../../../styles/colors.ts";
 import { UserStore } from "../../../stores/UserStore.ts";
+import CloseIcon from "@mui/icons-material/Close";
 
 const Styled = {
 	ProfileDetail: styled.section`
@@ -53,9 +54,17 @@ const Styled = {
 		border: 0.0625rem solid #000;
 		box-shadow: 0.11578125rem 0.11578125rem 0 0 #000;
 	`,
+	CloseIcon: styled(CloseIcon)`
+		cursor: pointer;
+		position: absolute;
+	`,
 };
 
-export const DirectChatDetail = () => {
+interface DirectChatProps {
+	onBackClick: () => void;
+}
+
+export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
 	const { activeChat } = ChatStore.useStore((state: State) => ({
 		activeChat: state.activeChat,
 	}));
@@ -85,6 +94,7 @@ export const DirectChatDetail = () => {
 
 	return (
 		<Styled.ProfileDetail>
+			<Styled.CloseIcon onClick={onBackClick} />
 			<Styled.Avatar username={otherUser.name} avatar={otherUser.avatar} width={7} />
 			<Styled.ChatName>{otherUser.name}</Styled.ChatName>
 			<Styled.SectionName>Email</Styled.SectionName>

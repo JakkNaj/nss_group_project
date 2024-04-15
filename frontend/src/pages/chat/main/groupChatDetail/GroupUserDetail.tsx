@@ -9,7 +9,7 @@ const Styled = {
 		flex-direction: column;
 		align-items: flex-start;
 		min-width: 14rem;
-		position: relative;
+		padding: 2rem;
 	`,
 	Avatar: styled(UserAvatar)`
 		align-self: center;
@@ -60,7 +60,7 @@ interface UserDetailProps {
 	onRemoveClick: () => void;
 }
 
-export function UserDetail({ user, onBackClick, onRemoveClick }: UserDetailProps) {
+export function GroupUserDetail({ user, onBackClick, onRemoveClick }: UserDetailProps) {
 	return (
 		<Styled.UserDetail>
 			<Styled.ArrowIcon onClick={onBackClick} />
