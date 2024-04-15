@@ -9,6 +9,7 @@ const Styled = {
 		flex-direction: column;
 		overflow-y: auto;
 		padding: 1rem;
+		flex-grow: 1;
 	`,
 };
 

@@ -28,9 +28,15 @@ const Styled = {
 	LeftSection: styled("section")({
 		gridArea: "leftSection",
 		borderRight: "0.0625rem solid black",
+		height: "100%",
+		overflowY: "auto",
 	}),
 	Main: styled("main")({
 		gridArea: "main",
+		height: "100%",
+		overflowY: "auto",
+		overflowX: "hidden",
+		width: "100%",
 	}),
 };
 

@@ -2,6 +2,7 @@ import { TextField, IconButton } from "@mui/material";
 import { Send } from "@mui/icons-material";
 import styled from "styled-components";
 import { useState } from "react";
+import { colors } from "../../../../styles/colors.ts";
 
 const Styled = {
 	InputContainer: styled.div`
@@ -10,6 +11,9 @@ const Styled = {
 		align-items: center;
 		padding: 10px;
 		border-top: 1px solid #000;
+		position: sticky;
+		bottom: 0;
+		background-color: ${colors.lightBackground};
 	`,
 };
 
