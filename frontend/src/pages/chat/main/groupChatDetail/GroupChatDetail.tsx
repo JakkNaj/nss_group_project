@@ -1,11 +1,11 @@
 import styled from "styled-components";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
 import { ChatStore, State } from "../../../../stores/ChatStore.ts";
-import { ChatNameWithIcon } from "./ChatNameWithIcon.tsx";
 import { useState } from "react";
 import { UserDetail } from "./GroupUserDetail.tsx";
 import { UserType } from "../../../../model/types/UserType.ts";
 import { colors } from "../../../../styles/colors.ts";
+import { ChatNameWithIcon } from "./ChatNameWithIcon.tsx";
 
 const Styled = {
 	ProfileDetail: styled.section`
