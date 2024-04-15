@@ -1,25 +1,26 @@
 package cz.cvut.fel.nss.backend.entities;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+@Document(collection = "picture")
 @Getter
 @NoArgsConstructor
 public class PictureEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
-    @Basic(optional = false)
-    @Column(name = "format", nullable = false)
-    private PictureFormat format;
-    @Basic(optional = false)
-    @Column(name = "stored_picture", nullable = false)
+    private String username;
+    private String contentType;
     private byte[] storedPicture;
-    @Basic(optional = false)
-    @Column(name = "thumbnail", nullable = false)
     private byte[] thumbnail;
-    @OneToOne(mappedBy = "pictureEntity")
-    private UserEntity userEntity;
+
+    public void savePicture(byte[] file, String username, String contentType) {
+        if (storedPicture == null) {
+            this.username = username;
+        }
+        this.storedPicture = file;
+        this.contentType = contentType;
+
+    }
 }

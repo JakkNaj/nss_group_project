@@ -23,7 +23,4 @@ public class UserEntity {
     private String name;
     @Column(name = "account_state", nullable = false)
     private AccountState accountState;
-    @OneToOne
-    @JoinColumn(name = "picture_id")
-    private PictureEntity pictureEntity;
 }

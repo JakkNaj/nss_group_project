@@ -44,4 +44,10 @@ public class RestExceptionHandler {
         logException(e);
         return new ResponseEntity<>(errorInfo(request, e), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(WrongFileException.class)
+    public ResponseEntity<ErrorInfo> wrongFile(HttpServletRequest request, WrongFileException e) {
+        logException(e);
+        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.BAD_REQUEST);
+    }
 }
