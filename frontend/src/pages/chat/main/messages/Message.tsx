@@ -3,10 +3,20 @@ import styled from "styled-components";
 import { MessageType } from "../../../../model/types/MessageType.ts";
 import { colors } from "../../../../styles/colors.ts";
 import { useState } from "react";
+import { UserAvatar } from "../../../../components/UserAvatar.tsx";
+import { UserStore } from "../../../../stores/UserStore.ts";
+import { ChatStore } from "../../../../stores/ChatStore.ts";
 
 const Styled = {
-	MessageCardContainer: styled.div<{ $isUserMessage: boolean }>`
+	MessageContainer: styled.div<{ $isUserMessage: boolean }>`
 		align-self: ${(props) => (props.$isUserMessage ? "flex-end" : "flex-start")};
+		display: flex;
+		flex-direction: row;
+		padding: 0.5rem;
+		align-items: center;
+	`,
+
+	MessageCardContainer: styled.div<{ $isUserMessage: boolean }>`
 		margin: 1rem;
 		display: flex;
 		flex-direction: column;
@@ -22,6 +32,9 @@ const Styled = {
 		background-color: ${(props) => (props.$isUserMessage ? colors.darkerBackground : colors.lightBackground)};
 		padding: 0.57875rem !important;
 	`,
+	Avatar: styled(UserAvatar)`
+		margin-right: 0;
+	`,
 };
 
 interface MessageProps {
@@ -32,19 +45,37 @@ interface MessageProps {
 export const Message = ({ message, userId }: MessageProps) => {
 	const isUserMessage = message.idSender === userId;
 	const [showTimestamp, setShowTimestamp] = useState(false);
+	const sender = UserStore.getUserById(message.idSender);
+
+	const { activeChat } = ChatStore.useStore((state) => ({
+		activeChat: state.activeChat,
+	}));
+
+	//should not happen
+	if (!sender) {
+		return <div>Error: not found sender of the message!</div>;
+	}
 
 	return (
-		<Styled.MessageCardContainer $isUserMessage={isUserMessage}>
-			{showTimestamp && (
-				<Typography variant="caption" color="textSecondary">
-					{message.timestamp.toLocaleString()}
-				</Typography>
-			)}
-			<Styled.MessageCard $isUserMessage={isUserMessage} onClick={() => setShowTimestamp(!showTimestamp)}>
-				<Styled.CardContent $isUserMessage={isUserMessage}>
-					<Typography variant="body2">{message.text}</Typography>
-				</Styled.CardContent>
-			</Styled.MessageCard>
-		</Styled.MessageCardContainer>
+		<Styled.MessageContainer $isUserMessage={isUserMessage}>
+			{!isUserMessage && <Styled.Avatar username={sender.name} avatar={sender.avatar} width={2} />}
+			<Styled.MessageCardContainer $isUserMessage={isUserMessage}>
+				{activeChat?.type === "GROUP" && !isUserMessage && (
+					<Typography variant="caption" color="textSecondary">
+						{sender.name}
+					</Typography>
+				)}
+				{showTimestamp && (
+					<Typography variant="caption" color="textSecondary">
+						{message.timestamp.toLocaleString()}
+					</Typography>
+				)}
+				<Styled.MessageCard $isUserMessage={isUserMessage} onClick={() => setShowTimestamp(!showTimestamp)}>
+					<Styled.CardContent $isUserMessage={isUserMessage}>
+						<Typography variant="body2">{message.text}</Typography>
+					</Styled.CardContent>
+				</Styled.MessageCard>
+			</Styled.MessageCardContainer>
+		</Styled.MessageContainer>
 	);
 };

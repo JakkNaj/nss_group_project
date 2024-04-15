@@ -8,11 +8,8 @@ type UserAvatarProps = {
 };
 
 export const UserAvatar = (props: UserAvatarProps) => {
-	const initials = props.username
-		.split(" ")
-		.map((word) => word[0])
-		.join("")
-		.toUpperCase();
+	const words = props.username.split(" ");
+	const initials = (words[0][0] + (words[1] ? words[1][0] : "")).toUpperCase();
 
 	const generateColor = (initials: string) => {
 		let hash = 0;
@@ -35,7 +32,12 @@ export const UserAvatar = (props: UserAvatarProps) => {
 	) : (
 		<Avatar
 			className={props.className}
-			style={{ backgroundColor: avatarColor, width: `${props?.width}rem`, height: `${props?.width}rem` }}
+			style={{
+				backgroundColor: avatarColor,
+				width: `${props?.width}rem`,
+				height: `${props?.width}rem`,
+				fontSize: props?.width ? `${props?.width * 0.5}rem` : "1rem",
+			}}
 		>
 			{initials}
 		</Avatar>
