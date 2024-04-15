@@ -4,4 +4,5 @@ export const colors = {
 	primaryText: "#000000",
 	greyText: "#808080",
 	btn: "#2979ff",
+	darkBlue: "#052b4a",
 };

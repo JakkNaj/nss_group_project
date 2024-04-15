@@ -3,7 +3,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import styled from "styled-components";
 
-const Styled = {
+export const StyledInputField = {
 	TextField: styled(TextField)({
 		borderRadius: "0.6rem",
 		boxShadow: "0.2315625rem 0.2315625rem 0 0 #000",
@@ -23,7 +23,7 @@ const Styled = {
 
 export const SearchField = () => {
 	return (
-		<Styled.TextField
+		<StyledInputField.TextField
 			variant="outlined"
 			fullWidth
 			InputProps={{

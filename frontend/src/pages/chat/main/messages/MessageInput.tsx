@@ -14,6 +14,7 @@ const Styled = {
 		position: sticky;
 		bottom: 0;
 		background-color: ${colors.lightBackground};
+		border-bottom-right-radius: 1.4375rem;
 	`,
 };
 
