@@ -1,16 +1,14 @@
 package cz.cvut.fel.nss.backend.services;
 
 import cz.cvut.fel.nss.backend.dao.UserRepository;
-import cz.cvut.fel.nss.backend.entities.AccountState;
-import cz.cvut.fel.nss.backend.entities.UserDetail;
-import cz.cvut.fel.nss.backend.entities.UserDetailKey;
-import cz.cvut.fel.nss.backend.entities.UserEntity;
+import cz.cvut.fel.nss.backend.entities.*;
 import cz.cvut.fel.nss.backend.entities.dto.CombinedUserDto;
 import cz.cvut.fel.nss.backend.entities.dto.SignUpDto;
 import cz.cvut.fel.nss.backend.entities.dto.UserDetailDto;
 import cz.cvut.fel.nss.backend.entities.dto.UserEntityDto;
 import cz.cvut.fel.nss.backend.exception.BadRequestException;
 import cz.cvut.fel.nss.backend.exception.NotFoundException;
+import cz.cvut.fel.nss.backend.repositories.PictureEntityRepository;
 import cz.cvut.fel.nss.backend.repositories.UserDetailRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -28,6 +27,7 @@ import java.util.regex.Pattern;
 public class UsersService {
     private final UserRepository userRepository;
     private final UserDetailRepository userDetailRepository;
+    private final PictureEntityRepository pictureEntityRepository;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 
@@ -38,9 +38,10 @@ public class UsersService {
     private int maxUsernameLength;
 
     @Autowired
-    public UsersService(UserRepository userRepository, UserDetailRepository userDetailRepository) {
+    public UsersService(UserRepository userRepository, UserDetailRepository userDetailRepository, PictureEntityRepository pictureEntityRepository) {
         this.userRepository = userRepository;
         this.userDetailRepository = userDetailRepository;
+        this.pictureEntityRepository = pictureEntityRepository;
     }
 
     public UserEntity findByUsername(String username) {
@@ -117,6 +118,7 @@ public class UsersService {
     public CombinedUserDto getUser(String username) {
         UserEntity user = findByUsername(username);
         UserDetail userDetail = userDetailRepository.findById(user.getUsername()).orElseThrow(() -> new NotFoundException("UserDetail with username " + user.getUsername() + " does not exist"));
+        PictureEntity pictureEntity = pictureEntityRepository.findById(username).orElse(null);
         CombinedUserDto combinedUserDto = new CombinedUserDto();
         combinedUserDto.setUsername(username);
         combinedUserDto.setName(user.getName());
@@ -126,6 +128,10 @@ public class UsersService {
         combinedUserDto.setAddress(userDetail.getDetails().get(UserDetailKey.ADDRESS));
         combinedUserDto.setBirthdate(userDetail.getDetails().get(UserDetailKey.BIRTHDATE));
         combinedUserDto.setAccountCreated(userDetail.getDetails().get(UserDetailKey.ACCOUNT_CREATED));
+        if (pictureEntity != null) {
+            String encodedImage = Base64.getEncoder().encodeToString(pictureEntity.getThumbnail());
+            combinedUserDto.setThumbnail(encodedImage);
+        }
         return combinedUserDto;
     }
 }

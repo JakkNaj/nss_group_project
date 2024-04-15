@@ -17,4 +17,5 @@ public class CombinedUserDto {
     private String address;
     private String birthdate;
     private String accountCreated;
+    private String thumbnail;
 }

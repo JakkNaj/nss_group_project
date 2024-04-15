@@ -50,4 +50,10 @@ public class RestExceptionHandler {
         logException(e);
         return new ResponseEntity<>(errorInfo(request, e), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ImageHandlingException.class)
+    public ResponseEntity<ErrorInfo> imageHandling(HttpServletRequest request, ImageHandlingException e) {
+        logException(e);
+        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

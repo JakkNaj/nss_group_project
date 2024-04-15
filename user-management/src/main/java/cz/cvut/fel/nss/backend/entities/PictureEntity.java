@@ -1,5 +1,7 @@
 package cz.cvut.fel.nss.backend.entities;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "picture")
 @Getter
 @NoArgsConstructor
+@Slf4j
 public class PictureEntity {
     @Id
     private String username;
@@ -15,12 +18,15 @@ public class PictureEntity {
     private byte[] storedPicture;
     private byte[] thumbnail;
 
-    public void savePicture(byte[] file, String username, String contentType) {
+    @Value("${profilephoto.thumbnail.width}")
+    private int thumbnailWidth;
+
+    public void savePicture(byte[] file, byte[] thumbnail, String username, String contentType) {
         if (storedPicture == null) {
             this.username = username;
         }
         this.storedPicture = file;
         this.contentType = contentType;
-
+        this.thumbnail = thumbnail;
     }
 }
