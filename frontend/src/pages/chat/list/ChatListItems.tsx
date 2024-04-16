@@ -7,9 +7,10 @@ type ChatListItemsProps = {
 	sectionName: string;
 	chats: ChatType[];
 	displayRowsNumber: number;
+	toggleProfileWindow: () => void;
 };
 
-const ChatListItems = ({ sectionName, chats, displayRowsNumber }: ChatListItemsProps) => {
+const ChatListItems = ({ sectionName, chats, displayRowsNumber, toggleProfileWindow }: ChatListItemsProps) => {
 	const getLastMessage = (chatId: number) => {
 		const message = ChatStore.getLastMessageFromChat(chatId);
 		if (message) {
@@ -17,6 +18,11 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber }: ChatListItemsP
 		} else {
 			return "no messages yet";
 		}
+	};
+
+	const handleChatItemClick = (chatId: number) => {
+		ChatStore.updateActiveChat(chatId);
+		toggleProfileWindow();
 	};
 
 	return (
@@ -27,7 +33,7 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber }: ChatListItemsP
 					key={chat.id}
 					alignItems="flex-start"
 					sx={{ padding: 0, paddingBottom: "22px" }}
-					onClick={() => ChatStore.updateActiveChat(chat.id)}
+					onClick={() => handleChatItemClick(chat.id)}
 				>
 					<ListItemAvatar>
 						<UserAvatar username={ChatStore.getChatName(chat.id)} avatar={chat.avatar} />

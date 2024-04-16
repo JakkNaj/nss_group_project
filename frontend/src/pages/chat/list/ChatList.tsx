@@ -14,7 +14,11 @@ const StyledChatListLayout = styled.div({
 	fontFamily: "Inter, sans-serif",
 });
 
-export const ChatList = () => {
+interface ChatListProps {
+	showChatWindow: () => void;
+}
+
+export const ChatList = ({ showChatWindow }: ChatListProps) => {
 	const { directChats, groupChats } = ChatStore.useStore((state: State) => ({
 		directChats: state.directChats,
 		groupChats: state.groupChats,
@@ -23,8 +27,8 @@ export const ChatList = () => {
 	return (
 		<StyledChatListLayout>
 			<SearchField />
-			<ChatListItems sectionName="Friends" chats={directChats} displayRowsNumber={6} />
-			<ChatListItems sectionName="Groups" chats={groupChats} displayRowsNumber={4} />
+			<ChatListItems sectionName="Friends" chats={directChats} displayRowsNumber={6} toggleProfileWindow={showChatWindow} />
+			<ChatListItems sectionName="Groups" chats={groupChats} displayRowsNumber={4} toggleProfileWindow={showChatWindow} />
 		</StyledChatListLayout>
 	);
 };

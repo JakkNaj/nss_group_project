@@ -2,6 +2,8 @@ import { ChatPageHeader } from "./header/ChatPageHeader.tsx";
 import { ChatList } from "./list/ChatList.tsx";
 import styled from "styled-components";
 import { ChatWindow } from "./main/ChatWindow.tsx";
+import { ProfileWindow } from "./main/ProfileWindow.tsx";
+import { useState } from "react";
 
 const Styled = {
 	ChatPageContainer: styled("div")({
@@ -35,17 +37,25 @@ const Styled = {
 };
 
 export const ChatPage = () => {
+	const [showProfile, setShowProfile] = useState(false);
+
+	const showProfileWindow = () => {
+		setShowProfile(true);
+	};
+
+	const showChatWindow = () => {
+		setShowProfile(false);
+	};
+
 	return (
 		<Styled.ChatPageContainer>
 			<Styled.Header>
-				<ChatPageHeader />
+				<ChatPageHeader showProfileWindow={showProfileWindow} />
 			</Styled.Header>
 			<Styled.LeftSection>
-				<ChatList />
+				<ChatList showChatWindow={showChatWindow} />
 			</Styled.LeftSection>
-			<Styled.Main>
-				<ChatWindow />
-			</Styled.Main>
+			<Styled.Main>{showProfile ? <ProfileWindow /> : <ChatWindow />}</Styled.Main>
 		</Styled.ChatPageContainer>
 	);
 };

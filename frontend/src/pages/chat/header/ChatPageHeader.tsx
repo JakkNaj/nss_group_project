@@ -31,7 +31,11 @@ const Styled = {
 	}),
 };
 
-export const ChatPageHeader = () => {
+interface ChatPageHeaderProps {
+	showProfileWindow: () => void;
+}
+
+export const ChatPageHeader = ({ showProfileWindow }: ChatPageHeaderProps) => {
 	const { username, avatar } = UserStore.useStore((state) => ({
 		username: state.loggedInUser.name,
 		avatar: state.loggedInUser.avatar,
@@ -39,6 +43,7 @@ export const ChatPageHeader = () => {
 
 	const handleAccountClick = () => {
 		console.log("clicked on account");
+		showProfileWindow();
 	};
 
 	const navigate = useNavigate();
