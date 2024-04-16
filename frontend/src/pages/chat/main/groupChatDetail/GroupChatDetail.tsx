@@ -9,42 +9,42 @@ import { ChatNameWithIcon } from "./ChatNameWithIcon.tsx";
 import CloseIcon from "@mui/icons-material/Close";
 
 const Styled = {
-	ProfileDetail: styled.section`
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		padding: 2rem;
-		min-width: 14rem;
-	`,
-	UserList: styled.section`
-		width: 100%;
-	`,
-	UserListItem: styled.li`
-		margin-bottom: 1rem;
-	`,
-	ChatName: styled.h4`
-		align-self: center;
-		margin-top: 1rem;
-		font-size: 1.5rem;
-		margin-bottom: 1rem;
-	`,
-	Avatar: styled(UserAvatar)`
-		align-self: center;
-	`,
-	LeaveButton: styled.button`
-		margin-top: 2rem;
-		padding: 0.5rem 1rem;
-		background-color: ${colors.lightBackground};
-		font-size: 1rem;
-		cursor: pointer;
-		border-radius: 0.6rem;
-		border: 0.0625rem solid #000;
-		box-shadow: 0.11578125rem 0.11578125rem 0 0 #000;
-	`,
-	CloseIcon: styled(CloseIcon)`
-		cursor: pointer;
-		position: absolute;
-	`,
+	ProfileDetail: styled.section({
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "flex-start",
+		padding: "2rem",
+		minWidth: "14rem",
+	}),
+	UserList: styled.section({
+		width: "100%",
+	}),
+	UserListItem: styled.li({
+		marginBottom: "1rem",
+	}),
+	ChatName: styled.h4({
+		alignSelf: "center",
+		marginTop: "1rem",
+		fontSize: "1.5rem",
+		marginBottom: "1rem",
+	}),
+	Avatar: styled(UserAvatar)({
+		alignSelf: "center",
+	}),
+	LeaveButton: styled.button({
+		marginTop: "2rem",
+		padding: "0.5rem 1rem",
+		backgroundColor: colors.lightBackground,
+		fontSize: "1rem",
+		cursor: "pointer",
+		borderRadius: "0.6rem",
+		border: "0.0625rem solid #000",
+		boxShadow: "0.11578125rem 0.11578125rem 0 0 #000",
+	}),
+	CloseIcon: styled(CloseIcon)({
+		cursor: "pointer",
+		position: "absolute",
+	}),
 };
 
 interface GroupChatProps {

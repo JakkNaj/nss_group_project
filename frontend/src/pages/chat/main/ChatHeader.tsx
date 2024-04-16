@@ -28,6 +28,11 @@ const Styled = {
 	}),
 	MoreIcon: styled(MoreVertIcon)({
 		fontSize: "1.5rem",
+		padding: "0.5rem",
+		"&:hover": {
+			backgroundColor: "rgba(0, 0, 0, 0.04)",
+			borderRadius: "50%",
+		},
 	}),
 	UsernameStatusLayout: styled("div")({
 		display: "flex",

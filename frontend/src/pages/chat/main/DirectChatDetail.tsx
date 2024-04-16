@@ -6,58 +6,58 @@ import { UserStore } from "../../../stores/UserStore.ts";
 import CloseIcon from "@mui/icons-material/Close";
 
 const Styled = {
-	ProfileDetail: styled.section`
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		padding: 2rem;
-		min-width: 14rem;
-	`,
-	Avatar: styled(UserAvatar)`
-		align-self: center;
-	`,
-	ChatName: styled.h4`
-		align-self: center;
-		margin-top: 1rem;
-		font-size: 1.5rem;
-		margin-bottom: 1rem;
-	`,
-	Email: styled.p`
-		margin-top: 1rem;
-		font-size: 1rem;
-		border-bottom: 0.0625rem solid black;
-		padding-bottom: 1rem;
-		color: ${colors.greyText};
-		width: 100%;
-		text-align: left;
-	`,
-	Telephone: styled.p`
-		margin-top: 0.5rem;
-		font-size: 1rem;
-		border-bottom: 0.0625rem solid black;
-		padding-bottom: 1rem;
-		color: ${colors.greyText};
-		width: 100%;
-		text-align: left;
-	`,
-	SectionName: styled.span`
-		font-size: 1rem;
-		margin-top: 1.5rem;
-	`,
-	BlockButton: styled.button`
-		margin-top: 2rem;
-		padding: 0.5rem 1rem;
-		background-color: ${colors.lightBackground};
-		font-size: 1rem;
-		cursor: pointer;
-		border-radius: 0.6rem;
-		border: 0.0625rem solid #000;
-		box-shadow: 0.11578125rem 0.11578125rem 0 0 #000;
-	`,
-	CloseIcon: styled(CloseIcon)`
-		cursor: pointer;
-		position: absolute;
-	`,
+	ProfileDetail: styled.section({
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "flex-start",
+		padding: "2rem",
+		minWidth: "14rem",
+	}),
+	Avatar: styled(UserAvatar)({
+		alignSelf: "center",
+	}),
+	ChatName: styled.h4({
+		alignSelf: "center",
+		marginTop: "1rem",
+		fontSize: "1.5rem",
+		marginBottom: "1rem",
+	}),
+	Email: styled.p({
+		marginTop: "1rem",
+		fontSize: "1rem",
+		borderBottom: "0.0625rem solid black",
+		paddingBottom: "1rem",
+		color: colors.greyText,
+		width: "100%",
+		textAlign: "left",
+	}),
+	Telephone: styled.p({
+		marginTop: "0.5rem",
+		fontSize: "1rem",
+		borderBottom: "0.0625rem solid black",
+		paddingBottom: "1rem",
+		color: colors.greyText,
+		width: "100%",
+		textAlign: "left",
+	}),
+	SectionName: styled.span({
+		fontSize: "1rem",
+		marginTop: "1.5rem",
+	}),
+	BlockButton: styled.button({
+		marginTop: "2rem",
+		padding: "0.5rem 1rem",
+		backgroundColor: colors.lightBackground,
+		fontSize: "1rem",
+		cursor: "pointer",
+		borderRadius: "0.6rem",
+		border: "0.0625rem solid #000",
+		boxShadow: "0.11578125rem 0.11578125rem 0 0 #000",
+	}),
+	CloseIcon: styled(CloseIcon)({
+		cursor: "pointer",
+		position: "absolute",
+	}),
 };
 
 interface DirectChatProps {
