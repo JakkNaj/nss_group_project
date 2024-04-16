@@ -3,6 +3,7 @@ import { ChatPage } from "./pages/chat/ChatPage.tsx";
 import styled, { createGlobalStyle } from "styled-components";
 import { LoginPage } from "./pages/login/LoginPage.tsx";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { RegisterPage } from "./pages/register/RegisterPage.tsx";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -30,6 +31,7 @@ const App = () => {
 					<Routes>
 						<Route path="/chat" element={<ChatPage />} />
 						<Route path="/" element={<LoginPage />} />
+						<Route path="/register" element={<RegisterPage />} />
 					</Routes>
 				</Router>
 			</Styled.AppWrapper>
