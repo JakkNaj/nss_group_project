@@ -52,6 +52,7 @@ export const ChatStore = {
 		}
 		return [];
 	},
+	reset: () => useStore.setState(defaultState),
 };
 
 /* How to setup store zustand template

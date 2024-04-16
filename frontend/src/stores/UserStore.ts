@@ -27,4 +27,5 @@ export const UserStore = {
 	updateLoggedInUser: (user: UserType) => useUserStore.setState({ loggedInUser: user }),
 	getLoggedInUser: () => useUserStore.getState().loggedInUser,
 	getUserById: getUserById,
+	reset: () => useUserStore.setState(defaultUserState),
 };

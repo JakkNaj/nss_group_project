@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { UserAvatar } from "../../../components/UserAvatar.tsx";
 import { UserStore } from "../../../stores/UserStore.ts";
+import AccountMenu from "./AccountMenu.tsx";
+import { useNavigate } from "react-router-dom";
 
 const Styled = {
 	HeaderLayout: styled("div")({
@@ -36,13 +37,24 @@ export const ChatPageHeader = () => {
 		avatar: state.loggedInUser.avatar,
 	}));
 
+	const handleAccountClick = () => {
+		console.log("clicked on account");
+	};
+
+	const navigate = useNavigate();
+	const handleLogoutClick = () => {
+		console.log("clicked on logout");
+		UserStore.reset();
+		navigate("/"); //navigate to login page
+	};
+
 	return (
 		<Styled.HeaderLayout>
-			<Styled.Heading>Messages</Styled.Heading>
+			<Styled.Heading>Retro Chat : Messages</Styled.Heading>
 			<Styled.AvatarLayout>
 				<Styled.Username>{username}</Styled.Username>
 				<UserAvatar username={username} avatar={avatar} />
-				<KeyboardArrowDownIcon />
+				<AccountMenu onAccountClick={handleAccountClick} onLogoutClick={handleLogoutClick} />
 			</Styled.AvatarLayout>
 		</Styled.HeaderLayout>
 	);
