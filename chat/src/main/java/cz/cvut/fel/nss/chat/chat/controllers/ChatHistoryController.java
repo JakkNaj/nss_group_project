@@ -7,13 +7,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/")
+import java.util.List;
+
+@RestController("/chat")
 public class ChatHistoryController {
     @Autowired
     private ChatHistoryService chatHistoryService;
 
-    @GetMapping("/chat.getChatHistory")
+    @GetMapping("/getChatHistory")
     public ChatLog getChatHistory(@RequestParam("chatId") String chatId) {
         return chatHistoryService.getChatHistory(chatId);
+    }
+
+    @GetMapping("/getChatHistoryForUser")
+    public List<ChatLog> getChatHistoryForUser(@RequestParam("username") String username) {
+        return chatHistoryService.getChatHistoryForUser(username);
     }
 }

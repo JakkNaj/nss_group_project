@@ -21,6 +21,15 @@ public class ChatRoom {
     private String name;
     private ChatRoomType type;
     private List<String> members;
+    private ChatLog chatLog;
+
+    public ChatRoom(String id) {
+        this.id = id;
+        this.name = "Chatroom " + id;
+        this.type = ChatRoomType.GROUP;
+        this.members = new ArrayList<>();
+        this.chatLog = new ChatLog();
+    }
 
     public void addMember(String username) {
         if (members == null) {
@@ -31,5 +40,12 @@ public class ChatRoom {
 
     public enum ChatRoomType {
         ONE_ON_ONE, GROUP
+    }
+
+    public ChatLog getChatLog() {
+        if (chatLog == null) {
+            chatLog = new ChatLog();
+        }
+        return chatLog;
     }
 }

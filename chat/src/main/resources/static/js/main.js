@@ -65,7 +65,7 @@ let subscribeToChat = (chatId) => {
 
 let renderChatHistory = async () => {
     // Make a GET request using Fetch API
-    fetch(`http://localhost:8080/chat.getChatHistory?chatId=${chatId}`)
+    fetch(`http://localhost:8080/chat/getChatHistory?chatId=${chatId}`)
         .then(response => {
             // Check if the response was successful (status 200)
             if (!response.ok) {
