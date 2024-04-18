@@ -57,7 +57,7 @@ export const LoginPage = () => {
 			<StyledInputField.TextField
 				variant="outlined"
 				fullWidth
-				label="Email"
+				label="Username"
 				InputProps={{
 					startAdornment: (
 						<InputAdornment position="start">

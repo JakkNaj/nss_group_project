@@ -7,6 +7,8 @@ import Button from "@mui/material/Button";
 import { colors } from "../../styles/colors.ts";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
+import {UserStore} from "../../stores/UserStore.ts";
+import {UserType} from "../../model/types/UserType.ts";
 
 const Styled = {
 	Form: styled("form")({
@@ -45,20 +47,29 @@ const Styled = {
 
 export const RegisterPage = () => {
 	const navigate = useNavigate();
-	const [email, setEmail] = useState("");
+	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
-	const [emailError, setEmailError] = useState("");
+	const [name, setName] = useState("");
+	const [usernameError, setUsernameError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
+	const [nameError, setNameError] = useState("");
+	const [serverError, setServerError] = useState("");
 
-	const handleLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const handleRegister = async (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-		setEmailError("");
+		setUsernameError("");
 		setPasswordError("");
+		setNameError("");
 
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(email)) {
-			setEmailError("Please enter a valid email address.");
+		if (!username) {
+			setUsernameError("Username cannot be empty.");
+			return;
+		}
+
+		const nameRegex = /^[a-zA-Z]+\s[a-zA-Z]+$/;
+		if (!nameRegex.test(name)) {
+			setNameError("Please enter a valid name and surname with space in between them.");
 			return;
 		}
 
@@ -67,9 +78,50 @@ export const RegisterPage = () => {
 			return;
 		}
 
-		//todo send http request to backend, then on answer navigate to chat
-		navigate("/chat");
+		const credentials = {
+			username: username,
+			password: password,
+			name: name,
+			email: "" //todo Add the email field if it's required
+		};
+
+		try {
+			const response = await fetch('http://localhost:8081/users', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(credentials)
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				setServerError(errorData.message);
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			console.log(data);
+
+			const user = mapResponseToUserType(data);
+			UserStore.updateLoggedInUser(user);
+
+			navigate("/chat");
+		} catch (error) {
+			console.error(error);
+		}
 	};
+
+	function mapResponseToUserType(response: any): UserType {
+		return {
+			id: response.id || 0,
+			name: response.name || "",
+			email: response.email || "",
+			username: response.username || "",
+			phoneNumber: response.phoneNumber || "",
+			avatar: response.avatar || "",
+		};
+	}
 
 	return (
 		<Styled.Form>
@@ -77,11 +129,27 @@ export const RegisterPage = () => {
 			<StyledInputField.TextField
 				variant="outlined"
 				fullWidth
-				label="Email"
-				value={email}
-				onChange={(e) => setEmail(e.target.value)}
-				error={!!emailError}
-				helperText={emailError}
+				label="Name"
+				value={name}
+				onChange={(e) => setName(e.target.value)}
+				error={!!nameError}
+				helperText={nameError}
+				InputProps={{
+					startAdornment: (
+						<InputAdornment position="start">
+							<MailIcon />
+						</InputAdornment>
+					),
+				}}
+			/>
+			<StyledInputField.TextField
+				variant="outlined"
+				fullWidth
+				label="Username"
+				value={username}
+				onChange={(e) => setUsername(e.target.value)}
+				error={!!usernameError}
+				helperText={usernameError}
 				InputProps={{
 					startAdornment: (
 						<InputAdornment position="start">
@@ -123,7 +191,8 @@ export const RegisterPage = () => {
 					),
 				}}
 			/>
-			<Styled.SubmitButton variant="contained" type="submit" onClick={handleLogin}>
+			{serverError && <p>{serverError}</p>}
+			<Styled.SubmitButton variant="contained" type="submit" onClick={handleRegister}>
 				Register
 			</Styled.SubmitButton>
 			<Styled.P>

@@ -53,7 +53,7 @@ public class UsersService {
     }
 
     @Transactional
-    public void addUser(SignUpDto signUpDto) {
+    public UserEntity addUser(SignUpDto signUpDto) {
         basicValidation(signUpDto.getUsername());
         Optional<UserEntity> existingUser = userRepository.findByUsername(signUpDto.getUsername());
         UserEntity user = new UserEntity();
@@ -70,6 +70,7 @@ public class UsersService {
         userDetail.addDetail(user, UserDetailKey.EMAIL, signUpDto.getEmail());
         userDetail.addDetail(user, UserDetailKey.ACCOUNT_CREATED, LocalDate.now().toString());
         userDetailRepository.save(userDetail);
+        return user;
     }
 
     public void updateUser(UserEntityDto userEntityDto) {

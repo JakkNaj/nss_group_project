@@ -16,6 +16,7 @@ const defaultUserState: UserState = {
 		avatar: "",
 		name: "Adam Auro",
 		email: "adam.auro@example.com",
+		username: "adamíí",
 		phoneNumber: "123-456-7890",
 	},
 };

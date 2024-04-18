@@ -1,5 +1,6 @@
 package cz.cvut.fel.nss.backend.controllers;
 
+import cz.cvut.fel.nss.backend.entities.UserEntity;
 import cz.cvut.fel.nss.backend.entities.dto.*;
 import cz.cvut.fel.nss.backend.services.PictureService;
 import cz.cvut.fel.nss.backend.services.UsersService;
@@ -17,6 +18,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -27,12 +30,20 @@ public class UsersController {
     @Autowired
     PictureService pictureService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    //consumes = MediaType.APPLICATION_JSON_VALUE
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<String> addUser(@RequestPart SignUpDto credentials, @RequestPart("file") Optional<MultipartFile> file) {
-        userService.addUser(credentials);
-        pictureService.addPicture(file.orElse(null), credentials.getUsername());
-        return ResponseEntity.created(URI.create("/users/" + credentials.getUsername())).body("User added successfully");
+    public ResponseEntity<UserEntityDto> addUser(@RequestBody SignUpDto credentials) {
+        UserEntity newUser = userService.addUser(credentials);
+        UserEntityDto response = new UserEntityDto(newUser);
+        return ResponseEntity.created(URI.create("/users/" + newUser.getUsername())).body(response);
+    }
+
+    @PostMapping(value = "/{username}/profilePhoto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
+    public ResponseEntity<String> addProfilePhoto(@PathVariable String username, @RequestParam("file") MultipartFile file) {
+        pictureService.addPicture(file, username);
+        return ResponseEntity.created(URI.create("/users/" + username + "/profilePhoto")).body("Profile photo added successfully");
     }
 
     @PutMapping()

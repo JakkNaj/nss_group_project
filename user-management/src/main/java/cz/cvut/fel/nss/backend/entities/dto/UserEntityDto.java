@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UserEntityDto {
+    Long id;
     private String username;
     private String name;
     private AccountState accountState;
