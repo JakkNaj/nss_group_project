@@ -22,9 +22,8 @@ public class ChatHistoryService {
         return chatRoomRepository.findById(chatId).orElse(new ChatRoom()).getChatLog();
     }
 
-    public List<ChatLog> getChatHistoryForUser(String username) {
+    public List<ChatRoom> getChatHistoryForUser(String username) {
         return chatRoomRepository.findByMembersContaining(username).stream()
-                .map(ChatRoom::getChatLog)
                 .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,6 @@
 package cz.cvut.fel.nss.chat.chat.controllers;
 
+import cz.cvut.fel.nss.chat.chat.entities.ChatRoom;
 import cz.cvut.fel.nss.chat.chat.services.ChatHistoryService;
 import cz.cvut.fel.nss.chat.chat.entities.ChatLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class ChatHistoryController {
     }
 
     @GetMapping("/getChatHistoryForUser")
-    public List<ChatLog> getChatHistoryForUser(@RequestParam("username") String username) {
+    public List<ChatRoom> getChatHistoryForUser(@RequestParam("username") String username) {
         return chatHistoryService.getChatHistoryForUser(username);
     }
 }
