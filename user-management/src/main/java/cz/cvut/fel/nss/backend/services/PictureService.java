@@ -35,10 +35,10 @@ public class PictureService {
     private int maxProfilePhotoSize;
 
     @SneakyThrows
-    public void addPicture(MultipartFile file, String username) {
-        Optional<UserEntity> user = userRepository.findByUsername(username);
+    public void addPicture(MultipartFile file, int id) {
+        Optional<UserEntity> user = userRepository.findById(id);
         if (user.isEmpty() || user.get().getAccountState() == AccountState.DELETED) {
-            throw new NotFoundException("User with username " + username + " does not exist");
+            throw new NotFoundException("User with id " + id + " does not exist");
         }
         if (file == null) {
             file = new MockMultipartFile("default-user-icon-scaled.png", new FileInputStream("user-management/src/main/resources/assets/images/default-user-icon-scaled.png"));
@@ -51,24 +51,24 @@ public class PictureService {
                 throw new WrongFileException("File is not a valid image format");
             }
         }
-        PictureEntity pictureEntity = pictureRepository.findById(username).orElse(new PictureEntity());
+        PictureEntity pictureEntity = pictureRepository.findById(id).orElse(new PictureEntity());
         byte[] thumbnail = imageResizingService.createThumbnail(file.getBytes());
-        pictureEntity.savePicture(file.getBytes(), thumbnail, username, file.getContentType());
+        pictureEntity.savePicture(file.getBytes(), thumbnail, id, file.getContentType());
         pictureRepository.save(pictureEntity);
     }
 
-    public void deletePicture(String username) {
-        Optional<PictureEntity> picture = pictureRepository.findById(username);
+    public void deletePicture(int id) {
+        Optional<PictureEntity> picture = pictureRepository.findById(id);
         if (picture.isEmpty()) {
-            throw new NotFoundException("User with username " + username + " does not have a profile photo");
+            throw new NotFoundException("User with id " + id + " does not have a profile photo");
         }
-        pictureRepository.deleteById(username);
+        pictureRepository.deleteById(id);
     }
 
-    public byte[] getPicture(String username) {
-        Optional<PictureEntity> picture = pictureRepository.findById(username);
+    public byte[] getPicture(int id) {
+        Optional<PictureEntity> picture = pictureRepository.findById(id);
         if (picture.isEmpty()) {
-            throw new NotFoundException("User with username " + username + " does not have a profile photo");
+            throw new NotFoundException("User with id " + id + " does not have a profile photo");
         }
         return picture.get().getStoredPicture();
     }

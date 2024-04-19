@@ -52,8 +52,16 @@ public class UsersService {
         return user.get();
     }
 
+    public UserEntity findById(int id) {
+        Optional<UserEntity> user =  userRepository.findById(id);
+        if (user.isEmpty() || user.get().getAccountState() == AccountState.DELETED) {
+            throw new NotFoundException("User with id " + id + " does not exist");
+        }
+        return user.get();
+    }
+
     @Transactional
-    public void addUser(SignUpDto signUpDto) {
+    public UserEntity addUser(SignUpDto signUpDto) {
         basicValidation(signUpDto.getUsername());
         Optional<UserEntity> existingUser = userRepository.findByUsername(signUpDto.getUsername());
         UserEntity user = new UserEntity();
@@ -67,16 +75,17 @@ public class UsersService {
         userRepository.save(user);
 
         UserDetail userDetail = new UserDetail();
-        userDetail.addDetail(user, UserDetailKey.EMAIL, signUpDto.getEmail());
-        userDetail.addDetail(user, UserDetailKey.ACCOUNT_CREATED, LocalDate.now().toString());
+        userDetail.addDetail(findByUsername(signUpDto.getUsername()).getId(), UserDetailKey.EMAIL, signUpDto.getEmail());
+        userDetail.addDetail(findByUsername(signUpDto.getUsername()).getId(), UserDetailKey.DATE_CREATED, LocalDate.now().toString());
         userDetailRepository.save(userDetail);
+        return user;
     }
 
     public void updateUser(UserEntityDto userEntityDto) {
-        basicValidation(userEntityDto.getUsername());
-        Optional<UserEntity> existingUser = userRepository.findByUsername(userEntityDto.getUsername());
+        basicValidation(findById(userEntityDto.getId()).getUsername());
+        Optional<UserEntity> existingUser = userRepository.findById(userEntityDto.getId());
         if (existingUser.isEmpty() || existingUser.get().getAccountState() == AccountState.DELETED) {
-            throw new NotFoundException("User with username " + userEntityDto.getUsername() + " does not exist");
+            throw new NotFoundException("User with username " + findById(userEntityDto.getId()).getUsername() + " does not exist");
         }
         if (userEntityDto.getPassword() != null)
             existingUser.get().setPassword(userEntityDto.getPassword());
@@ -103,31 +112,42 @@ public class UsersService {
         }
     }
 
+    /**
+     * Won't update dateCreated
+     * @param userDetailDto
+     */
     public void updateUserDetail(UserDetailDto userDetailDto) {
-        UserEntity user = findByUsername(userDetailDto.getUsername());
-        UserDetail userDetail = userDetailRepository.findById(user.getUsername())
+        UserEntity user = findById(userDetailDto.getId());
+        UserDetail userDetail = userDetailRepository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("UserDetail with username " + user.getUsername() + " does not exist"));
-        userDetail.addDetail(user, UserDetailKey.EMAIL, userDetailDto.getEmail());
-        userDetail.addDetail(user, UserDetailKey.PHONE, userDetailDto.getPhone());
-        userDetail.addDetail(user, UserDetailKey.ADDRESS, userDetailDto.getAddress());
-        userDetail.addDetail(user, UserDetailKey.BIRTHDATE, userDetailDto.getBirthdate());
-        userDetail.addDetail(user, UserDetailKey.ACCOUNT_CREATED, userDetailDto.getAccountCreated());
+        userDetail.addDetail(user.getId(), UserDetailKey.EMAIL, userDetailDto.getEmail());
+        userDetail.addDetail(user.getId(), UserDetailKey.PHONE, userDetailDto.getPhone());
+        userDetail.addDetail(user.getId(), UserDetailKey.ADDRESS, userDetailDto.getAddress());
+        userDetail.addDetail(user.getId(), UserDetailKey.BIRTHDATE, userDetailDto.getBirthdate());
         userDetailRepository.save(userDetail);
     }
 
+    public CombinedUserDto getUser(int id) {
+        return getUserImplementation(findById(id));
+    }
+
     public CombinedUserDto getUser(String username) {
-        UserEntity user = findByUsername(username);
-        UserDetail userDetail = userDetailRepository.findById(user.getUsername()).orElseThrow(() -> new NotFoundException("UserDetail with username " + user.getUsername() + " does not exist"));
-        PictureEntity pictureEntity = pictureEntityRepository.findById(username).orElse(null);
+        return getUserImplementation(findByUsername(username));
+    }
+
+    private CombinedUserDto getUserImplementation(UserEntity user) {
+        UserDetail userDetail = userDetailRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("UserDetail with username " + user.getUsername() + " does not exist"));
+        PictureEntity pictureEntity = pictureEntityRepository.findById(user.getId()).orElse(null);
         CombinedUserDto combinedUserDto = new CombinedUserDto();
-        combinedUserDto.setUsername(username);
+        combinedUserDto.setId(user.getId());
+        combinedUserDto.setUsername(user.getUsername());
         combinedUserDto.setName(user.getName());
         combinedUserDto.setAccountState(user.getAccountState());
         combinedUserDto.setEmail(userDetail.getDetails().get(UserDetailKey.EMAIL));
         combinedUserDto.setPhone(userDetail.getDetails().get(UserDetailKey.PHONE));
         combinedUserDto.setAddress(userDetail.getDetails().get(UserDetailKey.ADDRESS));
         combinedUserDto.setBirthdate(userDetail.getDetails().get(UserDetailKey.BIRTHDATE));
-        combinedUserDto.setAccountCreated(userDetail.getDetails().get(UserDetailKey.ACCOUNT_CREATED));
+        combinedUserDto.setDateCreated(userDetail.getDetails().get(UserDetailKey.DATE_CREATED));
         if (pictureEntity != null) {
             String encodedImage = Base64.getEncoder().encodeToString(pictureEntity.getThumbnail());
             combinedUserDto.setThumbnail(encodedImage);

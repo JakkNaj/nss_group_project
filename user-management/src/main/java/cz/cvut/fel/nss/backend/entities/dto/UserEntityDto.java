@@ -10,13 +10,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UserEntityDto {
-    private String username;
+    private int id;
     private String name;
     private AccountState accountState;
     private String password;
 
     public UserEntityDto(UserEntity userEntity) {
-        this.username = userEntity.getUsername();
+        this.id = userEntity.getId();
         this.name = userEntity.getName();
         this.accountState = userEntity.getAccountState();
     }
