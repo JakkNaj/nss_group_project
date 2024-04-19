@@ -67,11 +67,6 @@ public class UsersController {
     @GetMapping("/{id}")
     public ResponseEntity<CombinedUserDto> getUserDetails(@PathVariable int id) {
         CombinedUserDto user = userService.getUser(id);
-        if (user.getAccountState() == AccountState.DELETED) {
-            CombinedUserDto deletedUser = new CombinedUserDto();
-            deletedUser.setAccountState(AccountState.DELETED);
-            return ResponseEntity.ok(deletedUser);
-        }
         return ResponseEntity.ok(user);
     }
 
