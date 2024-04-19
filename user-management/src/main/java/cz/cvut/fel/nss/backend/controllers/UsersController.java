@@ -33,7 +33,8 @@ public class UsersController {
     @PostMapping()
     public ResponseEntity<CombinedUserDto> addUser(@RequestBody SignUpDto credentials) {
         UserEntity user = userService.addUser(credentials);
-        CombinedUserDto response = userService.getUser(user.getUsername());
+        pictureService.addPicture(null, userService.findByUsername(credentials.getUsername()).getId());
+        CombinedUserDto response = userService.getUser(credentials.getUsername());
         return ResponseEntity.created(URI.create("/users" + user.getUsername())).body(response);
     }
 

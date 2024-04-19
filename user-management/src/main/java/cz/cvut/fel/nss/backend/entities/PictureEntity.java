@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Slf4j
 public class PictureEntity {
     @Id
-    private Integer id;
+    private int userId;
     private String contentType;
     private byte[] storedPicture;
     private byte[] thumbnail;
@@ -23,7 +23,7 @@ public class PictureEntity {
 
     public void savePicture(byte[] file, byte[] thumbnail, int id, String contentType) {
         if (storedPicture == null) {
-            this.id = id;
+            this.userId = id;
         }
         this.storedPicture = file;
         this.contentType = contentType;

@@ -128,16 +128,16 @@ public class UsersService {
     }
 
     public CombinedUserDto getUser(int id) {
-        return getUserImplementation(findById(id));
+        return getCombinedUserDtoFromUserEntity(findById(id));
     }
 
     public CombinedUserDto getUser(String username) {
-        return getUserImplementation(findByUsername(username));
+        return getCombinedUserDtoFromUserEntity(findByUsername(username));
     }
 
-    private CombinedUserDto getUserImplementation(UserEntity user) {
+    private CombinedUserDto getCombinedUserDtoFromUserEntity(UserEntity user) {
         UserDetail userDetail = userDetailRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("UserDetail with username " + user.getUsername() + " does not exist"));
-        PictureEntity pictureEntity = pictureEntityRepository.findById(user.getId()).orElse(null);
+        PictureEntity pictureEntity = pictureEntityRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("PictureEntity with username " + user.getUsername() + " does not exist"));
         CombinedUserDto combinedUserDto = new CombinedUserDto();
         combinedUserDto.setId(user.getId());
         combinedUserDto.setUsername(user.getUsername());
@@ -148,10 +148,8 @@ public class UsersService {
         combinedUserDto.setAddress(userDetail.getDetails().get(UserDetailKey.ADDRESS));
         combinedUserDto.setBirthdate(userDetail.getDetails().get(UserDetailKey.BIRTHDATE));
         combinedUserDto.setDateCreated(userDetail.getDetails().get(UserDetailKey.DATE_CREATED));
-        if (pictureEntity != null) {
-            String encodedImage = Base64.getEncoder().encodeToString(pictureEntity.getThumbnail());
-            combinedUserDto.setThumbnail(encodedImage);
-        }
+        String encodedImage = Base64.getEncoder().encodeToString(pictureEntity.getThumbnail());
+        combinedUserDto.setThumbnail(encodedImage);
         return combinedUserDto;
     }
 }

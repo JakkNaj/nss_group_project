@@ -36,12 +36,26 @@ public class PictureService {
 
     @SneakyThrows
     public void addPicture(MultipartFile file, int id) {
+        validateUser(id);
+        file = validateAndPrepareFile(file);
+        PictureEntity pictureEntity = pictureRepository.findById(id).orElse(new PictureEntity());
+        byte[] thumbnail = imageResizingService.createThumbnail(file.getBytes());
+        pictureEntity.savePicture(file.getBytes(), thumbnail, id, file.getContentType());
+        log.info("Saving picture for user with id {}", id);
+        pictureRepository.save(pictureEntity);
+    }
+
+    private void validateUser(int id) {
         Optional<UserEntity> user = userRepository.findById(id);
         if (user.isEmpty() || user.get().getAccountState() == AccountState.DELETED) {
             throw new NotFoundException("User with id " + id + " does not exist");
         }
+    }
+
+    @SneakyThrows
+    private MultipartFile validateAndPrepareFile(MultipartFile file) {
         if (file == null) {
-            file = new MockMultipartFile("default-user-icon-scaled.png", new FileInputStream("user-management/src/main/resources/assets/images/default-user-icon-scaled.png"));
+            return new MockMultipartFile("default-user-icon-scaled.png", new FileInputStream("user-management/src/main/resources/assets/images/default-user-icon-scaled.png"));
         } else {
             if (file.getSize() > maxProfilePhotoSize) {
                 throw new WrongFileException("File is too big");
@@ -51,10 +65,7 @@ public class PictureService {
                 throw new WrongFileException("File is not a valid image format");
             }
         }
-        PictureEntity pictureEntity = pictureRepository.findById(id).orElse(new PictureEntity());
-        byte[] thumbnail = imageResizingService.createThumbnail(file.getBytes());
-        pictureEntity.savePicture(file.getBytes(), thumbnail, id, file.getContentType());
-        pictureRepository.save(pictureEntity);
+        return file;
     }
 
     public void deletePicture(int id) {
