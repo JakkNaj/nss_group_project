@@ -5,5 +5,5 @@ public enum UserDetailKey {
     PHONE,
     ADDRESS,
     BIRTHDATE,
-    ACCOUNT_CREATED
+    DATE_CREATED
 }

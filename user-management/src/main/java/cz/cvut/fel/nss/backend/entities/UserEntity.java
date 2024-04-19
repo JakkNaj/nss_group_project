@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 )
 public class UserEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
     @Column(name = "username", nullable = false, length = 255, unique = true)
     private String username;
     @Column(name = "password", nullable = false, length = 255)
