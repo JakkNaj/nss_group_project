@@ -8,7 +8,7 @@ import { colors } from "../../styles/colors.ts";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import {UserStore} from "../../stores/UserStore.ts";
-import {UserType} from "../../model/types/UserType.ts";
+import {mapResponseToUserType} from "../../model/types/UserType.ts";
 import PersonIcon from '@mui/icons-material/Person';
 import {SignupDto} from "../../model/types/SignupDto.ts";
 
@@ -124,16 +124,7 @@ export const RegisterPage = () => {
 		}
 	};
 
-	function mapResponseToUserType(response: any): UserType {
-		return {
-			id: response.id || 0,
-			name: response.name || "",
-			email: response.email || "",
-			username: response.username || "",
-			phoneNumber: response.phoneNumber || "",
-			avatar: response.thumbnail || "",
-		};
-	}
+
 
 	return (
 		<Styled.Form>

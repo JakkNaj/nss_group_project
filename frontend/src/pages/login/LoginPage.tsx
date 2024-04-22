@@ -1,12 +1,14 @@
 import MailIcon from "@mui/icons-material/Mail";
-import LockIcon from "@mui/icons-material/Lock";
 import { StyledInputField } from "../chat/list/SearchField.tsx";
 import InputAdornment from "@mui/material/InputAdornment";
 import styled from "styled-components";
 import Button from "@mui/material/Button";
 import { colors } from "../../styles/colors.ts";
 import { Link, useNavigate } from "react-router-dom";
-import React from "react";
+import React, {useState} from "react";
+import {mapResponseToUserType} from "../../model/types/UserType.ts";
+import {UserStore} from "../../stores/UserStore.ts";
+import {PasswordInput} from "../../components/PasswordInput.tsx";
 
 const Styled = {
 	Form: styled("form")({
@@ -46,9 +48,55 @@ const Styled = {
 export const LoginPage = () => {
 	const navigate = useNavigate();
 
-	const handleLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
+	const [usernameError, setUsernameError] = useState("");
+	const [passwordError, setPasswordError] = useState("");
+	const [serverError, setServerError] = useState("");
+
+	const handleLogin = async (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-		navigate("/chat");
+
+		if (!username) {
+			setUsernameError("Username is required");
+			return;
+		} else if (username.length < 3) {
+			setUsernameError("Username must be at least 3 characters long");
+			return;
+		}
+
+		if (!password) {
+			setPasswordError("Password is required");
+			return;
+		}
+
+		try {
+			const response = await fetch("http://localhost:8081/login", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					username: username,
+					password: password,
+				},
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				setServerError(errorData.message);
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			console.log(data)
+
+			const user = mapResponseToUserType(data);
+			UserStore.updateLoggedInUser(user)
+
+			navigate("/chat");
+		} catch(error) {
+			console.error(error);
+		}
+
 	};
 
 	return (
@@ -58,6 +106,9 @@ export const LoginPage = () => {
 				variant="outlined"
 				fullWidth
 				label="Username"
+				onChange={e => setUsername(e.target.value)}
+				error={!!usernameError}
+				helperText={usernameError}
 				InputProps={{
 					startAdornment: (
 						<InputAdornment position="start">
@@ -66,18 +117,8 @@ export const LoginPage = () => {
 					),
 				}}
 			/>
-			<StyledInputField.TextField
-				variant="outlined"
-				fullWidth
-				label="Password"
-				InputProps={{
-					startAdornment: (
-						<InputAdornment position="start">
-							<LockIcon />
-						</InputAdornment>
-					),
-				}}
-			/>
+			<PasswordInput setPassword={setPassword} passwordError={passwordError}/>
+			{serverError && <p>{serverError}</p>}
 			<Styled.SubmitButton variant="contained" type="submit" onClick={handleLogin}>
 				Login
 			</Styled.SubmitButton>
