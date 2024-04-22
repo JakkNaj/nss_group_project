@@ -6,6 +6,8 @@ import { GroupChatDetail } from "./groupChatDetail/GroupChatDetail.tsx";
 import { ChatStore, State } from "../../../stores/ChatStore.ts";
 import { MessagesContainer } from "./messages/MessagesContainer.tsx";
 import { MessageInput } from "./messages/MessageInput.tsx";
+import {UserStore} from "../../../stores/UserStore.ts";
+import {useChat} from "../../../hooks/useChat.tsx";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
@@ -37,13 +39,24 @@ export const ChatWindow = () => {
 		activeChat: state.activeChat,
 	}));
 
+	if (!activeChat) {
+		return null; // or some fallback UI
+	}
+
+	const { sendMessage } = useChat({ username: UserStore.getLoggedInUser().username, chatId: activeChat.id });
+
+
 	const toggleRightSection = () => {
 		setRightSectionVisible(!rightSectionVisible);
 	};
 
-	const sendMessage = (message: string) => {
+	const handleSendMessage = (message: string) => {
 		console.log("sending: " + message);
 		//todo send message
+		if (!activeChat) return null;
+		if (message && activeChat) {
+			sendMessage({content: message});
+		}
 		return;
 	};
 
@@ -52,9 +65,9 @@ export const ChatWindow = () => {
 			<Styled.Content>
 				<div>
 					<ChatHeader toggleRightSection={toggleRightSection} />
-					<MessagesContainer />
+					<MessagesContainer messages={activeChat.messages}/>
 				</div>
-				<MessageInput onSend={sendMessage} />
+				<MessageInput onSend={handleSendMessage} />
 			</Styled.Content>
 			<Styled.RightSection $isVisible={rightSectionVisible}>
 				{activeChat?.type === "DIRECT" ? (

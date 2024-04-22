@@ -42,13 +42,11 @@ export const ChatPageHeader = ({ showProfileWindow }: ChatPageHeaderProps) => {
 	}));
 
 	const handleAccountClick = () => {
-		console.log("clicked on account");
 		showProfileWindow();
 	};
 
 	const navigate = useNavigate();
 	const handleLogoutClick = () => {
-		console.log("clicked on logout");
 		UserStore.reset();
 		navigate("/"); //navigate to login page
 	};

@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { ChatStore, State } from "../../../../stores/ChatStore.ts";
 import { Message } from "./Message.tsx";
 import { UserStore } from "../../../../stores/UserStore.ts";
+import {MessageType} from "../../../../model/types/MessageType.ts";
 
 const Styled = {
 	MessagesContainer: styled.div`
@@ -13,21 +13,21 @@ const Styled = {
 	`,
 };
 
-export const MessagesContainer = () => {
-	const { activeChat } = ChatStore.useStore((state: State) => ({
-		activeChat: state.activeChat,
-	}));
+interface MessagesContainerProps {
+	messages: MessageType[];
+}
 
+export const MessagesContainer = ({ messages }: MessagesContainerProps) => {
 	const userId = UserStore.getLoggedInUser().id;
 
-	if (!activeChat) {
+	if (!messages) {
 		return <div>Error: No active chat found.</div>;
 	}
 
 	return (
 		<Styled.MessagesContainer>
-			{activeChat.messages.map((message) => (
-				<Message key={message.id} message={message} userId={userId} />
+			{messages.map((message, index) => (
+				<Message key={index} message={message} userId={userId} />
 			))}
 		</Styled.MessagesContainer>
 	);
