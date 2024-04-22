@@ -1,4 +1,4 @@
-package cz.cvut.fel.nss.backend.config;
+package cz.cvut.fel.nss.user_management.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

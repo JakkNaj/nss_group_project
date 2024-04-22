@@ -9,6 +9,9 @@ import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import {UserStore} from "../../stores/UserStore.ts";
 import {UserType} from "../../model/types/UserType.ts";
+import PersonIcon from '@mui/icons-material/Person';
+import {SignupDto} from "../../model/types/SignupDto.ts";
+
 
 const Styled = {
 	Form: styled("form")({
@@ -49,10 +52,12 @@ export const RegisterPage = () => {
 	const navigate = useNavigate();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const [email, setEmail] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [name, setName] = useState("");
 	const [usernameError, setUsernameError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
+	const [emailError, setEmailError] = useState("");
 	const [nameError, setNameError] = useState("");
 	const [serverError, setServerError] = useState("");
 
@@ -60,6 +65,7 @@ export const RegisterPage = () => {
 		event.preventDefault();
 		setUsernameError("");
 		setPasswordError("");
+		setEmailError("")
 		setNameError("");
 
 		if (!username) {
@@ -78,11 +84,17 @@ export const RegisterPage = () => {
 			return;
 		}
 
-		const credentials = {
+		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+		if(!emailRegex.test(email)) {
+			setEmailError("Please enter a valid email address.");
+			return;
+		}
+
+		const credentials : SignupDto = {
 			username: username,
 			password: password,
 			name: name,
-			email: "" //todo Add the email field if it's required
+			email: email,
 		};
 
 		try {
@@ -119,7 +131,7 @@ export const RegisterPage = () => {
 			email: response.email || "",
 			username: response.username || "",
 			phoneNumber: response.phoneNumber || "",
-			avatar: response.avatar || "",
+			avatar: response.thumbnail || "",
 		};
 	}
 
@@ -129,7 +141,23 @@ export const RegisterPage = () => {
 			<StyledInputField.TextField
 				variant="outlined"
 				fullWidth
-				label="Name"
+				label="Email"
+				value={email}
+				onChange={(e) => setEmail(e.target.value)}
+				error={!!emailError}
+				helperText={emailError}
+				InputProps={{
+					startAdornment: (
+						<InputAdornment position="start">
+							<MailIcon />
+						</InputAdornment>
+					),
+				}}
+			/>
+			<StyledInputField.TextField
+				variant="outlined"
+				fullWidth
+				label="Name + Surname"
 				value={name}
 				onChange={(e) => setName(e.target.value)}
 				error={!!nameError}
@@ -137,7 +165,7 @@ export const RegisterPage = () => {
 				InputProps={{
 					startAdornment: (
 						<InputAdornment position="start">
-							<MailIcon />
+							<PersonIcon />
 						</InputAdornment>
 					),
 				}}
@@ -153,7 +181,7 @@ export const RegisterPage = () => {
 				InputProps={{
 					startAdornment: (
 						<InputAdornment position="start">
-							<MailIcon />
+							<PersonIcon />
 						</InputAdornment>
 					),
 				}}
