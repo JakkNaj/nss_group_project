@@ -1,0 +1,59 @@
+package cz.cvut.fel.nss.user_relations.controller;
+
+import cz.cvut.fel.nss.user_relations.service.FriendRequestService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+
+
+@RestController
+@RequestMapping("/friendRequest")
+public class FriendRequestController {
+    @Autowired
+    FriendRequestService friendRequestService;
+
+    @GetMapping("/{username}")
+    public ResponseEntity<String> getAllFriendRequests(
+            @PathVariable String username
+    ){
+        return ResponseEntity.of(Optional.ofNullable(friendRequestService.getAllFriendRequests(username).toString()));
+    }
+
+    @PostMapping("/{recipient}")
+    public ResponseEntity<String> sendFriendRequest(
+            @PathVariable String recipient,
+            String sender ////sender je Principal.getUsername()
+    ){
+        friendRequestService.sendFriendRequest(sender, recipient);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/accept/{sender}")
+    public ResponseEntity<String> acceptFriendRequest(
+            @PathVariable String sender,
+            String recipient ////recipient je Principal.getUsername()
+    ){
+        friendRequestService.acceptFriendRequest(sender, recipient);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/decline/{sender}")
+    public ResponseEntity<String> declineFriendRequest(
+            @PathVariable String sender,
+            String recipient ////recipient je Principal.getUsername()
+    ){
+        friendRequestService.declineFriendRequest(sender, recipient);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/delete/{recipient}")
+    public ResponseEntity<String> deleteFriendRequest(
+            @PathVariable String recipient,
+            String sender ////sender je Principal.getUsername()
+    ){
+        friendRequestService.deleteFriendRequest(sender, recipient);
+        return ResponseEntity.noContent().build();
+    }
+}
