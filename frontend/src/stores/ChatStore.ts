@@ -34,6 +34,7 @@ export const useChatStore = create<State>((set, get) => ({
 					chats: updatedChats,
 					directChats: updatedChats.filter((chat) => chat.type === EChatType.DIRECT),
 					groupChats: updatedChats.filter((chat) => chat.type === EChatType.GROUP),
+					activeChat: state.activeChat?.id === chatId ? updatedChat : state.activeChat,
 				};
 			}
 			return state;
@@ -56,11 +57,14 @@ export const ChatStore = {
 		useChatStore.setState({ activeChat: chat });
 	},
 	getChatUsers(chatId: number): UserType[] {
-		const chat = findChat(chatId);
+		const chat = this.findChat(chatId);
 		if (chat) {
 			return chat.users.map((userId : number) => UserStore.getUserById(userId)).filter((user): user is UserType => user !== undefined);
 		}
 		return [];
+	},
+	findChat: (chatId: number): ChatType | undefined => {
+		return useChatStore.getState().chats.find((chat) => chat.id === chatId);
 	},
 	initializeStore: async (username : string) => {
 		try {
@@ -85,7 +89,3 @@ export const ChatStore = {
 		}
 	},
 };
-
-const findChat = (chatId: number): ChatType | undefined => {
-	return useChatStore.getState().chats.find((chat) => chat.id === chatId);
-}

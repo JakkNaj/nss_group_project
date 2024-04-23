@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import { UserAvatar } from "../../../components/UserAvatar.tsx";
-import { ChatStore, State } from "../../../stores/ChatStore.ts";
-import { colors } from "../../../styles/colors.ts";
-import { UserStore } from "../../../stores/UserStore.ts";
+import { UserAvatar } from "../../../../components/UserAvatar.tsx";
+import { ChatStore, State } from "../../../../stores/ChatStore.ts";
+import { colors } from "../../../../styles/colors.ts";
+import { UserStore } from "../../../../stores/UserStore.ts";
 import CloseIcon from "@mui/icons-material/Close";
 
 const Styled = {

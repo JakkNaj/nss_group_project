@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { ChatHeader } from "./ChatHeader.tsx";
 import { useState } from "react";
-import { DirectChatDetail } from "./DirectChatDetail.tsx";
+import { DirectChatDetail } from "./directChatDetail/DirectChatDetail.tsx";
 import { GroupChatDetail } from "./groupChatDetail/GroupChatDetail.tsx";
 import { ChatStore, State } from "../../../stores/ChatStore.ts";
 import { MessagesContainer } from "./messages/MessagesContainer.tsx";
@@ -40,24 +40,27 @@ export const ChatWindow = () => {
 	}));
 
 	if (!activeChat) {
-		return null; // or some fallback UI
+		//activeChat is null only when there are no chats
+		return (
+			<div>
+				Add friends to start chatting
+			</div>
+		);
 	}
 
-	const { sendMessage } = useChat({ username: UserStore.getLoggedInUser().username, chatId: activeChat.id });
-
+	const { sendMessage } = useChat({ username: UserStore.getLoggedInUser().username,
+														  chatIds: ChatStore.useStore().chats.map(chat => chat.id) });
 
 	const toggleRightSection = () => {
 		setRightSectionVisible(!rightSectionVisible);
 	};
 
 	const handleSendMessage = (message: string) => {
-		console.log("sending: " + message);
-		//todo send message
+		console.log("sending: " + message + " to chat: " + activeChat.id);
 		if (!activeChat) return null;
 		if (message && activeChat) {
-			sendMessage({content: message});
+			sendMessage({content: message, chatId: activeChat.id});
 		}
-		return;
 	};
 
 	return (

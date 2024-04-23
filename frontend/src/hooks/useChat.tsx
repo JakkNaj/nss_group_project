@@ -4,47 +4,56 @@ import {IMessage, Stomp} from '@stomp/stompjs';
 import { CompatClient } from '@stomp/stompjs';
 import {ChatStore} from "../stores/ChatStore.ts";
 import { MessageType } from "../model/types/MessageType.ts";
-import {EChatType} from "../model/enums/EChatType.ts";
 
 interface UseChatProps {
   username: string;
-  chatId: number;
+  chatIds: number[];
 }
 
-export const useChat = ({ username, chatId }: UseChatProps) => {
-  const [stompClient, setStompClient] = useState<CompatClient | null>(null);
+export const useChat = ({ username, chatIds }: UseChatProps) => {
+  const [stompClients, setStompClients] = useState<CompatClient[]>([]);
+  const { updateChatWithNewMessage } = ChatStore.useStore((state) => ({
+    updateChatWithNewMessage: state.updateChatWithNewMessage,
+  }));
 
   useEffect(() => {
-    if (username && chatId) {
-      const socket = new SockJS('http://localhost:8080/start-websocket-communication');
-      const client = Stomp.over(socket);
-      client.connect({}, () => {
-        client.subscribe(`/topic/${chatId}`, onMessageReceived);
-        client.send("/app/chat.addUser", {}, JSON.stringify({
-          messageLogId: chatId,
-          sender: username,
-          content: null,
-          type: 'JOIN',
-          timestampInSeconds: Math.floor(Date.now() / 1000)
-        }));
-      }, onError);
-      setStompClient(client);
+    if (username && chatIds.length > 0) {
+      const clients = chatIds.map(chatId => {
+        const socket = new SockJS('http://localhost:8080/start-websocket-communication');
+        const client = Stomp.over(socket);
+        client.connect({}, () => {
+          client.subscribe(`/topic/${chatId}`, onMessageReceived);
+          client.send("/app/chat.addUser", {}, JSON.stringify({
+            messageLogId: chatId,
+            sender: username,
+            content: null,
+            type: 'JOIN',
+            timestampInSeconds: Math.floor(Date.now() / 1000)
+          }));
+        }, onError);
+        return client;
+      });
+      setStompClients(clients);
     }
-  }, [username, chatId]);
+  }, [username, chatIds]);
 
   interface SendMessageProps {
     content: string;
+    chatId: number;
   }
 
-  const sendMessage = ({ content }: SendMessageProps) => {
-    if (content && stompClient) {
-      stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({
-        messageLogId: chatId,
-        sender: username,
-        content: content,
-        type: 'CHAT',
-        timestampInSeconds: Math.floor(Date.now() / 1000)
-      }));
+  const sendMessage = ({ content, chatId }: SendMessageProps) => {
+    if (content ) {
+      const stompClient = stompClients.find(client => client.connected);
+      if (stompClient) {
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({
+          messageLogId: chatId,
+          sender: username,
+          content: content,
+          type: 'CHAT',
+          timestampInSeconds: Math.floor(Date.now() / 1000)
+        }));
+      }
     }
   };
 
@@ -56,18 +65,15 @@ export const useChat = ({ username, chatId }: UseChatProps) => {
       timestamp: payload.timestampInSeconds,
       type: payload.type,
     };
+    const chatId = payload.messageLogId;
     const chat = ChatStore.findChat(chatId);
     if (chat) {
-      if (chat.type === EChatType.DIRECT) {
-        ChatStore.updateDirectChatWithNewMessage(chatId, newMessage);
-      } else if (chat.type === EChatType.GROUP) {
-        ChatStore.updateGroupChatWithNewMessage(chatId, newMessage);
-      }
+      updateChatWithNewMessage(chatId, newMessage);
     }
   };
 
   const onError = () => {
-    // Handle error
+    console.log('Error: websocket error');
   };
 
   return { sendMessage };
