@@ -8,9 +8,9 @@ import { colors } from "../../styles/colors.ts";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import {UserStore} from "../../stores/UserStore.ts";
-import {mapResponseToUserType} from "../../model/types/UserType.ts";
 import PersonIcon from '@mui/icons-material/Person';
 import {SignupDto} from "../../model/types/SignupDto.ts";
+import {ChatStore} from "../../stores/ChatStore.ts";
 
 
 const Styled = {
@@ -98,29 +98,13 @@ export const RegisterPage = () => {
 		};
 
 		try {
-			const response = await fetch('http://localhost:8081/users', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(credentials)
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				setServerError(errorData.message);
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-
-			const data = await response.json();
-			console.log(data);
-
-			const user = mapResponseToUserType(data);
-			UserStore.updateLoggedInUser(user);
+			const user = await UserStore.register(credentials);
+			await ChatStore.initializeStore(user.username);
 
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);
+			setServerError((error as Error).message);
 		}
 	};
 

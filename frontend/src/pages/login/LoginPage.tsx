@@ -6,9 +6,9 @@ import Button from "@mui/material/Button";
 import { colors } from "../../styles/colors.ts";
 import { Link, useNavigate } from "react-router-dom";
 import React, {useState} from "react";
-import {mapResponseToUserType} from "../../model/types/UserType.ts";
 import {UserStore} from "../../stores/UserStore.ts";
 import {PasswordInput} from "../../components/PasswordInput.tsx";
+import {ChatStore} from "../../stores/ChatStore.ts";
 
 const Styled = {
 	Form: styled("form")({
@@ -71,30 +71,12 @@ export const LoginPage = () => {
 		}
 
 		try {
-			const response = await fetch("http://localhost:8081/login", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					username: username,
-					password: password,
-				},
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				setServerError(errorData.message);
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-
-			const data = await response.json();
-			console.log(data)
-
-			const user = mapResponseToUserType(data);
-			UserStore.updateLoggedInUser(user)
-
+			const user = await UserStore.login(username, password);
+			await ChatStore.initializeStore(user.username);
 			navigate("/chat");
-		} catch(error) {
+		} catch (error) {
 			console.error(error);
+			setServerError((error as Error).message);
 		}
 
 	};
