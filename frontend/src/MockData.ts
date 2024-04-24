@@ -9,6 +9,7 @@ export const usersData: UserType[] = [
 		name: "Adam Auro",
 		email: "adam.auro@example.com",
 		phoneNumber: "123-456-7890",
+		username: "adam.auro",
 	},
 	{
 		id: 2,
@@ -16,6 +17,7 @@ export const usersData: UserType[] = [
 		name: "Jane Doe",
 		email: "jane.doe@example.com",
 		phoneNumber: "234-567-8901",
+		username: "jane.doe",
 	},
 	{
 		id: 3,
@@ -23,6 +25,7 @@ export const usersData: UserType[] = [
 		name: "Kristin Watson",
 		email: "kristin.watson@example.com",
 		phoneNumber: "345-678-9012",
+		username: "kristin.watson",
 	},
 	{
 		id: 4,
@@ -30,6 +33,7 @@ export const usersData: UserType[] = [
 		name: "Dianne Russell",
 		email: "dianne.russell@example.com",
 		phoneNumber: "456-789-0123",
+		username: "dianne.russell",
 	},
 	{
 		id: 5,
@@ -37,6 +41,7 @@ export const usersData: UserType[] = [
 		name: "Wade Warren",
 		email: "wade.warren@example.com",
 		phoneNumber: "567-890-1234",
+		username: "wade.warren",
 	},
 	{
 		id: 6,
@@ -44,6 +49,7 @@ export const usersData: UserType[] = [
 		name: "Tobias Le",
 		email: "tobias.le@example.com",
 		phoneNumber: "678-901-2345",
+		username: "tobias.le",
 	},
 	{
 		id: 7,
@@ -51,6 +57,7 @@ export const usersData: UserType[] = [
 		name: "Adam Schuppler",
 		email: "adam.schuppler@example.com",
 		phoneNumber: "789-012-3456",
+		username: "adam.schuppler",
 	},
 ];
 
@@ -61,8 +68,8 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Direct Chat 1",
 		messages: [
-			{ text: "Hey, how are you?", idSender: 1, id: 1, timestamp: new Date("2023-01-01T10:00:00Z") },
-			{ text: "I'm good, thanks! How about you?", idSender: 2, id: 2, timestamp: new Date("2023-01-01T10:05:00Z") },
+			{ text: "Hey, how are you?", idSender: 1, timestamp: new Date("2023-01-01T10:00:00Z") },
+			{ text: "I'm good, thanks! How about you?", idSender: 2, timestamp: new Date("2023-01-01T10:05:00Z") },
 		],
 		users: [1, 2],
 	},
@@ -72,9 +79,9 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Volleyball Group Chat",
 		messages: [
-			{ text: "Hello everyone!", idSender: 3, id: 3, timestamp: new Date("2023-01-02T10:00:00Z") },
-			{ text: "Hi!", idSender: 4, id: 4, timestamp: new Date("2023-01-02T10:05:00Z") },
-			{ text: "Hey!", idSender: 1, id: 5, timestamp: new Date("2023-01-02T10:10:00Z") },
+			{ text: "Hello everyone!", idSender: 3, timestamp: new Date("2023-01-02T10:00:00Z") },
+			{ text: "Hi!", idSender: 4, timestamp: new Date("2023-01-02T10:05:00Z") },
+			{ text: "Hey!", idSender: 1, timestamp: new Date("2023-01-02T10:10:00Z") },
 		],
 		users: [3, 4, 1],
 	},
@@ -84,8 +91,8 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Direct Chat 2",
 		messages: [
-			{ text: "Did you finish the task?", idSender: 6, id: 6, timestamp: new Date("2023-01-03T10:00:00Z") },
-			{ text: "Yes, I just submitted it.", idSender: 1, id: 7, timestamp: new Date("2023-01-03T10:05:00Z") },
+			{ text: "Did you finish the task?", idSender: 6, timestamp: new Date("2023-01-03T10:00:00Z") },
+			{ text: "Yes, I just submitted it.", idSender: 1, timestamp: new Date("2023-01-03T10:05:00Z") },
 		],
 		users: [6, 1],
 	},
@@ -95,9 +102,9 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Group Chat 1",
 		messages: [
-			{ text: "Let's meet at 5pm", idSender: 1, id: 8, timestamp: new Date("2023-01-04T10:00:00Z") },
-			{ text: "Sounds good!", idSender: 3, id: 9, timestamp: new Date("2023-01-04T10:05:00Z") },
-			{ text: "I'll be there.", idSender: 5, id: 10, timestamp: new Date("2023-01-04T10:10:00Z") },
+			{ text: "Let's meet at 5pm", idSender: 1, timestamp: new Date("2023-01-04T10:00:00Z") },
+			{ text: "Sounds good!", idSender: 3, timestamp: new Date("2023-01-04T10:05:00Z") },
+			{ text: "I'll be there.", idSender: 5, timestamp: new Date("2023-01-04T10:10:00Z") },
 		],
 		users: [1, 3, 5],
 	},
@@ -107,8 +114,8 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Direct Chat 3",
 		messages: [
-			{ text: "Are you coming to the meeting?", idSender: 4, id: 11, timestamp: new Date("2023-01-05T10:00:00Z") },
-			{ text: "Yes, I'll be there in 10 minutes.", idSender: 1, id: 12, timestamp: new Date("2023-01-05T10:05:00Z") },
+			{ text: "Are you coming to the meeting?", idSender: 4, timestamp: new Date("2023-01-05T10:00:00Z") },
+			{ text: "Yes, I'll be there in 10 minutes.", idSender: 1, timestamp: new Date("2023-01-05T10:05:00Z") },
 		],
 		users: [4, 1],
 	},
@@ -118,9 +125,9 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Group Chat 2",
 		messages: [
-			{ text: "The project deadline is next week.", idSender: 7, id: 13, timestamp: new Date("2023-01-06T10:00:00Z") },
-			{ text: "We need to speed up.", idSender: 6, id: 14, timestamp: new Date("2023-01-06T10:05:00Z") },
-			{ text: "I agree. Let's divide the tasks.", idSender: 1, id: 15, timestamp: new Date("2023-01-06T10:10:00Z") },
+			{ text: "The project deadline is next week.", idSender: 7, timestamp: new Date("2023-01-06T10:00:00Z") },
+			{ text: "We need to speed up.", idSender: 6, timestamp: new Date("2023-01-06T10:05:00Z") },
+			{ text: "I agree. Let's divide the tasks.", idSender: 1, timestamp: new Date("2023-01-06T10:10:00Z") },
 		],
 		users: [7, 6, 1],
 	},
@@ -130,8 +137,8 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Direct Chat 4",
 		messages: [
-			{ text: "Can you help me with this bug?", idSender: 5, id: 16, timestamp: new Date("2023-01-07T10:00:00Z") },
-			{ text: "Sure, let's look at it together.", idSender: 1, id: 17, timestamp: new Date("2023-01-07T10:05:00Z") },
+			{ text: "Can you help me with this bug?", idSender: 5, timestamp: new Date("2023-01-07T10:00:00Z") },
+			{ text: "Sure, let's look at it together.", idSender: 1, timestamp: new Date("2023-01-07T10:05:00Z") },
 		],
 		users: [5, 1],
 	},

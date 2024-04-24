@@ -48,9 +48,11 @@ export const ChatWindow = () => {
 		);
 	}
 
+	/*
+	//todo remove when backend works
 	const { sendMessage } = useChat({ username: UserStore.getLoggedInUser().username,
 														  chatIds: ChatStore.useStore().chats.map(chat => chat.id) });
-
+	*/
 	const toggleRightSection = () => {
 		setRightSectionVisible(!rightSectionVisible);
 	};
@@ -59,7 +61,8 @@ export const ChatWindow = () => {
 		console.log("sending: " + message + " to chat: " + activeChat.id);
 		if (!activeChat) return null;
 		if (message && activeChat) {
-			sendMessage({content: message, chatId: activeChat.id});
+			//todo remove when backend works
+			//sendMessage({content: message, chatId: activeChat.id});
 		}
 	};
 

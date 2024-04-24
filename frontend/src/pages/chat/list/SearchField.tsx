@@ -2,6 +2,8 @@ import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import styled from "styled-components";
+import Autocomplete from '@mui/material/Autocomplete';
+import {ChatStore} from "../../../stores/ChatStore.ts";
 
 export const StyledInputField = {
 	TextField: styled(TextField)({
@@ -22,17 +24,37 @@ export const StyledInputField = {
 };
 
 export const SearchField = () => {
+	const chats = ChatStore.useStore(state => state.chats);
+
+	const handleChatSelect = (_event : React.ChangeEvent<{}> ,value: string | null) => {
+		if (value) {
+			const selectedChat = chats.find(chat => chat.name == value);
+			if (selectedChat) {
+				ChatStore.updateActiveChat(selectedChat.id);
+			}
+		}
+	}
+
 	return (
-		<StyledInputField.TextField
-			variant="outlined"
-			fullWidth
-			InputProps={{
-				startAdornment: (
-					<InputAdornment position="start">
-						<SearchIcon />
-					</InputAdornment>
-				),
-			}}
+		<Autocomplete
+			options={chats.map(chat => chat.name)}
+			getOptionLabel={(option) => option}
+			renderInput={(params) => (
+				<StyledInputField.TextField
+					{...params}
+					variant="outlined"
+					fullWidth
+					InputProps={{
+						...params.InputProps,
+						startAdornment: (
+							<InputAdornment position="start">
+								<SearchIcon />
+							</InputAdornment>
+						),
+					}}
+				/>
+			)}
+			onChange={handleChatSelect}
 		/>
 	);
 };

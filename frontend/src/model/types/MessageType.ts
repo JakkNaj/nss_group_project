@@ -2,5 +2,5 @@ export type MessageType = {
 	text: string;
 	idSender: number;
 	timestamp: Date;
-	type: string;
+	//type: string; todo: add type
 };

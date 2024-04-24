@@ -4,6 +4,7 @@ import { ChatType } from "../model/types/ChatType";
 import { UserStore } from "./UserStore.ts";
 import { UserType } from "../model/types/UserType.ts";
 import {MessageType} from "../model/types/MessageType.ts";
+import {chatsData as mockData} from "../MockData.ts";
 
 export type State = {
 	chats: ChatType[];
@@ -13,7 +14,7 @@ export type State = {
 	updateChatWithNewMessage: (chatId: number, message: MessageType) => void;
 };
 
-export const useChatStore = create<State>((set, get) => ({
+export const useChatStore = create<State>((set) => ({
 	chats: [],
 	directChats: [],
 	groupChats: [],
@@ -84,8 +85,26 @@ export const ChatStore = {
 			const chatsData = await chatResponse.json();
 			ChatStore.initializeChats(chatsData);
 		} catch (error) {
-			console.error(error);
 			throw error;
 		}
+	},
+	getLastMessageFromChat: (chatId: number) => {
+		const chat = useChatStore.getState().chats.find((chat) => chat.id === chatId);
+		if (chat) {
+			return chat.messages[chat.messages.length - 1];
+		}
+		return null;
+	},
+	getChatName: (chatId: number) => {
+		const chat = useChatStore.getState().chats.find((chat) => chat.id === chatId);
+		if (chat) {
+			return chat.name;
+		}
+		return "";
+	},
+	initializeStoreWithMockData: () => {
+		console.log("initializing chat store with mock data");
+		const chatsData = mockData;
+		ChatStore.initializeChats(chatsData);
 	},
 };

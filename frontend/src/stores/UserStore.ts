@@ -49,6 +49,7 @@ export const UserStore = {
 			const data = await response.json();
 			const user = mapResponseToUserType(data);
 			useUserStore.setState({ loggedInUser: user });
+			//todo fetch users data (friends)
 			return user;
 		} catch (error) {
 			console.error(error);

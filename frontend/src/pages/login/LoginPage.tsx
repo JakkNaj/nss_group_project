@@ -71,8 +71,10 @@ export const LoginPage = () => {
 		}
 
 		try {
-			const user = await UserStore.login(username, password);
-			await ChatStore.initializeStore(user.username);
+			//todo remove using mock data
+			//const user = await UserStore.login(username, password);
+			//await ChatStore.initializeStore(user.username);
+			ChatStore.initializeStoreWithMockData();
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);
