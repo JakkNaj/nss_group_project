@@ -28,7 +28,7 @@ public class ChatService {
         this.chatMessageRepository = chatMessageRepository;
     }
 
-    public void saveMessage(ChatMessage message) {
+    public void saveAndSendMessage(ChatMessage message) {
         log.trace("Saving message {}", message);
         Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(message.getMessageLogId());
         if (optionalChatRoom.isEmpty()) {
@@ -38,33 +38,36 @@ public class ChatService {
                                     message.getMessageLogId(),
                                     "Chatroom " + message.getMessageLogId(),
                                     ChatRoom.ChatRoomType.GROUP,
-                                    List.of(message.getSender()
+                                    List.of(message.getSenderId()
                                     )
                             )
                     );
             chatRoomRepository.save(optionalChatRoom.get());
         }
 
-        if (!optionalChatRoom.get().getMembers().contains(message.getSender())) {
-            log.warn("User {} is not a member of chatroom {}", message.getSender(), message.getMessageLogId());
-            throw new BadRequestException("User" + message.getSender() + " is not a member of chatroom " + message.getMessageLogId());
+        if (!optionalChatRoom.get().getMembers().contains(message.getSenderId())) {
+            log.warn("User {} is not a member of chatroom {}", message.getSenderId(), message.getMessageLogId());
+            throw new BadRequestException("User " + message.getSenderId() + " is not a member of chatroom " + message.getMessageLogId());
         }
         chatMessageRepository.save(message);
         kafkaChatMessageProducerService.sendMessage(message);
     }
 
     public void addUserToChat(ChatMessage chatMessage) {
-        log.trace("Adding user {} to chatroom {}", chatMessage.getSender(), chatMessage.getMessageLogId());
+        log.trace("Adding user {} to chatroom {}", chatMessage.getSenderId(), chatMessage.getMessageLogId());
         String messageLogId = chatMessage.getMessageLogId();
-        String username = chatMessage.getSender();
+        Integer senderId = chatMessage.getSenderId();
 
         ChatRoom chatRoom = chatRoomRepository.findById(messageLogId)
                 .orElse(new ChatRoom(messageLogId,
                         "Chatroom " + messageLogId,
                         ChatRoom.ChatRoomType.GROUP,
                         new ArrayList<>()));
-        chatRoom.addMember(username);
-        chatRoomRepository.save(chatRoom);
+        if (!chatRoom.getMembers().contains(senderId)) {
+            log.trace("Adding user {} to chatroom {}", senderId, messageLogId);
+            chatRoom.addMember(senderId);
+            chatRoomRepository.save(chatRoom);
+        }
         kafkaChatMessageProducerService.sendMessage(chatMessage);
     }
 }

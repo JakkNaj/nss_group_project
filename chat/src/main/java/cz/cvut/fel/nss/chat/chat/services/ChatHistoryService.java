@@ -38,4 +38,8 @@ public class ChatHistoryService {
     public List<ChatMessage> searchChatHistoryByContent(String messageLogId, String content) {
         return chatMessageRepository.findAllByMessageLogIdAndContentIsLikeIgnoreCase(messageLogId, content);
     }
+
+    public void deleteAll() {
+        chatMessageRepository.deleteAll();
+    }
 }

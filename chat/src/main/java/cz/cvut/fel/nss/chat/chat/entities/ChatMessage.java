@@ -28,7 +28,7 @@ public class ChatMessage {
     @Field(type = FieldType.Text, includeInParent = true)
     private String content;
     @Field(type = FieldType.Keyword, includeInParent = true)
-    private String sender;
+    private Integer senderId;
     @Field(type = FieldType.Keyword, includeInParent = true)
     private MessageType type;
     @Field(type = FieldType.Long, includeInParent = true)
@@ -38,7 +38,7 @@ public class ChatMessage {
         try {
             this.messageLogId = jsonObject.getString("messageLogId");
             this.content = jsonObject.getString("content");
-            this.sender = jsonObject.getString("sender");
+            this.senderId = jsonObject.getInt("senderId");
             this.type = MessageType.valueOf(jsonObject.getString("type"));
             this.timestampInSeconds = jsonObject.getLong("timestampInSeconds");
         } catch (JSONException e) {
@@ -51,14 +51,14 @@ public class ChatMessage {
         return "ChatMessage{" +
                 "messageLogId='" + messageLogId + '\'' +
                 ", content='" + content + '\'' +
-                ", sender='" + sender + '\'' +
+                ", senderId='" + senderId + '\'' +
                 ", type=" + type +
                 ", timestampInSeconds=" + timestampInSeconds +
                 '}';
     }
 
     public ChatMessageDto toDto() {
-        return new ChatMessageDto(id, content, sender, type, timestampInSeconds);
+        return new ChatMessageDto(id, content, senderId, type, timestampInSeconds);
     }
 
     public enum MessageType {

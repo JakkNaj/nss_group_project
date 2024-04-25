@@ -18,4 +18,9 @@ public class ChatHistoryController {
     public ChatLog getChatHistory(@RequestParam("chatId") String chatId) {
         return chatHistoryService.getChatHistory(chatId);
     }
+
+    @GetMapping("/deleteForTesting")
+    public void deleteAll() {
+        chatHistoryService.deleteAll();
+    }
 }
