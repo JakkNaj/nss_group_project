@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ChatRoom {
     @Id
-    private String id;
+    private Integer chatLogId;
     private String name;
     private ChatRoomType type;
     private List<Integer> members;
