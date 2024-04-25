@@ -1,8 +1,17 @@
 package cz.cvut.fel.nss.chat.chat.entities;
 
-import lombok.*;
+import cz.cvut.fel.nss.chat.chat.dto.ChatMessageDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 
 @Getter
@@ -10,11 +19,19 @@ import org.json.JSONObject;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Document(indexName = "chat-messages")
 public class ChatMessage {
+    @Id
+    private String id;
+    @Field(type = FieldType.Keyword, includeInParent = true)
     private String messageLogId;
+    @Field(type = FieldType.Text, includeInParent = true)
     private String content;
+    @Field(type = FieldType.Keyword, includeInParent = true)
     private String sender;
+    @Field(type = FieldType.Keyword, includeInParent = true)
     private MessageType type;
+    @Field(type = FieldType.Long, includeInParent = true)
     private long timestampInSeconds;
 
     public ChatMessage(JSONObject jsonObject) {
@@ -38,6 +55,10 @@ public class ChatMessage {
                 ", type=" + type +
                 ", timestampInSeconds=" + timestampInSeconds +
                 '}';
+    }
+
+    public ChatMessageDto toDto() {
+        return new ChatMessageDto(id, content, sender, type, timestampInSeconds);
     }
 
     public enum MessageType {

@@ -20,12 +20,13 @@ public class KafkaChatListenerService {
     }
 
     @KafkaListener(topics = "allChatMessages", groupId = "chat")
-    public void listen(String chatMessage) {
-        log.info("Received message: {}", chatMessage);
+    public void sendMessageToFrontend(String chatMessage) {
         try {
             JSONObject jsonObject = new JSONObject(chatMessage);
+            log.trace("Sending message to frontend for chat {}", jsonObject.getString("messageLogId"));
             chatController.sendMessageToClient(jsonObject.getString("messageLogId"), new ChatMessage(jsonObject));
         } catch (JSONException e) {
+            log.error("Issue making JSON from message", e);
             throw new RuntimeException("Issue making JSON from message", e);
         }
     }
