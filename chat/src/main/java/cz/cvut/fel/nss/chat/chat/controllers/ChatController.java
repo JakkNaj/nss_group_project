@@ -14,6 +14,7 @@ import java.util.Objects;
 
 @Controller
 @Slf4j
+@MessageMapping("/chat")
 public class ChatController {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatService chatService;
@@ -24,7 +25,7 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @MessageMapping("/chat.sendMessage")
+    @MessageMapping("/sendMessage")
     public void sendMessage(@Payload ChatMessage chatMessage) {
         chatService.saveMessage(chatMessage);
     }
@@ -36,7 +37,7 @@ public class ChatController {
      * @param headerAccessor The header accessor
      * @return The chat message
      */
-    @MessageMapping("/chat.addUser")
+    @MessageMapping("/addUser")
     public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
         Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("username", chatMessage.getSender());
         chatService.addUserToChat(chatMessage);

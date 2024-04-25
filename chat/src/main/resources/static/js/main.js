@@ -55,7 +55,7 @@ let subscribeToChat = (chatId) => {
         timestampInSeconds: Math.floor(Date.now() / 1000)
     };
 
-    stompClient.send("/app/chat.addUser",
+    stompClient.send("/app/chat/addUser",
         {},
         JSON.stringify(chatMessage)
     );
@@ -65,7 +65,7 @@ let subscribeToChat = (chatId) => {
 
 let renderChatHistory = async () => {
     // Make a GET request using Fetch API
-    fetch(`http://localhost:8080/chat.getChatHistory?chatId=${chatId}`)
+    fetch(`http://localhost:8080/chat-history?chatId=${chatId}`)
         .then(response => {
             // Check if the response was successful (status 200)
             if (!response.ok) {
@@ -105,7 +105,7 @@ function sendMessage(event) {
             timestampInSeconds: Math.floor(Date.now() / 1000)
         };
 
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        stompClient.send("/app/chat/sendMessage", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
     }
     event.preventDefault();
