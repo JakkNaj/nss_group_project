@@ -32,6 +32,11 @@
 			<artifactId>imgscalr-lib</artifactId>
 			<version>4.2</version>
 		</dependency>
+		<dependency>
+			<groupId>cz.cvut.fel.nss</groupId>
+			<artifactId>global_logging</artifactId>
+			<version>${parent.version}</version>
+		</dependency>
     </dependencies>
 
     <build>
