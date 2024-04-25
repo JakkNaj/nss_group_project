@@ -24,7 +24,7 @@ public class ChatMessage {
     @Id
     private String id;
     @Field(type = FieldType.Keyword, includeInParent = true)
-    private String messageLogId;
+    private Integer messageLogId;
     @Field(type = FieldType.Text, includeInParent = true)
     private String content;
     @Field(type = FieldType.Keyword, includeInParent = true)
