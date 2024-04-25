@@ -1,16 +1,32 @@
 import { useState } from 'react';
 import { Button, TextField } from '@mui/material';
-import { ChatStore } from '../../../stores/ChatStore';
-import { useChat } from '../../../hooks/useChat';
+import { ChatRoomStore } from '../../../stores/ChatRoomStore.ts';
+import {useChat} from "../../../hooks/useChat.tsx";
+import {UserStore} from "../../../stores/UserStore.ts";
 
-const DirectChatConnect = () => {
+interface DirectChatConnectProps {
+    toggleProfileWindow: () => void;
+}
+
+export const DirectChatConnect = ({toggleProfileWindow} : DirectChatConnectProps) => {
     const [chatId, setChatId] = useState('');
+    const { sendMessage } = useChat({ userId: UserStore.getLoggedInUser().id });
 
-    const handleConnect = () => {
+    const handleConnect = async () => {
         const id = parseInt(chatId);
         if (!isNaN(id)) {
-            ChatStore.updateActiveChat(id);
-            useChat({ username: 'username', chatId: id });
+            try {
+                const chatRoom = await ChatRoomStore.getChatRoom(id);
+                if (chatRoom) {
+                    await ChatRoomStore.setActiveChatRoom(chatRoom);
+                    toggleProfileWindow();
+                    sendMessage({ content: 'User has joined the chat', chatId: chatRoom.chatLogId, type: 'JOIN' });
+                } else {
+                    console.error('Chat room not found');
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
     };
 
@@ -29,5 +45,3 @@ const DirectChatConnect = () => {
         </div>
     );
 };
-
-export default DirectChatConnect;

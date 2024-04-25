@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
-import { ChatStore, State } from "../../../../stores/ChatStore.ts";
+import { ChatRoomStore, State } from "../../../../stores/ChatRoomStore.ts";
 import { colors } from "../../../../styles/colors.ts";
 import { UserStore } from "../../../../stores/UserStore.ts";
 import CloseIcon from "@mui/icons-material/Close";
@@ -65,8 +65,8 @@ interface DirectChatProps {
 }
 
 export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
-	const { activeChat } = ChatStore.useStore((state: State) => ({
-		activeChat: state.activeChat,
+	const { activeChat } = ChatRoomStore.useStore((state: State) => ({
+		activeChat: state.activeChatRoom,
 	}));
 
 	//this should not happen
@@ -74,7 +74,7 @@ export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
 		return <div>Error: No active chat found.</div>;
 	}
 
-	const otherUsers = ChatStore.getChatUsers(activeChat.id);
+	const otherUsers = ChatRoomStore.getChatUsers(activeChat.chatLogId);
 
 	//this should not happen
 	if (!otherUsers) {

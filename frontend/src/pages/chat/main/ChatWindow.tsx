@@ -3,10 +3,12 @@ import { ChatHeader } from "./ChatHeader.tsx";
 import { useState } from "react";
 import { DirectChatDetail } from "./directChatDetail/DirectChatDetail.tsx";
 import { GroupChatDetail } from "./groupChatDetail/GroupChatDetail.tsx";
-import { ChatStore, State } from "../../../stores/ChatStore.ts";
+import { ChatRoomStore, State } from "../../../stores/ChatRoomStore.ts";
 import { MessagesContainer } from "./messages/MessagesContainer.tsx";
 import { MessageInput } from "./messages/MessageInput.tsx";
 import {useChat} from "../../../hooks/useChat.tsx";
+import {useChatLogStore} from "../../../stores/ChatLogStore.ts";
+import {UserStore} from "../../../stores/UserStore.ts";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
@@ -34,11 +36,15 @@ const Styled = {
 export const ChatWindow = () => {
 	const [rightSectionVisible, setRightSectionVisible] = useState(false);
 
-	const { activeChat } = ChatStore.useStore((state: State) => ({
-		activeChat: state.activeChat,
+	const { activeChatLog } = useChatLogStore((state) => ({
+		activeChatLog: state.activeChatLog,
 	}));
 
-	if (!activeChat) {
+	const { activeChatRoom } = ChatRoomStore.useStore((state: State) => ({
+		activeChatRoom: state.activeChatRoom,
+	}));
+
+	if (!activeChatLog) {
 		//activeChat is null only when there are no chats
 		return (
 			<div>
@@ -47,19 +53,17 @@ export const ChatWindow = () => {
 		);
 	}
 
-	// todo Uncomment the following line when the backend is ready
-	// const { sendMessage } = useChat({ userId: UserStore.getLoggedInUser().id });
+	const { sendMessage } = useChat({ userId: UserStore.getLoggedInUser().id });
 
 	const toggleRightSection = () => {
 		setRightSectionVisible(!rightSectionVisible);
 	};
 
 	const handleSendMessage = (message: string) => {
-		console.log("sending: " + message + " to chat: " + activeChat.id);
-		if (!activeChat) return null;
-		if (message && activeChat) {
-			//todo remove when backend works
-			//sendMessage({content: message, chatId: activeChat.id});
+		console.log("sending: " + message + " to chat: " + activeChatLog.id);
+		if (!activeChatLog) return null;
+		if (message && activeChatLog) {
+			sendMessage({content: message, chatId: activeChatLog.id});
 		}
 	};
 
@@ -68,12 +72,12 @@ export const ChatWindow = () => {
 			<Styled.Content>
 				<div>
 					<ChatHeader toggleRightSection={toggleRightSection} />
-					<MessagesContainer messages={activeChat.messages}/>
+					<MessagesContainer messages={activeChatLog.messages}/>
 				</div>
 				<MessageInput onSend={handleSendMessage} />
 			</Styled.Content>
 			<Styled.RightSection $isVisible={rightSectionVisible}>
-				{activeChat?.type === "ONE_ON_ONE" ? (
+				{activeChatRoom?.type === "ONE_ON_ONE" ? (
 					<DirectChatDetail onBackClick={toggleRightSection} />
 				) : (
 					<GroupChatDetail onBackClick={toggleRightSection} />

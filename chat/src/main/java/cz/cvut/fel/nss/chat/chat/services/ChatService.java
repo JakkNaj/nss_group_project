@@ -55,7 +55,7 @@ public class ChatService {
 
     public void addUserToChat(ChatMessage chatMessage) {
         log.trace("Adding user {} to chatroom {}", chatMessage.getSenderId(), chatMessage.getMessageLogId());
-        String messageLogId = chatMessage.getMessageLogId();
+        Integer messageLogId = chatMessage.getMessageLogId();
         Integer senderId = chatMessage.getSenderId();
 
         ChatRoom chatRoom = chatRoomRepository.findById(messageLogId)

@@ -63,7 +63,7 @@ export const usersData: UserType[] = [
 
 export const chatsData: ChatRoomType[] = [
 	{
-		id: 1,
+		chatLogId: 1,
 		type: EChatType.ONE_ON_ONE,
 		avatar: "",
 		name: "Direct Chat 1",
@@ -74,7 +74,7 @@ export const chatsData: ChatRoomType[] = [
 		members: [1, 2],
 	},
 	{
-		id: 2,
+		chatLogId: 2,
 		type: EChatType.GROUP,
 		avatar: "",
 		name: "Volleyball Group Chat",
@@ -86,7 +86,7 @@ export const chatsData: ChatRoomType[] = [
 		members: [3, 4, 1],
 	},
 	{
-		id: 3,
+		chatLogId: 3,
 		type: EChatType.ONE_ON_ONE,
 		avatar: "",
 		name: "Direct Chat 2",
@@ -97,7 +97,7 @@ export const chatsData: ChatRoomType[] = [
 		members: [6, 1],
 	},
 	{
-		id: 4,
+		chatLogId: 4,
 		type: EChatType.GROUP,
 		avatar: "",
 		name: "Group Chat 1",
@@ -109,7 +109,7 @@ export const chatsData: ChatRoomType[] = [
 		members: [1, 3, 5],
 	},
 	{
-		id: 5,
+		chatLogId: 5,
 		type: EChatType.ONE_ON_ONE,
 		avatar: "",
 		name: "Direct Chat 3",
@@ -120,7 +120,7 @@ export const chatsData: ChatRoomType[] = [
 		members: [4, 1],
 	},
 	{
-		id: 6,
+		chatLogId: 6,
 		type: EChatType.GROUP,
 		avatar: "",
 		name: "Group Chat 2",
@@ -132,7 +132,7 @@ export const chatsData: ChatRoomType[] = [
 		members: [7, 6, 1],
 	},
 	{
-		id: 7,
+		chatLogId: 7,
 		type: EChatType.ONE_ON_ONE,
 		avatar: "",
 		name: "Direct Chat 4",

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { UserAvatar } from "../../../components/UserAvatar.tsx";
-import { ChatStore, State } from "../../../stores/ChatStore.ts";
+import { ChatRoomStore, State } from "../../../stores/ChatRoomStore.ts";
 
 const Styled = {
 	ChatHeader: styled("div")({
@@ -46,8 +46,8 @@ type ChatHeaderProps = {
 };
 
 export const ChatHeader = (props: ChatHeaderProps) => {
-	const { activeChat } = ChatStore.useStore((state: State) => ({
-		activeChat: state.activeChat,
+	const { activeChat } = ChatRoomStore.useStore((state: State) => ({
+		activeChat: state.activeChatRoom,
 	}));
 
 	if (!activeChat) {
@@ -57,9 +57,9 @@ export const ChatHeader = (props: ChatHeaderProps) => {
 	return (
 		<Styled.ChatHeader>
 			<Styled.AvatarLayout>
-				<UserAvatar username={ChatStore.getChatName(activeChat.id)} avatar={activeChat?.avatar} />
+				<UserAvatar username={ChatRoomStore.getChatName(activeChat.chatLogId)} avatar={activeChat?.avatar} />
 				<Styled.UsernameStatusLayout>
-					<Styled.Username>{ChatStore.getChatName(activeChat.id)}</Styled.Username>
+					<Styled.Username>{ChatRoomStore.getChatName(activeChat.chatLogId)}</Styled.Username>
 					<Styled.Status>online 7m ago</Styled.Status>
 				</Styled.UsernameStatusLayout>
 			</Styled.AvatarLayout>

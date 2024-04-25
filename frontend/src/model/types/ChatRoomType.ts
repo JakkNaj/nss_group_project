@@ -1,12 +1,9 @@
 import { EChatType } from "../enums/EChatType.ts";
-import { MessageType } from "./MessageType.ts";
 
 export type ChatRoomType = {
-	id: string; 		//elastic search
+	chatLogId: number;
 	name: string;
 	type: EChatType;
 	members: number[];
 	avatar: string;
-	messages: MessageType[];
-	//todo add message log to each chat
 };

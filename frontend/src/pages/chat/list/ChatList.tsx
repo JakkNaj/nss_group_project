@@ -1,10 +1,11 @@
 import { SearchField } from "./SearchField.tsx";
 import ChatListItems from "./ChatListItems.tsx";
 import styled from "styled-components";
-import { State } from "../../../stores/ChatStore.ts";
-import { ChatStore } from "../../../stores/ChatStore.ts";
+import { State } from "../../../stores/ChatRoomStore.ts";
+import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
 import { colors } from "../../../styles/colors.ts";
 import Button from "@mui/material/Button";
+import {DirectChatConnect} from "./DirectChatConnect.tsx";
 
 const Styled = {
 	ChatListLayout: styled("div")({
@@ -32,7 +33,7 @@ interface ChatListProps {
 }
 
 export const ChatList = ({ showChatWindow }: ChatListProps) => {
-	const { directChats, groupChats } = ChatStore.useStore((state: State) => ({
+	const { directChats, groupChats } = ChatRoomStore.useStore((state: State) => ({
 		directChats: state.directChats,
 		groupChats: state.groupChats,
 	}));
@@ -48,6 +49,7 @@ export const ChatList = ({ showChatWindow }: ChatListProps) => {
 	return (
 		<Styled.ChatListLayout>
 			<SearchField />
+			<DirectChatConnect toggleProfileWindow={showChatWindow}/>
 			<Styled.ListSection>
 				<ChatListItems sectionName="Friends" chats={directChats} displayRowsNumber={6} toggleProfileWindow={showChatWindow} />
 				<Styled.Button variant="contained" onClick={handleAddFriends}>

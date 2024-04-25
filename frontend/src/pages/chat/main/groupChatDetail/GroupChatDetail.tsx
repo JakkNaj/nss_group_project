@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
-import { ChatStore, State } from "../../../../stores/ChatStore.ts";
+import { ChatRoomStore, State } from "../../../../stores/ChatRoomStore.ts";
 import { useState } from "react";
 import { GroupUserDetail } from "./GroupUserDetail.tsx";
 import { UserType } from "../../../../model/types/UserType.ts";
@@ -52,8 +52,8 @@ interface GroupChatProps {
 }
 
 export const GroupChatDetail = ({ onBackClick }: GroupChatProps) => {
-	const { activeChat } = ChatStore.useStore((state: State) => ({
-		activeChat: state.activeChat,
+	const { activeChat } = ChatRoomStore.useStore((state: State) => ({
+		activeChat: state.activeChatRoom,
 	}));
 
 	//this should not happen
@@ -61,7 +61,7 @@ export const GroupChatDetail = ({ onBackClick }: GroupChatProps) => {
 		return <div>Error: No active chat found.</div>;
 	}
 
-	const otherUsers = ChatStore.getChatUsers(activeChat.id);
+	const otherUsers = ChatRoomStore.getChatUsers(activeChat.chatLogId);
 
 	//this should not happen
 	if (!otherUsers) {

@@ -10,7 +10,7 @@ import React, { useState } from "react";
 import {UserStore} from "../../stores/UserStore.ts";
 import PersonIcon from '@mui/icons-material/Person';
 import {SignupDto} from "../../model/types/SignupDto.ts";
-import {ChatStore} from "../../stores/ChatStore.ts";
+import {ChatRoomStore} from "../../stores/ChatRoomStore.ts";
 
 
 const Styled = {
@@ -99,7 +99,7 @@ export const RegisterPage = () => {
 
 		try {
 			const user = await UserStore.register(credentials);
-			await ChatStore.initializeStore(user.username);
+			await ChatRoomStore.initializeStore(user.username);
 
 			navigate("/chat");
 		} catch (error) {

@@ -8,7 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import React, {useState} from "react";
 import {UserStore} from "../../stores/UserStore.ts";
 import {PasswordInput} from "../../components/PasswordInput.tsx";
-import {ChatStore} from "../../stores/ChatStore.ts";
+import {ChatRoomStore} from "../../stores/ChatRoomStore.ts";
 
 const Styled = {
 	Form: styled("form")({
@@ -73,8 +73,8 @@ export const LoginPage = () => {
 		try {
 			//todo remove using mock data
 			//const user = await UserStore.login(username, password);
-			//await ChatStore.initializeStore(user.username);
-			ChatStore.initializeStoreWithMockData();
+			//await ChatRoomStore.initializeStore(user.username);
+			//ChatRoomStore.initializeStoreWithMockData();
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);

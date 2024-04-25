@@ -1,7 +1,8 @@
 import { List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
 import { UserAvatar } from "../../../components/UserAvatar.tsx";
 import { ChatRoomType } from "../../../model/types/ChatRoomType.ts";
-import { ChatStore } from "../../../stores/ChatStore.ts";
+import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
+import {ChatLogStore} from "../../../stores/ChatLogStore.ts";
 
 type ChatListItemsProps = {
 	sectionName: string;
@@ -12,7 +13,7 @@ type ChatListItemsProps = {
 
 const ChatListItems = ({ sectionName, chats, displayRowsNumber, toggleProfileWindow }: ChatListItemsProps) => {
 	const getLastMessage = (chatId: number) => {
-		const message = ChatStore.getLastMessageFromChat(chatId);
+		const message = ChatLogStore.getLastMessageFromChatLog(chatId);
 		if (message) {
 			return message.content.substring(0, 30) + (message.content.length > 20 ? "..." : "");
 		} else {
@@ -21,7 +22,7 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, toggleProfileWin
 	};
 
 	const handleChatItemClick = (chatId: number) => {
-		ChatStore.updateActiveChat(chatId);
+		ChatRoomStore.updateActiveChatRoom(chatId);
 		toggleProfileWindow();
 	};
 
@@ -30,13 +31,13 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, toggleProfileWin
 			<h3>{sectionName}</h3>
 			{chats.slice(0, displayRowsNumber).map((chat) => (
 				<ListItem
-					key={chat.id}
+					key={chat.chatLogId}
 					alignItems="flex-start"
 					sx={{ padding: 0, paddingBottom: "22px" }}
-					onClick={() => handleChatItemClick(chat.id)}
+					onClick={() => handleChatItemClick(chat.chatLogId)}
 				>
 					<ListItemAvatar>
-						<UserAvatar username={ChatStore.getChatName(chat.id)} avatar={chat.avatar} />
+						<UserAvatar username={ChatRoomStore.getChatName(chat.chatLogId)} avatar={chat.avatar} />
 					</ListItemAvatar>
 					<div
 						style={{
@@ -46,7 +47,7 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, toggleProfileWin
 							maxWidth: "100%",
 						}}
 					>
-						<ListItemText primary={ChatStore.getChatName(chat.id)} secondary={getLastMessage(chat.id)} />
+						<ListItemText primary={ChatRoomStore.getChatName(chat.chatLogId)} secondary={getLastMessage(chat.chatLogId)} />
 					</div>
 				</ListItem>
 			))}

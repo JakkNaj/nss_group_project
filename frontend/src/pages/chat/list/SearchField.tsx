@@ -3,7 +3,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import styled from "styled-components";
 import Autocomplete from '@mui/material/Autocomplete';
-import {ChatStore} from "../../../stores/ChatStore.ts";
+import {ChatRoomStore} from "../../../stores/ChatRoomStore.ts";
 
 export const StyledInputField = {
 	TextField: styled(TextField)({
@@ -24,13 +24,13 @@ export const StyledInputField = {
 };
 
 export const SearchField = () => {
-	const chats = ChatStore.useStore(state => state.chats);
+	const chats = ChatRoomStore.useStore(state => state.chats);
 
 	const handleChatSelect = (_event : React.ChangeEvent<{}> ,value: string | null) => {
 		if (value) {
 			const selectedChat = chats.find(chat => chat.name == value);
 			if (selectedChat) {
-				ChatStore.updateActiveChat(selectedChat.id);
+				ChatRoomStore.updateActiveChatRoom(selectedChat.chatLogId);
 			}
 		}
 	}

@@ -5,7 +5,7 @@ import { colors } from "../../../../styles/colors.ts";
 import { useState } from "react";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
 import { UserStore } from "../../../../stores/UserStore.ts";
-import { ChatStore } from "../../../../stores/ChatStore.ts";
+import { ChatRoomStore } from "../../../../stores/ChatRoomStore.ts";
 
 const Styled = {
 	MessageContainer: styled.div<{ $isUserMessage: boolean }>`
@@ -47,8 +47,8 @@ export const Message = ({ message, userId }: MessageProps) => {
 	const [showTimestamp, setShowTimestamp] = useState(false);
 	const sender = UserStore.getUserById(message.idSender);
 
-	const { activeChat } = ChatStore.useStore((state) => ({
-		activeChat: state.activeChat,
+	const { activeChat } = ChatRoomStore.useStore((state) => ({
+		activeChat: state.activeChatRoom,
 	}));
 
 	//should not happen

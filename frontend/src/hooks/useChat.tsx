@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import {IMessage, Stomp} from '@stomp/stompjs';
 import { CompatClient } from '@stomp/stompjs';
-import {ChatStore} from "../stores/ChatStore.ts";
+import {ChatRoomStore} from "../stores/ChatRoomStore.ts";
 import { MessageType } from "../model/types/MessageType.ts";
+import {useChatLogStore} from "../stores/ChatLogStore.ts";
 
 export const useChat = ({ userId }: { userId: number }) => {
   const [stompClient, setStompClient] = useState<CompatClient | null>(null);
-  const { updateChatWithNewMessage } = ChatStore.useStore((state) => ({
-    updateChatWithNewMessage: state.updateChatWithNewMessage,
+  const { updateChatLogWithNewMessage, activeChatLog } = useChatLogStore((state) => ({
+    updateChatLogWithNewMessage: state.updateChatLogWithNewMessage,
+    activeChatLog: state.activeChatLog,
   }));
+
 
   useEffect(() => {
     if (userId) {
@@ -33,12 +36,16 @@ export const useChat = ({ userId }: { userId: number }) => {
     };
   }, [userId]);
 
-  const sendMessage = ({ content, recipient }: { content: string; recipient: string }) => {
-    if (content && recipient && stompClient?.connected) {
-      stompClient.send(`/app/user.sendMessage/${recipient}`, {}, JSON.stringify({
+  const sendMessage = ({ content, chatId, type='CHAT' }: { content: string; chatId: number; type?: string }) => {
+    if (!activeChatLog) {
+      console.error('No active chat log, cannot send message!');
+    }
+    else if (content && chatId && stompClient?.connected) {
+      stompClient.send(`/app/user.sendMessage/${chatId}`, {}, JSON.stringify({
+        messageLogId: activeChatLog.id,
         senderId: userId,
         content: content,
-        type: 'CHAT',
+        type: type,
         timestampInSeconds: Math.floor(Date.now() / 1000)
       }));
     }
@@ -47,26 +54,26 @@ export const useChat = ({ userId }: { userId: number }) => {
   const onMessageReceived = (message: IMessage) => {
     const payload = JSON.parse(message.body);
     const newMessage: MessageType = {
+      messageLogId: payload.messageLogId,
       idSender: payload.sender,
       content: payload.content,
       timestamp: payload.timestampInSeconds,
       type: payload.type,
     };
-    const chatId = payload.messageLogId; //todo add message log to each chat
 
     switch (newMessage.type) {
       case 'JOIN':
         // Update the chat to indicate that a user has joined
-        ChatStore.addUserToChat(chatId, newMessage.idSender);
-        updateChatWithNewMessage(chatId, newMessage);
+        ChatRoomStore.addUserToChat(newMessage.messageLogId, newMessage.idSender);
+        updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
         break;
       case 'LEAVE':
         // Update the chat to indicate that a user has left
-        ChatStore.removeUserFromChat(chatId, newMessage.idSender);
-        updateChatWithNewMessage(chatId, newMessage);
+        ChatRoomStore.removeUserFromChat(newMessage.messageLogId, newMessage.idSender);
+        updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
         break;
       case 'CHAT':
-        updateChatWithNewMessage(chatId, newMessage);
+        updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
         break;
       default:
         console.log(`Received unknown message type: ${newMessage.type}`);
