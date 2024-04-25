@@ -14,7 +14,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @Document(indexName = "log-message")
 public class LogEntity {
     @Id
-    private String id;
+    private String logId;
 
     @Field(type = FieldType.Keyword)
     private String sourceComponent;
