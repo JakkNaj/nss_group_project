@@ -1,11 +1,11 @@
 import { List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
 import { UserAvatar } from "../../../components/UserAvatar.tsx";
-import { ChatType } from "../../../model/types/ChatType.ts";
+import { ChatRoomType } from "../../../model/types/ChatRoomType.ts";
 import { ChatStore } from "../../../stores/ChatStore.ts";
 
 type ChatListItemsProps = {
 	sectionName: string;
-	chats: ChatType[];
+	chats: ChatRoomType[];
 	displayRowsNumber: number;
 	toggleProfileWindow: () => void;
 };
@@ -14,7 +14,7 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, toggleProfileWin
 	const getLastMessage = (chatId: number) => {
 		const message = ChatStore.getLastMessageFromChat(chatId);
 		if (message) {
-			return message.text.substring(0, 30) + (message.text.length > 20 ? "..." : "");
+			return message.content.substring(0, 30) + (message.content.length > 20 ? "..." : "");
 		} else {
 			return "no messages yet";
 		}

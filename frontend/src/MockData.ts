@@ -1,5 +1,5 @@
 import { EChatType } from "./model/enums/EChatType";
-import { ChatType } from "./model/types/ChatType.ts";
+import { ChatRoomType } from "./model/types/ChatRoomType.ts";
 import { UserType } from "./model/types/UserType.ts";
 
 export const usersData: UserType[] = [
@@ -61,17 +61,17 @@ export const usersData: UserType[] = [
 	},
 ];
 
-export const chatsData: ChatType[] = [
+export const chatsData: ChatRoomType[] = [
 	{
 		id: 1,
-		type: EChatType.DIRECT,
+		type: EChatType.ONE_ON_ONE,
 		avatar: "",
 		name: "Direct Chat 1",
 		messages: [
-			{ text: "Hey, how are you?", idSender: 1, timestamp: new Date("2023-01-01T10:00:00Z") },
-			{ text: "I'm good, thanks! How about you?", idSender: 2, timestamp: new Date("2023-01-01T10:05:00Z") },
+			{ content: "Hey, how are you?", idSender: 1, timestamp: new Date("2023-01-01T10:00:00Z") },
+			{ content: "I'm good, thanks! How about you?", idSender: 2, timestamp: new Date("2023-01-01T10:05:00Z") },
 		],
-		users: [1, 2],
+		members: [1, 2],
 	},
 	{
 		id: 2,
@@ -79,22 +79,22 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Volleyball Group Chat",
 		messages: [
-			{ text: "Hello everyone!", idSender: 3, timestamp: new Date("2023-01-02T10:00:00Z") },
-			{ text: "Hi!", idSender: 4, timestamp: new Date("2023-01-02T10:05:00Z") },
-			{ text: "Hey!", idSender: 1, timestamp: new Date("2023-01-02T10:10:00Z") },
+			{ content: "Hello everyone!", idSender: 3, timestamp: new Date("2023-01-02T10:00:00Z") },
+			{ content: "Hi!", idSender: 4, timestamp: new Date("2023-01-02T10:05:00Z") },
+			{ content: "Hey!", idSender: 1, timestamp: new Date("2023-01-02T10:10:00Z") },
 		],
-		users: [3, 4, 1],
+		members: [3, 4, 1],
 	},
 	{
 		id: 3,
-		type: EChatType.DIRECT,
+		type: EChatType.ONE_ON_ONE,
 		avatar: "",
 		name: "Direct Chat 2",
 		messages: [
-			{ text: "Did you finish the task?", idSender: 6, timestamp: new Date("2023-01-03T10:00:00Z") },
-			{ text: "Yes, I just submitted it.", idSender: 1, timestamp: new Date("2023-01-03T10:05:00Z") },
+			{ content: "Did you finish the task?", idSender: 6, timestamp: new Date("2023-01-03T10:00:00Z") },
+			{ content: "Yes, I just submitted it.", idSender: 1, timestamp: new Date("2023-01-03T10:05:00Z") },
 		],
-		users: [6, 1],
+		members: [6, 1],
 	},
 	{
 		id: 4,
@@ -102,22 +102,22 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Group Chat 1",
 		messages: [
-			{ text: "Let's meet at 5pm", idSender: 1, timestamp: new Date("2023-01-04T10:00:00Z") },
-			{ text: "Sounds good!", idSender: 3, timestamp: new Date("2023-01-04T10:05:00Z") },
-			{ text: "I'll be there.", idSender: 5, timestamp: new Date("2023-01-04T10:10:00Z") },
+			{ content: "Let's meet at 5pm", idSender: 1, timestamp: new Date("2023-01-04T10:00:00Z") },
+			{ content: "Sounds good!", idSender: 3, timestamp: new Date("2023-01-04T10:05:00Z") },
+			{ content: "I'll be there.", idSender: 5, timestamp: new Date("2023-01-04T10:10:00Z") },
 		],
-		users: [1, 3, 5],
+		members: [1, 3, 5],
 	},
 	{
 		id: 5,
-		type: EChatType.DIRECT,
+		type: EChatType.ONE_ON_ONE,
 		avatar: "",
 		name: "Direct Chat 3",
 		messages: [
-			{ text: "Are you coming to the meeting?", idSender: 4, timestamp: new Date("2023-01-05T10:00:00Z") },
-			{ text: "Yes, I'll be there in 10 minutes.", idSender: 1, timestamp: new Date("2023-01-05T10:05:00Z") },
+			{ content: "Are you coming to the meeting?", idSender: 4, timestamp: new Date("2023-01-05T10:00:00Z") },
+			{ content: "Yes, I'll be there in 10 minutes.", idSender: 1, timestamp: new Date("2023-01-05T10:05:00Z") },
 		],
-		users: [4, 1],
+		members: [4, 1],
 	},
 	{
 		id: 6,
@@ -125,21 +125,21 @@ export const chatsData: ChatType[] = [
 		avatar: "",
 		name: "Group Chat 2",
 		messages: [
-			{ text: "The project deadline is next week.", idSender: 7, timestamp: new Date("2023-01-06T10:00:00Z") },
-			{ text: "We need to speed up.", idSender: 6, timestamp: new Date("2023-01-06T10:05:00Z") },
-			{ text: "I agree. Let's divide the tasks.", idSender: 1, timestamp: new Date("2023-01-06T10:10:00Z") },
+			{ content: "The project deadline is next week.", idSender: 7, timestamp: new Date("2023-01-06T10:00:00Z") },
+			{ content: "We need to speed up.", idSender: 6, timestamp: new Date("2023-01-06T10:05:00Z") },
+			{ content: "I agree. Let's divide the tasks.", idSender: 1, timestamp: new Date("2023-01-06T10:10:00Z") },
 		],
-		users: [7, 6, 1],
+		members: [7, 6, 1],
 	},
 	{
 		id: 7,
-		type: EChatType.DIRECT,
+		type: EChatType.ONE_ON_ONE,
 		avatar: "",
 		name: "Direct Chat 4",
 		messages: [
-			{ text: "Can you help me with this bug?", idSender: 5, timestamp: new Date("2023-01-07T10:00:00Z") },
-			{ text: "Sure, let's look at it together.", idSender: 1, timestamp: new Date("2023-01-07T10:05:00Z") },
+			{ content: "Can you help me with this bug?", idSender: 5, timestamp: new Date("2023-01-07T10:00:00Z") },
+			{ content: "Sure, let's look at it together.", idSender: 1, timestamp: new Date("2023-01-07T10:05:00Z") },
 		],
-		users: [5, 1],
+		members: [5, 1],
 	},
 ];

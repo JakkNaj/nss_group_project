@@ -1,6 +1,9 @@
+import {EMessageType} from "../enums/EMessageType.ts";
+
 export type MessageType = {
-	text: string;
+	//id: string; 		//i don't need them on frontend
+	content: string;
 	idSender: number;
-	timestamp: Date;
-	//type: string; todo: add type
+	type: EMessageType;
+	timestamp: number;  //timestamp in seconds
 };

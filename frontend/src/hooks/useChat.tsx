@@ -5,55 +5,42 @@ import { CompatClient } from '@stomp/stompjs';
 import {ChatStore} from "../stores/ChatStore.ts";
 import { MessageType } from "../model/types/MessageType.ts";
 
-interface UseChatProps {
-  username: string;
-  chatIds: number[];
-}
-
-export const useChat = ({ username, chatIds }: UseChatProps) => {
-  const [stompClients, setStompClients] = useState<CompatClient[]>([]);
+export const useChat = ({ userId }: { userId: number }) => {
+  const [stompClient, setStompClient] = useState<CompatClient | null>(null);
   const { updateChatWithNewMessage } = ChatStore.useStore((state) => ({
     updateChatWithNewMessage: state.updateChatWithNewMessage,
   }));
 
   useEffect(() => {
-    if (username && chatIds.length > 0) {
-      const clients = chatIds.map(chatId => {
-        const socket = new SockJS('http://localhost:8080/start-websocket-communication');
-        const client = Stomp.over(socket);
-        client.connect({}, () => {
-          client.subscribe(`/topic/${chatId}`, onMessageReceived);
-          client.send("/app/chat.addUser", {}, JSON.stringify({
-            messageLogId: chatId,
-            sender: username,
-            content: null,
-            type: 'JOIN',
-            timestampInSeconds: Math.floor(Date.now() / 1000)
-          }));
-        }, onError);
-        return client;
-      });
-      setStompClients(clients);
-    }
-  }, [username, chatIds]);
-
-  interface SendMessageProps {
-    content: string;
-    chatId: number;
-  }
-
-  const sendMessage = ({ content, chatId }: SendMessageProps) => {
-    if (content ) {
-      const stompClient = stompClients.find(client => client.connected);
-      if (stompClient) {
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({
-          messageLogId: chatId,
-          sender: username,
-          content: content,
-          type: 'CHAT',
+    if (userId) {
+      const socket = new SockJS('http://localhost:8080/start-websocket-communication');
+      const client = Stomp.over(socket);
+      client.connect({}, () => {
+        client.subscribe(`/userId/${userId}`, onMessageReceived);
+        client.send("/app/user.addUser", {}, JSON.stringify({
+          senderId: userId,
+          type: 'JOIN',
           timestampInSeconds: Math.floor(Date.now() / 1000)
         }));
+        setStompClient(client);
+      }, onError);
+    }
+
+    return () => {
+      if (stompClient) {
+        stompClient.disconnect();
       }
+    };
+  }, [userId]);
+
+  const sendMessage = ({ content, recipient }: { content: string; recipient: string }) => {
+    if (content && recipient && stompClient?.connected) {
+      stompClient.send(`/app/user.sendMessage/${recipient}`, {}, JSON.stringify({
+        senderId: userId,
+        content: content,
+        type: 'CHAT',
+        timestampInSeconds: Math.floor(Date.now() / 1000)
+      }));
     }
   };
 
@@ -61,14 +48,29 @@ export const useChat = ({ username, chatIds }: UseChatProps) => {
     const payload = JSON.parse(message.body);
     const newMessage: MessageType = {
       idSender: payload.sender,
-      text: payload.content,
+      content: payload.content,
       timestamp: payload.timestampInSeconds,
       type: payload.type,
     };
-    const chatId = payload.messageLogId;
-    const chat = ChatStore.findChat(chatId);
-    if (chat) {
-      updateChatWithNewMessage(chatId, newMessage);
+    const chatId = payload.messageLogId; //todo add message log to each chat
+
+    switch (newMessage.type) {
+      case 'JOIN':
+        // Update the chat to indicate that a user has joined
+        ChatStore.addUserToChat(chatId, newMessage.idSender);
+        updateChatWithNewMessage(chatId, newMessage);
+        break;
+      case 'LEAVE':
+        // Update the chat to indicate that a user has left
+        ChatStore.removeUserFromChat(chatId, newMessage.idSender);
+        updateChatWithNewMessage(chatId, newMessage);
+        break;
+      case 'CHAT':
+        updateChatWithNewMessage(chatId, newMessage);
+        break;
+      default:
+        console.log(`Received unknown message type: ${newMessage.type}`);
+        break;
     }
   };
 

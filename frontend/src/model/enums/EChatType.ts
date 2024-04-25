@@ -1,4 +1,4 @@
 export enum EChatType {
-	DIRECT = "DIRECT",
+	ONE_ON_ONE = "ONE_ON_ONE",
 	GROUP = "GROUP",
 }

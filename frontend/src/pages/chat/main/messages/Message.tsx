@@ -72,7 +72,7 @@ export const Message = ({ message, userId }: MessageProps) => {
 				)}
 				<Styled.MessageCard $isUserMessage={isUserMessage} onClick={() => setShowTimestamp(!showTimestamp)}>
 					<Styled.CardContent $isUserMessage={isUserMessage}>
-						<Typography variant="body2">{message.text}</Typography>
+						<Typography variant="body2">{message.content}</Typography>
 					</Styled.CardContent>
 				</Styled.MessageCard>
 			</Styled.MessageCardContainer>

@@ -1,17 +1,17 @@
 import { create } from "zustand";
 import { EChatType } from "../model/enums/EChatType";
-import { ChatType } from "../model/types/ChatType";
+import { ChatRoomType } from "../model/types/ChatRoomType.ts";
 import { UserStore } from "./UserStore.ts";
 import { UserType } from "../model/types/UserType.ts";
 import {MessageType} from "../model/types/MessageType.ts";
 import {chatsData as mockData} from "../MockData.ts";
 
 export type State = {
-	chats: ChatType[];
-	directChats: ChatType[];
-	groupChats: ChatType[];
-	activeChat: ChatType | null;
-	updateChatWithNewMessage: (chatId: number, message: MessageType) => void;
+	chats: ChatRoomType[];
+	directChats: ChatRoomType[];
+	groupChats: ChatRoomType[];
+	activeChat: ChatRoomType | null;
+	updateChatWithNewMessage: (chatId: string, message: MessageType) => void;
 };
 
 export const useChatStore = create<State>((set) => ({
@@ -19,7 +19,7 @@ export const useChatStore = create<State>((set) => ({
 	directChats: [],
 	groupChats: [],
 	activeChat: null,
-	updateChatWithNewMessage: (chatId: number, message: MessageType) => {
+	updateChatWithNewMessage: (chatId: string, message: MessageType) => {
 		set((state) => {
 			const chatIndex = state.chats.findIndex(chat => chat.id === chatId);
 			if (chatIndex !== -1) {
@@ -33,7 +33,7 @@ export const useChatStore = create<State>((set) => ({
 				return {
 					...state,
 					chats: updatedChats,
-					directChats: updatedChats.filter((chat) => chat.type === EChatType.DIRECT),
+					directChats: updatedChats.filter((chat) => chat.type === EChatType.ONE_ON_ONE),
 					groupChats: updatedChats.filter((chat) => chat.type === EChatType.GROUP),
 					activeChat: state.activeChat?.id === chatId ? updatedChat : state.activeChat,
 				};
@@ -45,26 +45,26 @@ export const useChatStore = create<State>((set) => ({
 
 export const ChatStore = {
 	useStore: useChatStore,
-	initializeChats: (chatsData: ChatType[]) => {
+	initializeChats: (chatsData: ChatRoomType[]) => {
 		useChatStore.setState({
 			chats: chatsData,
-			directChats: chatsData.filter((chat) => chat.type === EChatType.DIRECT),
+			directChats: chatsData.filter((chat) => chat.type === EChatType.ONE_ON_ONE),
 			groupChats: chatsData.filter((chat) => chat.type === EChatType.GROUP),
 			activeChat: chatsData[0] || null,
 		});
 	},
-	updateActiveChat: (chatId: number) => {
+	updateActiveChat: (chatId: string) => {
 		const chat = useChatStore.getState().chats.find((chat) => chat.id === chatId) || null;
 		useChatStore.setState({ activeChat: chat });
 	},
-	getChatUsers(chatId: number): UserType[] {
+	getChatUsers(chatId: string): UserType[] {
 		const chat = this.findChat(chatId);
 		if (chat) {
-			return chat.users.map((userId : number) => UserStore.getUserById(userId)).filter((user): user is UserType => user !== undefined);
+			return chat.members.map((userId : number) => UserStore.getUserById(userId)).filter((user): user is UserType => user !== undefined);
 		}
 		return [];
 	},
-	findChat: (chatId: number): ChatType | undefined => {
+	findChat: (chatId: string): ChatRoomType | undefined => {
 		return useChatStore.getState().chats.find((chat) => chat.id === chatId);
 	},
 	initializeStore: async (username : string) => {
@@ -88,14 +88,14 @@ export const ChatStore = {
 			throw error;
 		}
 	},
-	getLastMessageFromChat: (chatId: number) => {
+	getLastMessageFromChat: (chatId: string) => {
 		const chat = useChatStore.getState().chats.find((chat) => chat.id === chatId);
 		if (chat) {
 			return chat.messages[chat.messages.length - 1];
 		}
 		return null;
 	},
-	getChatName: (chatId: number) => {
+	getChatName: (chatId: string) => {
 		const chat = useChatStore.getState().chats.find((chat) => chat.id === chatId);
 		if (chat) {
 			return chat.name;
@@ -107,4 +107,53 @@ export const ChatStore = {
 		const chatsData = mockData;
 		ChatStore.initializeChats(chatsData);
 	},
+	removeUserFromChat: (chatId: string, userId: number) => {
+		const chat = ChatStore.findChat(chatId);
+		if (chat) {
+			const updatedChat = {
+				...chat,
+				members: chat.members.filter((memberId) => memberId !== userId),
+			};
+			//maybe unnecessary filtering
+			useChatStore.setState({
+				chats: useChatStore.getState().chats.map((chat) => (chat.id === chatId ? updatedChat : chat)),
+				directChats: useChatStore.getState().directChats,
+				groupChats: useChatStore.getState().chats.filter((chat) => chat.type === EChatType.GROUP),
+				activeChat: useChatStore.getState().activeChat?.id === chatId ? updatedChat : useChatStore.getState().activeChat,
+			});
+		}
+	},
+	addUserToChat: (chatId: string, userId: number) => {
+		const chat = ChatStore.findChat(chatId);
+		if (chat) {
+			const updatedChat = {
+				...chat,
+				members: [...chat.members, userId],
+			};
+			//maybe unnecessary filtering
+			useChatStore.setState({
+				chats: useChatStore.getState().chats.map((chat) => (chat.id === chatId ? updatedChat : chat)),
+				directChats: useChatStore.getState().directChats,
+				groupChats: useChatStore.getState().chats.filter((chat) => chat.type === EChatType.GROUP),
+				activeChat: useChatStore.getState().activeChat?.id === chatId ? updatedChat : useChatStore.getState().activeChat,
+			});
+		}
+	},
+	addMessageToChat: (chatId: string, message: MessageType) => {
+		const chat = ChatStore.findChat(chatId);
+		if (chat) {
+			const updatedChat = {
+				...chat,
+				messages: [...chat.messages, message],
+			};
+			//maybe unnecessary filtering
+			useChatStore.setState({
+				chats: useChatStore.getState().chats.map((chat) => (chat.id === chatId ? updatedChat : chat)),
+				directChats: useChatStore.getState().chats.filter((chat) => chat.type === EChatType.ONE_ON_ONE),
+				groupChats: useChatStore.getState().chats.filter((chat) => chat.type === EChatType.GROUP),
+				activeChat: useChatStore.getState().activeChat?.id === chatId ? updatedChat : useChatStore.getState().activeChat,
+			});
+		}
+	},
+
 };

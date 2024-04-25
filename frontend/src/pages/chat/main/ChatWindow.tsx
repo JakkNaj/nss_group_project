@@ -6,7 +6,6 @@ import { GroupChatDetail } from "./groupChatDetail/GroupChatDetail.tsx";
 import { ChatStore, State } from "../../../stores/ChatStore.ts";
 import { MessagesContainer } from "./messages/MessagesContainer.tsx";
 import { MessageInput } from "./messages/MessageInput.tsx";
-import {UserStore} from "../../../stores/UserStore.ts";
 import {useChat} from "../../../hooks/useChat.tsx";
 
 const Styled = {
@@ -48,11 +47,9 @@ export const ChatWindow = () => {
 		);
 	}
 
-	/*
-	//todo remove when backend works
-	const { sendMessage } = useChat({ username: UserStore.getLoggedInUser().username,
-														  chatIds: ChatStore.useStore().chats.map(chat => chat.id) });
-	*/
+	// todo Uncomment the following line when the backend is ready
+	// const { sendMessage } = useChat({ userId: UserStore.getLoggedInUser().id });
+
 	const toggleRightSection = () => {
 		setRightSectionVisible(!rightSectionVisible);
 	};
@@ -76,7 +73,7 @@ export const ChatWindow = () => {
 				<MessageInput onSend={handleSendMessage} />
 			</Styled.Content>
 			<Styled.RightSection $isVisible={rightSectionVisible}>
-				{activeChat?.type === "DIRECT" ? (
+				{activeChat?.type === "ONE_ON_ONE" ? (
 					<DirectChatDetail onBackClick={toggleRightSection} />
 				) : (
 					<GroupChatDetail onBackClick={toggleRightSection} />
