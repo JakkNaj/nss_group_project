@@ -1,29 +1,45 @@
 package cz.cvut.fel.nss.chat.chat.services;
 
+import cz.cvut.fel.nss.chat.chat.dto.ChatMessageDto;
 import cz.cvut.fel.nss.chat.chat.entities.ChatLog;
-import cz.cvut.fel.nss.chat.chat.entities.ChatRoom;
-import cz.cvut.fel.nss.chat.chat.repositories.ChatRoomRepository;
+import cz.cvut.fel.nss.chat.chat.entities.ChatMessage;
+import cz.cvut.fel.nss.chat.chat.repositories.ChatMessageRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
+@Slf4j
 public class ChatHistoryService {
-    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     @Autowired
-    public ChatHistoryService(ChatRoomRepository chatRoomRepository) {
-        this.chatRoomRepository = chatRoomRepository;
+    public ChatHistoryService(
+            ChatMessageRepository chatMessageRepository
+    ) {
+        this.chatMessageRepository = chatMessageRepository;
     }
 
     public ChatLog getChatHistory(String chatId) {
-        return chatRoomRepository.findById(chatId).orElse(new ChatRoom()).getChatLog();
+        log.trace("Getting chat history for chatId={}", chatId);
+        List<ChatMessageDto> chatMessages = chatMessageRepository
+                .findAllByMessageLogIdOrderByTimestampInSeconds(chatId)
+                .stream()
+                .map(ChatMessage::toDto)
+                .toList();
+        return new ChatLog(chatId, chatMessages);
     }
 
-    public List<ChatRoom> getChatHistoryForUser(String username) {
-        return chatRoomRepository.findByMembersContaining(username).stream()
-                .collect(Collectors.toList());
+
+    //for reference for search messages component
+    public List<ChatMessage> searchChatHistoryByContent(String messageLogId, String content) {
+        return chatMessageRepository.findAllByMessageLogIdAndContentIsLikeIgnoreCase(messageLogId, content);
+    }
+
+    public void deleteAll() {
+        chatMessageRepository.deleteAll();
     }
 }

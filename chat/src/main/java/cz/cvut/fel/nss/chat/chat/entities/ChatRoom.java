@@ -20,32 +20,22 @@ public class ChatRoom {
     private String id;
     private String name;
     private ChatRoomType type;
-    private List<String> members;
-    private ChatLog chatLog;
+    private List<Integer> members;
 
-    public ChatRoom(String id) {
-        this.id = id;
-        this.name = "Chatroom " + id;
-        this.type = ChatRoomType.GROUP;
-        this.members = new ArrayList<>();
-        this.chatLog = new ChatLog();
-    }
-
-    public void addMember(String username) {
+    public void addMember(Integer userId) {
         if (members == null) {
             members = new ArrayList<>();
         }
-        members.add(username);
+        members.add(userId);
+    }
+
+    public void removeMember(Integer userId) {
+        if (members != null) {
+            members.remove(userId);
+        }
     }
 
     public enum ChatRoomType {
         ONE_ON_ONE, GROUP
-    }
-
-    public ChatLog getChatLog() {
-        if (chatLog == null) {
-            chatLog = new ChatLog();
-        }
-        return chatLog;
     }
 }

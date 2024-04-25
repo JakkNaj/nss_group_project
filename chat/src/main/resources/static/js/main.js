@@ -9,7 +9,7 @@ var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 
 var stompClient = null;
-var username = null;
+var userId = null;
 var chatId = null;
 
 var colors = [
@@ -20,12 +20,13 @@ var colors = [
 let connect = (event) => {
 
     chatId = document.querySelector('#chatId').value.trim();
-    username = document.querySelector('#name').value.trim();
-    if(username && chatId) {
+    userId = document.querySelector('#userId').value.trim();
+    console.log("USER ID: " + userId + " CHAT ID: " + chatId)
+    if(userId && chatId) {
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
         let stateInfoH2 = document.querySelector('#state-info');
-        stateInfoH2.innerHTML = `Chat ID: ${chatId} | User: ${username}`;
+        stateInfoH2.innerHTML = `Chat ID: ${chatId} | User: ${userId}`;
         var socket = new SockJS('http://localhost:8080/start-websocket-communication');
 
         stompClient = Stomp.over(socket);
@@ -44,18 +45,18 @@ let onConnected = () => {
 }
 
 let subscribeToChat = (chatId) => {
-    stompClient.subscribe(`/topic/${chatId}`, onMessageReceived);
-    console.log("SUBSCRIBING TO CHAT")
+    stompClient.subscribe(`/userId/${userId}`, onMessageReceived);
+    console.log(`SUBSCRIBING TO CHAT /userId/${userId}`)
 
     var chatMessage = {
         messageLogId: chatId,
-        sender: username,
+        senderId: userId,
         content: null,
         type: 'JOIN',
         timestampInSeconds: Math.floor(Date.now() / 1000)
     };
 
-    stompClient.send("/app/chat.addUser",
+    stompClient.send("/app/chat/addUser",
         {},
         JSON.stringify(chatMessage)
     );
@@ -65,7 +66,7 @@ let subscribeToChat = (chatId) => {
 
 let renderChatHistory = async () => {
     // Make a GET request using Fetch API
-    fetch(`http://localhost:8080/chat/getChatHistory?chatId=${chatId}`)
+    fetch(`http://localhost:8080/chat-history?chatId=${chatId}`)
         .then(response => {
             // Check if the response was successful (status 200)
             if (!response.ok) {
@@ -95,17 +96,18 @@ messageForm.addEventListener('submit', sendMessage, true);
 
 function sendMessage(event) {
     var messageContent = messageInput.value.trim();
+    console.log("USER ID: " + userId + " CHAT ID: " + chatId + " MESSAGE: " + messageContent);
 
     if(messageContent && stompClient) {
         var chatMessage = {
             messageLogId: chatId,
-            sender: username,
+            senderId: userId,
             content: messageInput.value,
             type: 'CHAT',
             timestampInSeconds: Math.floor(Date.now() / 1000)
         };
 
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        stompClient.send("/app/chat/sendMessage", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
     }
     event.preventDefault();
@@ -118,22 +120,22 @@ function onMessageReceived(payload) {
 
     if(message.type === 'JOIN') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + ' joined!';
+        message.content = message.senderId + ' joined!';
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + ' left!';
+        message.content = message.senderId + ' left!';
     } else {
         messageElement.classList.add('chat-message');
 
         var avatarElement = document.createElement('i');
-        var avatarText = document.createTextNode(message.sender[0]);
+        var avatarText = document.createTextNode(message.senderId);
         avatarElement.appendChild(avatarText);
-        avatarElement.style['background-color'] = getAvatarColor(message.sender);
+        avatarElement.style['background-color'] = getAvatarColor(message.senderId);
 
         messageElement.appendChild(avatarElement);
 
         var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.sender);
+        var usernameText = document.createTextNode(message.senderId);
         usernameElement.appendChild(usernameText);
         messageElement.appendChild(usernameElement);
     }
@@ -149,10 +151,6 @@ function onMessageReceived(payload) {
 }
 
 function getAvatarColor(messageSender) {
-    var hash = 0;
-    for (var i = 0; i < messageSender.length; i++) {
-        hash = 31 * hash + messageSender.charCodeAt(i);
-    }
-    var index = Math.abs(hash % colors.length);
+    var index = Math.abs(messageSender % colors.length);
     return colors[index];
 }
