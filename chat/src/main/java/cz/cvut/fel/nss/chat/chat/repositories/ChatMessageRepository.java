@@ -13,7 +13,5 @@ public interface ChatMessageRepository extends ElasticsearchRepository<ChatMessa
     @Highlight(fields = {
             @HighlightField(name = "content")
     })
-    List<ChatMessage> findAllByMessageLogIdAndContentIsLikeIgnoreCase(String messageLogId, String content);
-
-    List<ChatMessage> findAllByMessageLogIdOrderByTimestampInSeconds(String messageLogId);
+    List<ChatMessage> findAllByMessageLogIdOrderByTimestampInSeconds(Integer messageLogId);
 }

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("chat-history")
 public class ChatHistoryController {
@@ -15,7 +17,7 @@ public class ChatHistoryController {
     private ChatHistoryService chatHistoryService;
 
     @GetMapping
-    public ChatLog getChatHistory(@RequestParam("chatId") String chatId) {
-        return chatHistoryService.getChatHistory(chatId);
+    public List<ChatLog> getChatHistoryForUser(@RequestParam("userId") Integer userId) {
+        return chatHistoryService.getChatHistoryForUser(userId);
     }
 }
