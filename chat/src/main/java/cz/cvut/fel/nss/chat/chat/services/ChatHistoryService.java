@@ -4,6 +4,7 @@ import cz.cvut.fel.nss.chat.chat.dto.ChatMessageDto;
 import cz.cvut.fel.nss.chat.chat.entities.ChatLog;
 import cz.cvut.fel.nss.chat.chat.entities.ChatMessage;
 import cz.cvut.fel.nss.chat.chat.entities.ChatRoom;
+import cz.cvut.fel.nss.chat.chat.exception.NotFoundException;
 import cz.cvut.fel.nss.chat.chat.repositories.ChatMessageRepository;
 import cz.cvut.fel.nss.chat.chat.repositories.ChatRoomRepository;
 import cz.cvut.fel.nss.chat.config.ChatConfig;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -41,6 +43,11 @@ public class ChatHistoryService {
                 .map(ChatMessage::toDto)
                 .toList();
         return new ChatLog(chatId, chatMessages);
+    }
+
+    public ChatRoom getChatRoomById(Integer chatRoomId) {
+        Assert.notNull(chatRoomId, "Chat room id must not be null");
+        return chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new NotFoundException("Chat room with id " + chatRoomId + " not found"));
     }
 
     public List<ChatLog> getChatHistoryForUser(Integer userId) {

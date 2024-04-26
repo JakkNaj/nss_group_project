@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import {ChatHeader} from "./ChatHeader.tsx";
-import {useState} from "react";
 import {DirectChatDetail} from "./directChatDetail/DirectChatDetail.tsx";
 import {GroupChatDetail} from "./groupChatDetail/GroupChatDetail.tsx";
 import {ChatRoomStore, State} from "../../../stores/ChatRoomStore.ts";
@@ -8,6 +7,8 @@ import {MessagesContainer} from "./messages/MessagesContainer.tsx";
 import {MessageInput} from "./messages/MessageInput.tsx";
 import {useChatLogStore} from "../../../stores/ChatLogStore.ts";
 import {EMessageType} from "../../../model/enums/EMessageType.ts";
+import {UserType} from "../../../model/types/UserType.ts";
+import {useSendMessage} from "../../../hooks/useSendMessage.tsx";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
@@ -28,16 +29,23 @@ const Styled = {
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
+		overflow-y: auto;
+	`,
+	Header: styled.div`
+		position: sticky;
+		top: 0;
+		z-index: 1;
 	`,
 };
 
 type ChatWindowProps = {
-	sendMessage: (message: { content: string, chatId : number, type: EMessageType }) => void;
+	rightSectionVisible: boolean;
+	setRightSectionVisible: (visible: boolean) => void;
+	selectedGroupUser: UserType | null;
+	setSelectedGroupUser: (user: UserType | null) => void;
 }
 
-export const ChatWindow = ({sendMessage} : ChatWindowProps) => {
-	const [rightSectionVisible, setRightSectionVisible] = useState(false);
+export const ChatWindow = ({rightSectionVisible, setRightSectionVisible, selectedGroupUser, setSelectedGroupUser} : ChatWindowProps) => {
 
 	const { activeChatLog } = useChatLogStore((state) => ({
 		activeChatLog: state.activeChatLog,
@@ -46,6 +54,8 @@ export const ChatWindow = ({sendMessage} : ChatWindowProps) => {
 	const { activeChatRoom } = ChatRoomStore.useStore((state: State) => ({
 		activeChatRoom: state.activeChatRoom,
 	}));
+
+	const { sendMessage } = useSendMessage();
 
 	if (!activeChatLog) {
 		//activeChat is null only when there are no chats
@@ -62,12 +72,11 @@ export const ChatWindow = ({sendMessage} : ChatWindowProps) => {
 	};
 
 	const handleSendMessage = (message: string) => {
-		console.log("sending: " + message + " to chat: " + activeChatLog.id);
 		if (!activeChatLog) return null;
 		if (message && activeChatLog) {
 			sendMessage({
 				content:message,
-				chatId: activeChatLog.id,
+				chatId: activeChatLog.chatLogId,
 				type: EMessageType.CHAT
 			});
 		}
@@ -76,17 +85,17 @@ export const ChatWindow = ({sendMessage} : ChatWindowProps) => {
 	return (
 		<Styled.ChatWindow $rightSectionVisible={rightSectionVisible}>
 			<Styled.Content>
-				<div>
+				<Styled.Header>
 					<ChatHeader toggleRightSection={toggleRightSection} />
-					<MessagesContainer messages={activeChatLog.messages}/>
-				</div>
+				</Styled.Header>
+				<MessagesContainer />
 				<MessageInput onSend={handleSendMessage} />
 			</Styled.Content>
 			<Styled.RightSection $isVisible={rightSectionVisible}>
 				{activeChatRoom?.type === "ONE_ON_ONE" ? (
 					<DirectChatDetail onBackClick={toggleRightSection} />
 				) : (
-					<GroupChatDetail onBackClick={toggleRightSection} />
+					<GroupChatDetail onBackClick={toggleRightSection} selectedGroupUser={selectedGroupUser} setSelectedGroupUser={setSelectedGroupUser}/>
 				)}
 			</Styled.RightSection>
 		</Styled.ChatWindow>

@@ -3,7 +3,7 @@ import {EMessageType} from "../enums/EMessageType.ts";
 export type MessageType = {
 	messageLogId: number;
 	content: string;
-	idSender: number;
+	senderId: number;
 	type: EMessageType;
-	timestamp: number;  //timestamp in seconds
+	timestampInSeconds: number;
 };

@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
 import { ChatRoomStore, State } from "../../../../stores/ChatRoomStore.ts";
-import { useState } from "react";
 import { GroupUserDetail } from "./GroupUserDetail.tsx";
 import { UserType } from "../../../../model/types/UserType.ts";
 import { colors } from "../../../../styles/colors.ts";
@@ -49,9 +48,11 @@ const Styled = {
 
 interface GroupChatProps {
 	onBackClick: () => void;
+	selectedGroupUser: UserType | null;
+	setSelectedGroupUser: (user: UserType | null) => void;
 }
 
-export const GroupChatDetail = ({ onBackClick }: GroupChatProps) => {
+export const GroupChatDetail = ({ onBackClick, selectedGroupUser, setSelectedGroupUser }: GroupChatProps) => {
 	const { activeChat } = ChatRoomStore.useStore((state: State) => ({
 		activeChat: state.activeChatRoom,
 	}));
@@ -68,13 +69,12 @@ export const GroupChatDetail = ({ onBackClick }: GroupChatProps) => {
 		return <div>Error: No other user in chat found.</div>;
 	}
 
-	const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
 	const handleIconClick = (user: UserType) => {
-		setSelectedUser(user);
+		setSelectedGroupUser(user);
 	};
 
 	const handleBackClick = () => {
-		setSelectedUser(null);
+		setSelectedGroupUser(null);
 	};
 
 	const handleRemoveClick = () => {
@@ -87,8 +87,8 @@ export const GroupChatDetail = ({ onBackClick }: GroupChatProps) => {
 
 	return (
 		<div>
-			{selectedUser ? (
-				<GroupUserDetail user={selectedUser} onBackClick={handleBackClick} onRemoveClick={handleRemoveClick} />
+			{selectedGroupUser ? (
+				<GroupUserDetail user={selectedGroupUser} onBackClick={handleBackClick} onRemoveClick={handleRemoveClick} />
 			) : (
 				<Styled.ProfileDetail>
 					<Styled.CloseIcon onClick={onBackClick} />

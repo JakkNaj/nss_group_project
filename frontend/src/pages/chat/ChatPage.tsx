@@ -4,8 +4,9 @@ import styled from "styled-components";
 import { ChatWindow } from "./main/ChatWindow.tsx";
 import { ProfileWindow } from "./main/ProfileWindow.tsx";
 import { useState } from "react";
-import {useChat} from "../../hooks/useChat.tsx";
 import {UserStore} from "../../stores/UserStore.ts";
+import {UserType} from "../../model/types/UserType.ts";
+import {useChatConnection} from "../../hooks/useChatConnection.tsx";
 
 const Styled = {
 	ChatPageContainer: styled("div")({
@@ -39,10 +40,13 @@ const Styled = {
 };
 
 export const ChatPage = () => {
-	const [showProfile, setShowProfile] = useState(false);
+	const [showProfile, setShowProfile] = useState(true);
+	const [selectedGroupUser, setSelectedGroupUser] = useState<UserType | null>(null);
+	const [rightSectionVisible, setRightSectionVisible] = useState(false);
 
-	//useChat hook to register listeners to websocket communication
-	const { sendMessage } = useChat({ userId: UserStore.getLoggedInUser().id });
+
+	//useChatConnection hook to register listeners to websocket communication
+	useChatConnection({ userId: UserStore.getLoggedInUser().id });
 
 	const showProfileWindow = () => {
 		setShowProfile(true);
@@ -60,7 +64,7 @@ export const ChatPage = () => {
 			<Styled.LeftSection>
 				<ChatList showChatWindow={showChatWindow} />
 			</Styled.LeftSection>
-			<Styled.Main>{showProfile ? <ProfileWindow /> : <ChatWindow sendMessage={sendMessage}/>}</Styled.Main>
+			<Styled.Main>{showProfile ? <ProfileWindow /> : <ChatWindow rightSectionVisible={rightSectionVisible} setRightSectionVisible={setRightSectionVisible} selectedGroupUser={selectedGroupUser} setSelectedGroupUser={setSelectedGroupUser}/>}</Styled.Main>
 		</Styled.ChatPageContainer>
 	);
 };

@@ -43,9 +43,9 @@ interface MessageProps {
 }
 
 export const Message = ({ message, userId }: MessageProps) => {
-	const isUserMessage = message.idSender === userId;
+	const isUserMessage = message.senderId === userId;
 	const [showTimestamp, setShowTimestamp] = useState(false);
-	const sender = UserStore.getUserById(message.idSender);
+	const sender = UserStore.getUserById(message.senderId);
 
 	const { activeChat } = ChatRoomStore.useStore((state) => ({
 		activeChat: state.activeChatRoom,
@@ -67,7 +67,7 @@ export const Message = ({ message, userId }: MessageProps) => {
 				)}
 				{showTimestamp && (
 					<Typography variant="caption" color="textSecondary">
-						{message.timestamp.toLocaleString()}
+						{message.timestampInSeconds.toLocaleString()}
 					</Typography>
 				)}
 				<Styled.MessageCard $isUserMessage={isUserMessage} onClick={() => setShowTimestamp(!showTimestamp)}>

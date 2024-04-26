@@ -1,6 +1,6 @@
 import {MessageType} from "./MessageType.ts";
 
 export type ChatLogType = {
-    id: number;
+    chatLogId: number;
     messages: MessageType[];
 }

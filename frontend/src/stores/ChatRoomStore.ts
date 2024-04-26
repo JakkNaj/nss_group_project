@@ -119,8 +119,8 @@ export const ChatRoomStore = {
 	},
 	getChatRoom: async (chatId: number): Promise<ChatRoomType | null> => {
 		try {
-			//todo fetch backend endpoint
-			const response = await fetch(`http://localhost:8081/getChatRoom?chatId=${chatId}`, {
+			console.log("Sending request to fetch chat room with id: ", chatId);
+			const response = await fetch(`http://localhost:8080/chat-history/chatRoom/${chatId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -134,6 +134,7 @@ export const ChatRoomStore = {
 			}
 
 			const chatRoom = await response.json();
+			console.log(chatRoom);
 			return chatRoom;
 		} catch (error) {
 			console.error(error);
