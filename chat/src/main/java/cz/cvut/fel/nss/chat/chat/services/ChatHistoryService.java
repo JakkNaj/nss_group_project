@@ -10,6 +10,7 @@ import cz.cvut.fel.nss.chat.config.ChatConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,10 +32,10 @@ public class ChatHistoryService {
         this.chatConfig = chatConfig;
     }
 
-    public ChatLog getChatHistory(Integer chatId, PageRequest pageRequest) {
+    public ChatLog getChatHistory(Integer chatId, Pageable pageable) {
         log.trace("Getting chat history for chatId={}", chatId);
         List<ChatMessageDto> chatMessages = chatMessageRepository
-                .findAllByMessageLogIdOrderByTimestampInSeconds(chatId, pageRequest)
+                .findAllByMessageLogIdOrderByTimestampInSeconds(chatId, pageable)
                 .stream()
                 .map(ChatMessage::toDto)
                 .toList();
@@ -46,7 +47,7 @@ public class ChatHistoryService {
 
         PageRequest pageRequest = PageRequest.of(0, chatConfig.getPageSize());
 
-        List<Integer> chatIds = chatRoomRepository.findAllByMembersContaining(userId)
+        List<Integer> chatIds = chatRoomRepository.findAllByMembersContaining(userId, pageRequest)
                 .stream()
                 .map(ChatRoom::getChatLogId)
                 .toList();
@@ -55,8 +56,10 @@ public class ChatHistoryService {
                 .toList();
     }
 
-    public List<ChatRoom> getChatRoomsForUser(Integer userId) {
+    public List<ChatRoom> getChatRoomsForUser(Integer userId, Pageable pageable) {
         log.trace("Getting chat rooms for userId={}", userId);
-        return chatRoomRepository.findAllByMembersContaining(userId);
+        return chatRoomRepository
+                .findAllByMembersContaining(userId, pageable)
+                .toList();
     }
 }

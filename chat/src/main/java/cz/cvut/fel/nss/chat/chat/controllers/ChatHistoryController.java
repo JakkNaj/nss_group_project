@@ -31,8 +31,12 @@ public class ChatHistoryController {
     }
 
     @GetMapping("/chatRoom")
-    public List<ChatRoom> getChatRoomsForUser(@RequestParam("userId") Integer userId) {
-        return chatHistoryService.getChatRoomsForUser(userId);
+    public List<ChatRoom> getChatRoomsForUser(
+            @RequestParam("userId") Integer userId,
+            @RequestParam int page
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, chatConfig.getPageSize());
+        return chatHistoryService.getChatRoomsForUser(userId, pageRequest);
     }
 
     @GetMapping("/chatLog")

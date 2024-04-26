@@ -1,12 +1,13 @@
 package cz.cvut.fel.nss.chat.chat.repositories;
 
 import cz.cvut.fel.nss.chat.chat.entities.ChatRoom;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 
 @Repository
 public interface ChatRoomRepository extends MongoRepository<ChatRoom, Integer> {
-    List<ChatRoom> findAllByMembersContaining(Integer userId);
+    Page<ChatRoom> findAllByMembersContaining(Integer userId, Pageable pageable);
 }
