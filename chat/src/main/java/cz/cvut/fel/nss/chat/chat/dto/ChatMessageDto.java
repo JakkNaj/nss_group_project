@@ -15,7 +15,7 @@ public class ChatMessageDto {
     @Field(type = FieldType.Text, includeInParent = true)
     private String content;
     @Field(type = FieldType.Keyword, includeInParent = true)
-    private String sender;
+    private Integer senderId;
     @Field(type = FieldType.Keyword, includeInParent = true)
     private ChatMessage.MessageType type;
     @Field(type = FieldType.Long, includeInParent = true)

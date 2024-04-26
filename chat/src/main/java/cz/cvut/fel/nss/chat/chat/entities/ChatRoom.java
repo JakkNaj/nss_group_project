@@ -17,16 +17,23 @@ import java.util.List;
 @AllArgsConstructor
 public class ChatRoom {
     @Id
-    private String id;
+    private Integer chatLogId;
     private String name;
     private ChatRoomType type;
-    private List<String> members;
+    private List<Integer> members;
+    private Long lastMessageTimestamp;
 
-    public void addMember(String username) {
+    public void addMember(Integer userId) {
         if (members == null) {
             members = new ArrayList<>();
         }
-        members.add(username);
+        members.add(userId);
+    }
+
+    public void removeMember(Integer userId) {
+        if (members != null) {
+            members.remove(userId);
+        }
     }
 
     public enum ChatRoomType {

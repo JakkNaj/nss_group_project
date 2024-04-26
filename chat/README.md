@@ -12,7 +12,7 @@ Before running the application, ensure you have performed a clean install of the
     - Navigate to `src/main/resources/application.properties`.
 
 3. **Start Kafka and Zookeeper:**
-    - Run command `docker-compose --file docker-compose.json up` in the root directory of the project.
+    - Run command `docker-compose up` in the root directory of the project.
 
 3. **Run the Application:**
     - Execute the application.

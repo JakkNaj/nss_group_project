@@ -1,19 +1,18 @@
 package cz.cvut.fel.nss.chat.chat.repositories;
 
 import cz.cvut.fel.nss.chat.chat.entities.ChatMessage;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Highlight;
 import org.springframework.data.elasticsearch.annotations.HighlightField;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 
 @Repository
 public interface ChatMessageRepository extends ElasticsearchRepository<ChatMessage, String> {
     @Highlight(fields = {
             @HighlightField(name = "content")
     })
-    List<ChatMessage> findAllByMessageLogIdAndContentIsLikeIgnoreCase(String messageLogId, String content);
-
-    List<ChatMessage> findAllByMessageLogIdOrderByTimestampInSeconds(String messageLogId);
+    Page<ChatMessage> findAllByMessageLogIdOrderByTimestampInSecondsDesc(Integer messageLogId, Pageable pageable);
 }
