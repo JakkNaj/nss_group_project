@@ -14,5 +14,5 @@ public interface ChatMessageRepository extends ElasticsearchRepository<ChatMessa
     @Highlight(fields = {
             @HighlightField(name = "content")
     })
-    Page<ChatMessage> findAllByMessageLogIdOrderByTimestampInSeconds(Integer messageLogId, Pageable pageable);
+    Page<ChatMessage> findAllByMessageLogIdOrderByTimestampInSecondsDesc(Integer messageLogId, Pageable pageable);
 }

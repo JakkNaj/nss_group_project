@@ -35,7 +35,7 @@ public class ChatHistoryService {
     public ChatLog getChatHistory(Integer chatId, Pageable pageable) {
         log.trace("Getting chat history for chatId={}", chatId);
         List<ChatMessageDto> chatMessages = chatMessageRepository
-                .findAllByMessageLogIdOrderByTimestampInSeconds(chatId, pageable)
+                .findAllByMessageLogIdOrderByTimestampInSecondsDesc(chatId, pageable)
                 .stream()
                 .map(ChatMessage::toDto)
                 .toList();
@@ -47,7 +47,7 @@ public class ChatHistoryService {
 
         PageRequest pageRequest = PageRequest.of(0, chatConfig.getPageSize());
 
-        List<Integer> chatIds = chatRoomRepository.findAllByMembersContaining(userId, pageRequest)
+        List<Integer> chatIds = chatRoomRepository.findAllByMembersContainingOrderByLastMessageTimestampDesc(userId, pageRequest)
                 .stream()
                 .map(ChatRoom::getChatLogId)
                 .toList();
@@ -59,7 +59,7 @@ public class ChatHistoryService {
     public List<ChatRoom> getChatRoomsForUser(Integer userId, Pageable pageable) {
         log.trace("Getting chat rooms for userId={}", userId);
         return chatRoomRepository
-                .findAllByMembersContaining(userId, pageable)
+                .findAllByMembersContainingOrderByLastMessageTimestampDesc(userId, pageable)
                 .toList();
     }
 }

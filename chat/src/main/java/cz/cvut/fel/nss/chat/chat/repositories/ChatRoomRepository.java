@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ChatRoomRepository extends MongoRepository<ChatRoom, Integer> {
-    Page<ChatRoom> findAllByMembersContaining(Integer userId, Pageable pageable);
+    Page<ChatRoom> findAllByMembersContainingOrderByLastMessageTimestampDesc(Integer userId, Pageable pageable);
 }
