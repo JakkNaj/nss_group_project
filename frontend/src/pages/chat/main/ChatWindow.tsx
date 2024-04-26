@@ -1,14 +1,13 @@
 import styled from "styled-components";
-import { ChatHeader } from "./ChatHeader.tsx";
-import { useState } from "react";
-import { DirectChatDetail } from "./directChatDetail/DirectChatDetail.tsx";
-import { GroupChatDetail } from "./groupChatDetail/GroupChatDetail.tsx";
-import { ChatRoomStore, State } from "../../../stores/ChatRoomStore.ts";
-import { MessagesContainer } from "./messages/MessagesContainer.tsx";
-import { MessageInput } from "./messages/MessageInput.tsx";
-import {useChat} from "../../../hooks/useChat.tsx";
+import {ChatHeader} from "./ChatHeader.tsx";
+import {useState} from "react";
+import {DirectChatDetail} from "./directChatDetail/DirectChatDetail.tsx";
+import {GroupChatDetail} from "./groupChatDetail/GroupChatDetail.tsx";
+import {ChatRoomStore, State} from "../../../stores/ChatRoomStore.ts";
+import {MessagesContainer} from "./messages/MessagesContainer.tsx";
+import {MessageInput} from "./messages/MessageInput.tsx";
 import {useChatLogStore} from "../../../stores/ChatLogStore.ts";
-import {UserStore} from "../../../stores/UserStore.ts";
+import {EMessageType} from "../../../model/enums/EMessageType.ts";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
@@ -33,7 +32,11 @@ const Styled = {
 	`,
 };
 
-export const ChatWindow = () => {
+type ChatWindowProps = {
+	sendMessage: (message: { content: string, chatId : number, type: EMessageType }) => void;
+}
+
+export const ChatWindow = ({sendMessage} : ChatWindowProps) => {
 	const [rightSectionVisible, setRightSectionVisible] = useState(false);
 
 	const { activeChatLog } = useChatLogStore((state) => ({
@@ -53,7 +56,6 @@ export const ChatWindow = () => {
 		);
 	}
 
-	const { sendMessage } = useChat({ userId: UserStore.getLoggedInUser().id });
 
 	const toggleRightSection = () => {
 		setRightSectionVisible(!rightSectionVisible);
@@ -63,7 +65,11 @@ export const ChatWindow = () => {
 		console.log("sending: " + message + " to chat: " + activeChatLog.id);
 		if (!activeChatLog) return null;
 		if (message && activeChatLog) {
-			sendMessage({content: message, chatId: activeChatLog.id});
+			sendMessage({
+				content:message,
+				chatId: activeChatLog.id,
+				type: EMessageType.CHAT
+			});
 		}
 	};
 

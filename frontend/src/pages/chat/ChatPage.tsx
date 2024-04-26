@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { ChatWindow } from "./main/ChatWindow.tsx";
 import { ProfileWindow } from "./main/ProfileWindow.tsx";
 import { useState } from "react";
+import {useChat} from "../../hooks/useChat.tsx";
+import {UserStore} from "../../stores/UserStore.ts";
 
 const Styled = {
 	ChatPageContainer: styled("div")({
@@ -39,6 +41,9 @@ const Styled = {
 export const ChatPage = () => {
 	const [showProfile, setShowProfile] = useState(false);
 
+	//useChat hook to register listeners to websocket communication
+	const { sendMessage } = useChat({ userId: UserStore.getLoggedInUser().id });
+
 	const showProfileWindow = () => {
 		setShowProfile(true);
 	};
@@ -55,7 +60,7 @@ export const ChatPage = () => {
 			<Styled.LeftSection>
 				<ChatList showChatWindow={showChatWindow} />
 			</Styled.LeftSection>
-			<Styled.Main>{showProfile ? <ProfileWindow /> : <ChatWindow />}</Styled.Main>
+			<Styled.Main>{showProfile ? <ProfileWindow /> : <ChatWindow sendMessage={sendMessage}/>}</Styled.Main>
 		</Styled.ChatPageContainer>
 	);
 };
