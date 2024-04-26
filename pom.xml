@@ -19,6 +19,7 @@
         <module>user_management</module>
         <module>user_relations</module>
         <module>search-entities</module>
+        <module>global_logging</module>
     </modules>
 
     <name>parent-pom</name>
