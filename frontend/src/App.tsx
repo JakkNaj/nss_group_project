@@ -16,7 +16,6 @@ const GlobalStyle = createGlobalStyle`
 const Styled = {
 	AppWrapper: styled.div`
 		background-color: ${colors.lightBackground};
-		border-radius: 1.4375rem;
 		height: 100vh;
 		border: 0.125rem solid black;
 	`,
