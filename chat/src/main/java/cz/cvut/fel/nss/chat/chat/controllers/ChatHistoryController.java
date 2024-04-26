@@ -25,7 +25,7 @@ public class ChatHistoryController {
         this.chatConfig = chatConfig;
     }
 
-    @GetMapping("/chatLog")
+    @GetMapping("/chatLogsForUser")
     public List<ChatLog> getChatHistoryForUser(@RequestParam("userId") Integer userId) {
         return chatHistoryService.getChatHistoryForUser(userId);
     }
@@ -33,7 +33,7 @@ public class ChatHistoryController {
     @GetMapping("/chatRoom")
     public List<ChatRoom> getChatRoomsForUser(
             @RequestParam("userId") Integer userId,
-            @RequestParam int page
+            @RequestParam(defaultValue = "0") int page
     ) {
         PageRequest pageRequest = PageRequest.of(page, chatConfig.getPageSize());
         return chatHistoryService.getChatRoomsForUser(userId, pageRequest);

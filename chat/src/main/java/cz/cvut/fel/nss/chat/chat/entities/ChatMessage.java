@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.annotation.Id;
@@ -20,7 +21,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor
 @Builder
 @Document(indexName = "chat-messages")
-public class ChatMessage {
+public class ChatMessage implements Comparable<ChatMessage> {
     @Id
     private String id;
     @Field(type = FieldType.Keyword, includeInParent = true)
@@ -59,6 +60,11 @@ public class ChatMessage {
 
     public ChatMessageDto toDto() {
         return new ChatMessageDto(id, content, senderId, type, timestampInSeconds);
+    }
+
+    @Override
+    public int compareTo(@NotNull ChatMessage o) {
+        return 0;
     }
 
     public enum MessageType {

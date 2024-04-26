@@ -37,6 +37,7 @@ public class ChatHistoryService {
         List<ChatMessageDto> chatMessages = chatMessageRepository
                 .findAllByMessageLogIdOrderByTimestampInSecondsDesc(chatId, pageable)
                 .stream()
+                .sorted()
                 .map(ChatMessage::toDto)
                 .toList();
         return new ChatLog(chatId, chatMessages);
@@ -51,6 +52,9 @@ public class ChatHistoryService {
                 .stream()
                 .map(ChatRoom::getChatLogId)
                 .toList();
+
+        log.trace("Found chatIds={}", chatIds);
+
         return chatIds.stream()
                 .map(chatId -> getChatHistory(chatId, pageRequest))
                 .toList();

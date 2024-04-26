@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -42,16 +43,18 @@ public class ChatService {
             throw new BadRequestException("User " + message.getSenderId() + " is not a member of chatroom " + message.getMessageLogId());
         }
 
+        message.setId(UUID.randomUUID().toString());
+
         kafkaChatMessageProducerService.sendMessage(message);
 
         optionalChatRoom
                 .get()
-                .setLastMessageTimestamp(System.currentTimeMillis());
+                .setLastMessageTimestamp(message.getTimestampInSeconds());
         chatRoomRepository.save(optionalChatRoom.get());
         chatMessageRepository.save(message);
     }
 
-    public void addUserToChat(ChatMessage chatMessage) {
+    public ChatRoom addUserToChat(ChatMessage chatMessage) {
         log.trace("Adding user {} to chatroom {}", chatMessage.getSenderId(), chatMessage.getMessageLogId());
         Integer messageLogId = chatMessage.getMessageLogId();
         Integer senderId = chatMessage.getSenderId();
@@ -61,14 +64,22 @@ public class ChatService {
                         "Chatroom " + messageLogId,
                         ChatRoom.ChatRoomType.GROUP,
                         new ArrayList<>(),
-                        System.currentTimeMillis()
+                        chatMessage.getTimestampInSeconds()
                     )
                 );
+
+        chatMessage.setId(UUID.randomUUID().toString());
+
+
+        kafkaChatMessageProducerService.sendMessage(chatMessage);
+
+        chatRoom.setLastMessageTimestamp(chatMessage.getTimestampInSeconds());
         if (!chatRoom.getMembers().contains(senderId)) {
             log.trace("Adding user {} to chatroom {}", senderId, messageLogId);
             chatRoom.addMember(senderId);
             chatRoomRepository.save(chatRoom);
         }
-        kafkaChatMessageProducerService.sendMessage(chatMessage);
+
+        return chatRoom;
     }
 }
