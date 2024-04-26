@@ -47,4 +47,9 @@ public class ChatHistoryService {
                 .map(this::getChatHistory)
                 .toList();
     }
+
+    public List<ChatRoom> getChatRoomsForUser(Integer userId) {
+        log.trace("Getting chat rooms for userId={}", userId);
+        return chatRoomRepository.findAllByMembersContaining(userId);
+    }
 }

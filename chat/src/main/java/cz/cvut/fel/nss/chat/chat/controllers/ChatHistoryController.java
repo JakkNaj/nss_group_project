@@ -1,5 +1,6 @@
 package cz.cvut.fel.nss.chat.chat.controllers;
 
+import cz.cvut.fel.nss.chat.chat.entities.ChatRoom;
 import cz.cvut.fel.nss.chat.chat.services.ChatHistoryService;
 import cz.cvut.fel.nss.chat.chat.entities.ChatLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,13 @@ public class ChatHistoryController {
     @Autowired
     private ChatHistoryService chatHistoryService;
 
-    @GetMapping
+    @GetMapping("/chatLog")
     public List<ChatLog> getChatHistoryForUser(@RequestParam("userId") Integer userId) {
         return chatHistoryService.getChatHistoryForUser(userId);
+    }
+
+    @GetMapping("/chatRoom")
+    public List<ChatRoom> getChatRoomsForUser(@RequestParam("userId") Integer userId) {
+        return chatHistoryService.getChatRoomsForUser(userId);
     }
 }
