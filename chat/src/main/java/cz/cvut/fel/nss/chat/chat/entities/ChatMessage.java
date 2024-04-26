@@ -36,7 +36,7 @@ public class ChatMessage {
 
     public ChatMessage(JSONObject jsonObject) {
         try {
-            this.messageLogId = jsonObject.getString("messageLogId");
+            this.messageLogId = jsonObject.getInt("messageLogId");
             this.content = jsonObject.getString("content");
             this.senderId = jsonObject.getInt("senderId");
             this.type = MessageType.valueOf(jsonObject.getString("type"));
