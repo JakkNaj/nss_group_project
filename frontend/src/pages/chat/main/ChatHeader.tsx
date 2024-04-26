@@ -46,20 +46,20 @@ type ChatHeaderProps = {
 };
 
 export const ChatHeader = (props: ChatHeaderProps) => {
-	const { activeChat } = ChatRoomStore.useStore((state: State) => ({
-		activeChat: state.activeChatRoom,
+	const { activeChatRoom } = ChatRoomStore.useStore((state: State) => ({
+		activeChatRoom: state.activeChatRoom,
 	}));
 
-	if (!activeChat) {
+	if (!activeChatRoom) {
 		return <div>Error: No active chat found.</div>;
 	}
 
 	return (
 		<Styled.ChatHeader>
 			<Styled.AvatarLayout>
-				<UserAvatar username={ChatRoomStore.getChatName(activeChat.chatLogId)} avatar={activeChat?.avatar} />
+				<UserAvatar username={activeChatRoom.name} avatar={""} />
 				<Styled.UsernameStatusLayout>
-					<Styled.Username>{ChatRoomStore.getChatName(activeChat.chatLogId)}</Styled.Username>
+					<Styled.Username>{activeChatRoom.name}</Styled.Username>
 					<Styled.Status>online 7m ago</Styled.Status>
 				</Styled.UsernameStatusLayout>
 			</Styled.AvatarLayout>
