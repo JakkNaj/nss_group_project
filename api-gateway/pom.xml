@@ -14,6 +14,13 @@
     <properties>
         <java.version>17</java.version>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>cz.cvut.fel.nss</groupId>
+            <artifactId>global_logging</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

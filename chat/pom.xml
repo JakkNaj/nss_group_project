@@ -28,6 +28,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cz.cvut.fel.nss</groupId>
+            <artifactId>global_logging</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -17,38 +17,8 @@ var colors = [
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
 
-let connect = (event) => {
-
-    chatId = document.querySelector('#chatId').value.trim();
-    userId = document.querySelector('#userId').value.trim();
-    console.log("USER ID: " + userId + " CHAT ID: " + chatId)
-    if(userId && chatId) {
-        usernamePage.classList.add('hidden');
-        chatPage.classList.remove('hidden');
-        let stateInfoH2 = document.querySelector('#state-info');
-        stateInfoH2.innerHTML = `Chat ID: ${chatId} | User: ${userId}`;
-        var socket = new SockJS('http://localhost:8080/start-websocket-communication');
-
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, onConnected, onError);
-
-    }
-    event.preventDefault();
-}
-usernameForm.addEventListener('submit', connect, true);
-
-let onConnected = () => {
-    if (chatId) {
-        renderChatHistory();
-        subscribeToChat(chatId);
-    }
-}
-
-let subscribeToChat = (chatId) => {
-    stompClient.subscribe(`/userId/${userId}`, onMessageReceived);
-    console.log(`SUBSCRIBING TO CHAT /userId/${userId}`)
-
-    var chatMessage = {
+async function addUserToChat() {
+    let chatMessage = {
         messageLogId: chatId,
         senderId: userId,
         content: null,
@@ -56,17 +26,85 @@ let subscribeToChat = (chatId) => {
         timestampInSeconds: Math.floor(Date.now() / 1000)
     };
 
-    stompClient.send("/app/chat/addUser",
-        {},
-        JSON.stringify(chatMessage)
-    );
+    //wait for response
+
+    const response = fetch('http://localhost:8080/chat/addUserToChat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(chatMessage),
+    });
+
+    await response;
+
+    console.log('User added to chat');
+}
+
+let connect = (event) => {
+
+    chatId = document.querySelector('#chatId').value.trim();
+    userId = document.querySelector('#userId').value.trim();
+    if(userId && chatId) {
+
+        usernamePage.classList.add('hidden');
+        chatPage.classList.remove('hidden');
+
+        var socket = new SockJS('http://localhost:8080/start-websocket-communication');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, onConnected, onError);
+    }
+    event.preventDefault();
+}
+
+usernameForm.addEventListener('submit', connect, true);
+
+function getChatroomInfo(chatId) {
+    fetch(`http://localhost:8080/chat-history/chatRoom?userId=${userId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetch successful chatrooms:', data)
+            let chatroomInfoH2 = document.querySelector('#state-info');
+            for (let chatroom of data) {
+                if (chatroom.chatLogId == chatId) {
+                    chatroomInfoH2.innerHTML = `Chatroom: ${chatroom.name} | User ID: ${userId} | Participants: ${chatroom.members}`;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+
+}
+
+let onConnected = () => {
+    prepareChatroom();
+}
+
+async function prepareChatroom() {
+    await addUserToChat();
+    if (chatId) {
+        getChatroomInfo(chatId);
+        renderChatHistory();
+        subscribeToChat();
+    }
+}
+
+let subscribeToChat = () => {
+    stompClient.subscribe(`/userId/${userId}`, onMessageReceived);
+    console.log(`SUBSCRIBING TO CHAT /userId/${userId}`)
 
     connectingElement.classList.add('hidden');
 }
 
 let renderChatHistory = async () => {
     // Make a GET request using Fetch API
-    fetch(`http://localhost:8080/chat-history?chatId=${chatId}`)
+    fetch(`http://localhost:8080/chat-history/chatLogsForUser?userId=${userId}`)
         .then(response => {
             // Check if the response was successful (status 200)
             if (!response.ok) {
@@ -76,9 +114,13 @@ let renderChatHistory = async () => {
             return response.json();
         })
         .then(data => {
-            console.log('Fetch successful:', data)
-            for (let message of data.messages) {
-                onMessageReceived({body: JSON.stringify(message)});
+            console.log('Fetch of messages successful:', data)
+            for (let chatlog of data) {
+                if (chatlog.chatLogId == chatId) {
+                    for (let message of chatlog.messages) {
+                        onMessageReceived({body: JSON.stringify(message)});
+                    }
+                }
             }
         })
         .catch(error => {
@@ -96,7 +138,6 @@ messageForm.addEventListener('submit', sendMessage, true);
 
 function sendMessage(event) {
     var messageContent = messageInput.value.trim();
-    console.log("USER ID: " + userId + " CHAT ID: " + chatId + " MESSAGE: " + messageContent);
 
     if(messageContent && stompClient) {
         var chatMessage = {
@@ -111,6 +152,11 @@ function sendMessage(event) {
         messageInput.value = '';
     }
     event.preventDefault();
+}
+
+function timestampInSecondsToDate(timestampInSeconds) {
+    let date = new Date(timestampInSeconds * 1000);
+    return ` - ${date.toLocaleTimeString()}`;
 }
 
 function onMessageReceived(payload) {
@@ -135,7 +181,7 @@ function onMessageReceived(payload) {
         messageElement.appendChild(avatarElement);
 
         var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.senderId);
+        var usernameText = document.createTextNode(message.senderId + " " + timestampInSecondsToDate(message.timestampInSeconds));
         usernameElement.appendChild(usernameText);
         messageElement.appendChild(usernameElement);
     }

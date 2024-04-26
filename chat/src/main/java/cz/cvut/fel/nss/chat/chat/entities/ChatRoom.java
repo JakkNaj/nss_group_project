@@ -21,6 +21,7 @@ public class ChatRoom {
     private String name;
     private ChatRoomType type;
     private List<Integer> members;
+    private Long lastMessageTimestamp;
 
     public void addMember(Integer userId) {
         if (members == null) {
