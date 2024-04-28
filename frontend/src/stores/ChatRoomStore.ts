@@ -3,8 +3,10 @@ import { EChatType } from "../model/enums/EChatType";
 import { ChatRoomType } from "../model/types/ChatRoomType.ts";
 import { UserStore } from "./UserStore.ts";
 import { UserType } from "../model/types/UserType.ts";
-import {chatsData as mockData} from "../MockData.ts";
-import {ChatLogStore, useChatLogStore} from "./ChatLogStore.ts";
+import { chatRoomsData as mockData } from "../MockData.ts";
+import { ChatLogStore, useChatLogStore } from "./ChatLogStore.ts";
+import { MessageType } from "../model/types/MessageType.ts";
+import { EMessageType } from "../model/enums/EMessageType.ts";
 
 export type State = {
 	chats: ChatRoomType[];
@@ -72,6 +74,7 @@ export const ChatRoomStore = {
 			const chatsData = await chatResponse.json();
 			ChatRoomStore.initializeChats(chatsData);
 		} catch (error) {
+			console.error(error);
 			throw error;
 		}
 	},
@@ -141,4 +144,35 @@ export const ChatRoomStore = {
 			return null;
 		}
 	},
+	addUserToChatRoomBEcall: async (chatId: number, userId: number) => {
+		const chatMessage : MessageType = {
+			messageLogId: chatId,
+			senderId: userId,
+			content: null,
+			type: EMessageType.JOIN,
+			timestampInSeconds: Math.floor(Date.now() / 1000)
+		};
+
+		//wait for response
+		try {
+			const response = await fetch('http://localhost:8080/chat/addUserToChat', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(chatMessage),
+			});
+
+			if (!response.ok) {
+				console.error(`Error adding user ${userId} to chat ${chatId}: ${response.statusText}`);
+				return false;
+			}
+
+			console.log(`User ${userId} added to chat ${chatId}`);
+			return true;
+		} catch (error) {
+			console.error(`Error adding user ${userId} to chat ${chatId}: ${error}`);
+			return false;
+		}
+	}
 };

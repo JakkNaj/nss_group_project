@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import {mapResponseToUserType, UserType} from "../model/types/UserType";
 import { usersData } from "../MockData.ts";
-import {SignupDto} from "../model/types/SignupDto.ts";
+import { SignupDto } from "../model/types/SignupDto.ts";
 
 export type UserState = {
 	users: typeof usersData;

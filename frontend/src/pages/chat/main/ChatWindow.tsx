@@ -1,14 +1,14 @@
 import styled from "styled-components";
-import {ChatHeader} from "./ChatHeader.tsx";
-import {DirectChatDetail} from "./directChatDetail/DirectChatDetail.tsx";
-import {GroupChatDetail} from "./groupChatDetail/GroupChatDetail.tsx";
-import {ChatRoomStore, State} from "../../../stores/ChatRoomStore.ts";
-import {MessagesContainer} from "./messages/MessagesContainer.tsx";
-import {MessageInput} from "./messages/MessageInput.tsx";
-import {useChatLogStore} from "../../../stores/ChatLogStore.ts";
-import {EMessageType} from "../../../model/enums/EMessageType.ts";
-import {UserType} from "../../../model/types/UserType.ts";
-import {useSendMessage} from "../../../hooks/useSendMessage.tsx";
+import { ChatHeader } from "./ChatHeader.tsx";
+import { DirectChatDetail } from "./directChatDetail/DirectChatDetail.tsx";
+import { GroupChatDetail } from "./groupChatDetail/GroupChatDetail.tsx";
+import { ChatRoomStore, State } from "../../../stores/ChatRoomStore.ts";
+import { MessagesContainer } from "./messages/MessagesContainer.tsx";
+import { MessageInput } from "./messages/MessageInput.tsx";
+import { useChatLogStore } from "../../../stores/ChatLogStore.ts";
+import { EMessageType } from "../../../model/enums/EMessageType.ts";
+import { UserType } from "../../../model/types/UserType.ts";
+import { useSendMessage } from "../../../hooks/useSendMessage.tsx";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
@@ -43,10 +43,9 @@ type ChatWindowProps = {
 	setRightSectionVisible: (visible: boolean) => void;
 	selectedGroupUser: UserType | null;
 	setSelectedGroupUser: (user: UserType | null) => void;
-}
+};
 
-export const ChatWindow = ({rightSectionVisible, setRightSectionVisible, selectedGroupUser, setSelectedGroupUser} : ChatWindowProps) => {
-
+export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, selectedGroupUser, setSelectedGroupUser }: ChatWindowProps) => {
 	const { activeChatLog } = useChatLogStore((state) => ({
 		activeChatLog: state.activeChatLog,
 	}));
@@ -57,27 +56,22 @@ export const ChatWindow = ({rightSectionVisible, setRightSectionVisible, selecte
 
 	const { sendMessage } = useSendMessage();
 
-	if (!activeChatLog) {
-		//activeChat is null only when there are no chats
-		return (
-			<div>
-				Add friends to start chatting
-			</div>
-		);
-	}
-
-
 	const toggleRightSection = () => {
 		setRightSectionVisible(!rightSectionVisible);
 	};
+
+	if (!activeChatLog) {
+		//activeChat is null only when there are no chats
+		return <div>Add friends to start chatting</div>;
+	}
 
 	const handleSendMessage = (message: string) => {
 		if (!activeChatLog) return null;
 		if (message && activeChatLog) {
 			sendMessage({
-				content:message,
-				chatId: activeChatLog.chatLogId,
-				type: EMessageType.CHAT
+				chatLogId: activeChatLog.chatLogId,
+				content: message,
+				type: EMessageType.CHAT,
 			});
 		}
 	};
@@ -95,7 +89,11 @@ export const ChatWindow = ({rightSectionVisible, setRightSectionVisible, selecte
 				{activeChatRoom?.type === "ONE_ON_ONE" ? (
 					<DirectChatDetail onBackClick={toggleRightSection} />
 				) : (
-					<GroupChatDetail onBackClick={toggleRightSection} selectedGroupUser={selectedGroupUser} setSelectedGroupUser={setSelectedGroupUser}/>
+					<GroupChatDetail
+						onBackClick={toggleRightSection}
+						selectedGroupUser={selectedGroupUser}
+						setSelectedGroupUser={setSelectedGroupUser}
+					/>
 				)}
 			</Styled.RightSection>
 		</Styled.ChatWindow>

@@ -54,6 +54,9 @@ export const LoginPage = () => {
 	const [passwordError, setPasswordError] = useState("");
 	const [serverError, setServerError] = useState("");
 
+	//only for testing until user management is ready
+	const [id, setId] = useState(1);
+
 	const handleLogin = async (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 
@@ -75,6 +78,14 @@ export const LoginPage = () => {
 			//const user = await UserStore.login(username, password);
 			//await ChatRoomStore.initializeStore(user.username);
 			//ChatRoomStore.initializeStoreWithMockData();
+			UserStore.updateLoggedInUser({
+				id: id,
+				avatar: "",
+				name: `Exam Ple0${id}`,
+				email: "example@example.com",
+				username: `${username}`,
+				phoneNumber: "123-456-7890",
+			})
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);
@@ -100,6 +111,13 @@ export const LoginPage = () => {
 						</InputAdornment>
 					),
 				}}
+			/>
+			{/*only for testing before user management is ready */}
+			<StyledInputField.TextField
+				variant="outlined"
+				fullWidth
+				label="ID"
+				onChange={e => setId(Number(e.target.value))}
 			/>
 			<PasswordInput setPassword={setPassword} passwordError={passwordError}/>
 			{serverError && <p>{serverError}</p>}
