@@ -47,7 +47,7 @@ public class ChatController {
         return new ResponseEntity<>(chatRoom, HttpStatus.OK);
     }
 
-    public void sendMessageToClient(ChatMessage chatMessage, int userId) {
+    public void sendMessageToClient(ChatMessage chatMessage, Integer userId) {
         simpMessagingTemplate.convertAndSend("/userId/" + userId, chatMessage);
     }
 }

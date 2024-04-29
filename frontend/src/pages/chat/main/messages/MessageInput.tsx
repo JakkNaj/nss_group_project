@@ -1,7 +1,7 @@
 import { TextField, IconButton } from "@mui/material";
 import { Send } from "@mui/icons-material";
 import styled from "styled-components";
-import { useState } from "react";
+import React, { useState } from "react";
 import { colors } from "../../../../styles/colors.ts";
 
 const Styled = {
@@ -32,9 +32,21 @@ export const MessageInput = ({ onSend }: MessageInputProps) => {
 		}
 	};
 
+	const handleKeyUp = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter") {
+			handleSend();
+			e.preventDefault(); //prevent adding a new line
+		}
+	}
+
 	return (
 		<Styled.InputContainer>
-			<TextField value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type in a message" fullWidth />
+			<TextField
+				value={message}
+				onChange={(e) => setMessage(e.target.value)}
+				placeholder="Type in a message"
+				onKeyUp={handleKeyUp}
+				fullWidth />
 			<IconButton onClick={handleSend} style={{ color: "saddlebrown" }}>
 				<Send />
 			</IconButton>

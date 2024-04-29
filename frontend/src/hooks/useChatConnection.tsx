@@ -7,29 +7,31 @@ import {useChatLogStore} from "../stores/ChatLogStore.ts";
 import {useStompClientStore} from "../stores/StompClientStore.ts";
 
 export const useChatConnection = ({ userId }: { userId: number }) => {
-    const { stompClient, setStompClient } = useStompClientStore();
+    const { setStompClient } = useStompClientStore();
     const { updateChatLogWithNewMessage } = useChatLogStore((state) => ({
         updateChatLogWithNewMessage: state.updateChatLogWithNewMessage,
     }));
 
     useEffect(() => {
+        console.warn("called useEffect in useChatConnection")
         if (userId) {
+            console.warn('Connecting to websocket')
             const socket = new SockJS('http://localhost:8080/start-websocket-communication');
             const client = Stomp.over(socket);
-            client.connect({}, () => {
+
+            const subscribeToChat = () => {
+                console.warn("Subscribing to chat");
                 client.subscribe(`/userId/${userId}`, onMessageReceived);
                 setStompClient(client);
-            }, onError);
+            }
+
+            client.connect({},subscribeToChat, onError);
         }
 
-        return () => {
-            if (stompClient) {
-                stompClient.disconnect();
-            }
-        };
-    }, [userId]);
+    }, []);
 
     const onMessageReceived = (message: IMessage) => {
+        console.warn('Received message')
         const payload = JSON.parse(message.body);
         const newMessage: MessageType = {
             messageLogId: payload.messageLogId,
@@ -65,5 +67,4 @@ export const useChatConnection = ({ userId }: { userId: number }) => {
         console.log('Error: websocket error');
     };
 
-    return { stompClient };
 };

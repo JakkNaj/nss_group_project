@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
-import { useSendMessage } from "../../../hooks/useSendMessage.tsx";
 import {UserStore} from "../../../stores/UserStore.ts";
 
 interface DirectChatConnectProps {
@@ -11,11 +10,11 @@ interface DirectChatConnectProps {
 export const DirectChatConnect = ({ toggleProfileWindow }: DirectChatConnectProps) => {
 	const [chatId, setChatId] = useState("");
 
-	const handleConnect = async () => {
+	const handleConnect = async (event: FormEvent) => {
+		event.preventDefault();
 		const id = parseInt(chatId);
 		if (!isNaN(id)) {
 			try {
-				//add user to chat, then fetch chatRoom and chatLog
 				await ChatRoomStore.addUserToChatRoomBEcall(id, UserStore.getLoggedInUser().id);
 				const chatRoom = await ChatRoomStore.getChatRoom(id);
 				if (chatRoom) {
@@ -33,10 +32,12 @@ export const DirectChatConnect = ({ toggleProfileWindow }: DirectChatConnectProp
 	return (
 		<div>
 			<h3>Connect to Direct Chat</h3>
-			<TextField variant="outlined" label="Chat ID" value={chatId} onChange={(e) => setChatId(e.target.value)} />
-			<Button variant="contained" onClick={handleConnect}>
-				Connect
-			</Button>
+			<form onSubmit={handleConnect}>
+				<TextField variant="outlined" label="Chat ID" value={chatId} onChange={(e) => setChatId(e.target.value)} />
+				<Button variant="contained" type="submit">
+					Connect
+				</Button>
+			</form>
 		</div>
 	);
 };

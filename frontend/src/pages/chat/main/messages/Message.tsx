@@ -56,6 +56,18 @@ export const Message = ({ message, userId }: MessageProps) => {
 		return <div>Error: not found sender of the message!</div>;
 	}
 
+	function formatDate(timestampInSeconds : number) {
+		const date = new Date(timestampInSeconds * 1000);
+		const year = date.getFullYear();
+		const month = ("0" + (date.getMonth() + 1)).slice(-2);
+		const day = ("0" + date.getDate()).slice(-2);
+		const hours = ("0" + date.getHours()).slice(-2);
+		const minutes = ("0" + date.getMinutes()).slice(-2);
+		const seconds = ("0" + date.getSeconds()).slice(-2);
+
+		return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+	}
+
 	return (
 		<Styled.MessageContainer $isUserMessage={isUserMessage}>
 			{!isUserMessage && <Styled.Avatar username={sender.name} avatar={sender.avatar} width={2} />}
@@ -67,7 +79,7 @@ export const Message = ({ message, userId }: MessageProps) => {
 				)}
 				{showTimestamp && (
 					<Typography variant="caption" color="textSecondary">
-						{message.timestampInSeconds.toLocaleString()}
+						{formatDate(message.timestampInSeconds)}
 					</Typography>
 				)}
 				<Styled.MessageCard $isUserMessage={isUserMessage} onClick={() => setShowTimestamp(!showTimestamp)}>

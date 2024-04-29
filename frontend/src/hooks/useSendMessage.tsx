@@ -6,6 +6,7 @@ export const useSendMessage = () => {
 
 	const sendMessage = ({ content, chatLogId, type = "CHAT" }: { content: string | null; chatLogId: number; type?: string }) => {
 		if (stompClient?.connected) {
+			console.warn("Sending message through websocket")
 			const chatMessage = {
 				messageLogId: chatLogId,
 				senderId: UserStore.getLoggedInUser().id,
