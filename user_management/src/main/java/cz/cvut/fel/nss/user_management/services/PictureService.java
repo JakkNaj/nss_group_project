@@ -11,31 +11,38 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
 @Slf4j
 public class PictureService {
+    private final PictureEntityRepository pictureRepository;
+    private final UserRepository userRepository;
+    private final ImageResizingService imageResizingService;
+
     @Autowired
-    private PictureEntityRepository pictureRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ImageResizingService imageResizingService;
+    public PictureService(PictureEntityRepository pictureRepository, UserRepository userRepository, ImageResizingService imageResizingService) {
+        this.pictureRepository = pictureRepository;
+        this.userRepository = userRepository;
+        this.imageResizingService = imageResizingService;
+    }
 
     @Value("${profilephoto.max.size}")
     private int maxProfilePhotoSize;
 
     @SneakyThrows
     public void addPicture(MultipartFile file, int id) {
+        if (file == null) {
+            throw new WrongFileException("File is null");
+        }
         validateUser(id);
-        file = validateAndPrepareFile(file);
+        validateFile(file);
         PictureEntity pictureEntity = pictureRepository.findById(id).orElse(new PictureEntity());
         byte[] thumbnail = imageResizingService.createThumbnail(file.getBytes());
         pictureEntity.savePicture(file.getBytes(), thumbnail, id, file.getContentType());
@@ -51,19 +58,14 @@ public class PictureService {
     }
 
     @SneakyThrows
-    private MultipartFile validateAndPrepareFile(MultipartFile file) {
-        if (file == null) {
-            return new MockMultipartFile("default-user-icon-scaled.png", new FileInputStream("user-management/src/main/resources/assets/images/default-user-icon-scaled.png"));
-        } else {
-            if (file.getSize() > maxProfilePhotoSize) {
-                throw new WrongFileException("File is too big");
-            }
-            if (!"image/jpeg".equals(file.getContentType()) && !Objects.equals(file.getContentType(), "image/png")) {
-                log.info("File content type: {}", file.getContentType());
-                throw new WrongFileException("File is not a valid image format");
-            }
+    private void validateFile(MultipartFile file) {
+        if (file.getSize() > maxProfilePhotoSize) {
+            throw new WrongFileException("File is too big");
         }
-        return file;
+        if (!"image/jpeg".equals(file.getContentType()) && !Objects.equals(file.getContentType(), "image/png")) {
+            log.info("File content type: {}", file.getContentType());
+            throw new WrongFileException("File is not a valid image format");
+        }
     }
 
     public void deletePicture(int id) {
@@ -74,11 +76,19 @@ public class PictureService {
         pictureRepository.deleteById(id);
     }
 
-    public byte[] getPicture(int id) {
-        Optional<PictureEntity> picture = pictureRepository.findById(id);
-        if (picture.isEmpty()) {
-            throw new NotFoundException("User with id " + id + " does not have a profile photo");
-        }
-        return picture.get().getStoredPicture();
+    @SneakyThrows
+    public byte[] getPicture(int userId) {
+        Optional<PictureEntity> pictureEntity = pictureRepository.findById(userId);
+        if (pictureEntity.isEmpty()) {
+            // Load the default image file into a byte[]
+            byte[] defaultImage;
+            defaultImage = Files.readAllBytes(Paths.get("user_management/src/main/resources/assets/images/default-user-icon-scaled.png"));
+
+            // Use the default image to create a new PictureEntity
+            PictureEntity defaultPictureEntity = new PictureEntity();
+            defaultPictureEntity.savePicture(defaultImage, defaultImage, userId, "image/png");
+            return defaultPictureEntity.getStoredPicture();
+        } else
+            return pictureEntity.get().getStoredPicture();
     }
 }
