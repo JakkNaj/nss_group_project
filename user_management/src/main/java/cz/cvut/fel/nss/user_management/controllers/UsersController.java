@@ -2,7 +2,11 @@ package cz.cvut.fel.nss.user_management.controllers;
 
 import cz.cvut.fel.nss.user_management.entities.AccountState;
 import cz.cvut.fel.nss.user_management.entities.UserEntity;
-import cz.cvut.fel.nss.user_management.entities.dto.*;
+import cz.cvut.fel.nss.user_management.entities.dto.CombinedUserDto;
+import cz.cvut.fel.nss.user_management.entities.dto.SignUpDto;
+import cz.cvut.fel.nss.user_management.entities.dto.UserDetailDto;
+import cz.cvut.fel.nss.user_management.entities.dto.UserEntityDto;
+import cz.cvut.fel.nss.user_management.exception.NotFoundException;
 import cz.cvut.fel.nss.user_management.services.PictureService;
 import cz.cvut.fel.nss.user_management.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,38 +23,40 @@ import java.net.URI;
 @RestController
 @RequestMapping("/users")
 public class UsersController {
+    private final UsersService userService;
+    private final PictureService pictureService;
+
     @Autowired
-    UsersService userService;
-    @Autowired
-    PictureService pictureService;
+    public UsersController(UsersService userService, PictureService pictureService) {
+        this.userService = userService;
+        this.pictureService = pictureService;
+    }
 
     @PostMapping()
     public ResponseEntity<CombinedUserDto> addUser(@RequestBody SignUpDto credentials) {
         UserEntity user = userService.addUser(credentials);
-        pictureService.addPicture(null, userService.findByUsername(credentials.getUsername()).getId());
-        CombinedUserDto response = userService.getUser(credentials.getUsername());
+        CombinedUserDto response = userService.getUserByUsername(credentials.getUsername());
         return ResponseEntity.created(URI.create("/users" + user.getUsername())).body(response);
     }
 
     @PutMapping()
     public ResponseEntity<CombinedUserDto> updateUser(@RequestBody UserEntityDto userDto) {
         userService.updateUser(userDto);
-        CombinedUserDto updatedUserDetail = userService.getUser(userDto.getId());
+        CombinedUserDto updatedUserDetail = userService.getUserByUserid(userDto.getUserId());
         return ResponseEntity.ok(updatedUserDetail);
     }
 
     @PutMapping("/details")
     public ResponseEntity<CombinedUserDto> updateUserDetails(@RequestBody UserDetailDto userDto) {
         userService.updateUserDetail(userDto);
-        CombinedUserDto updatedUserDetail = userService.getUser(userDto.getId());
+        CombinedUserDto updatedUserDetail = userService.getUserByUserid(userDto.getUserId());
         return ResponseEntity.ok(updatedUserDetail);
     }
 
     @PostMapping("/login")
     public ResponseEntity<CombinedUserDto> loginUser(@RequestHeader("username") String username, @RequestHeader("password") String password) {
         userService.authenticateUser(username, password);
-        int userId = userService.findByUsername(username).getId();
-        CombinedUserDto loggedUser = userService.getUser(userId);
+        CombinedUserDto loggedUser = userService.getUserByUsername(username);
         return ResponseEntity.ok(loggedUser);
     }
 
@@ -61,7 +67,7 @@ public class UsersController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<CombinedUserDto> getUserDetails(@PathVariable int id) {
-        CombinedUserDto user = userService.getUser(id);
+        CombinedUserDto user = userService.getUserByUserid(id);
         return ResponseEntity.ok(user);
     }
 
@@ -72,8 +78,8 @@ public class UsersController {
      */
     @GetMapping("/{id}/profilePhoto")
     public ResponseEntity<byte[]> getProfilePhoto(@PathVariable int id) {
-        if (userService.getUser(id).getAccountState() == AccountState.DELETED) {
-            return ResponseEntity.ok(new byte[0]); // return deleted image
+        if (userService.getUserByUserid(id).getAccountState() == AccountState.DELETED) {
+            throw new NotFoundException("User with id " + id + " does not exist");
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);

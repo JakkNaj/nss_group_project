@@ -1,9 +1,8 @@
 package cz.cvut.fel.nss.user_management.entities;
 
 public enum UserDetailKey {
-    EMAIL,
-    PHONE,
     ADDRESS,
+    PHONE_NUMBERS,
     BIRTHDATE,
     DATE_CREATED
 }

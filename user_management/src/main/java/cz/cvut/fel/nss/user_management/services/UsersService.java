@@ -2,24 +2,23 @@ package cz.cvut.fel.nss.user_management.services;
 
 import cz.cvut.fel.nss.user_management.dao.UserRepository;
 import cz.cvut.fel.nss.user_management.entities.*;
-import cz.cvut.fel.nss.user_management.entities.dto.CombinedUserDto;
-import cz.cvut.fel.nss.user_management.entities.dto.SignUpDto;
-import cz.cvut.fel.nss.user_management.entities.dto.UserDetailDto;
-import cz.cvut.fel.nss.user_management.entities.dto.UserEntityDto;
+import cz.cvut.fel.nss.user_management.entities.dto.*;
 import cz.cvut.fel.nss.user_management.exception.BadRequestException;
+import cz.cvut.fel.nss.user_management.exception.ConflictException;
 import cz.cvut.fel.nss.user_management.exception.NotFoundException;
-import cz.cvut.fel.nss.user_management.repositories.PictureEntityRepository;
 import cz.cvut.fel.nss.user_management.repositories.UserDetailRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
@@ -27,7 +26,8 @@ import java.util.regex.Pattern;
 public class UsersService {
     private final UserRepository userRepository;
     private final UserDetailRepository userDetailRepository;
-    private final PictureEntityRepository pictureEntityRepository;
+    private final MongoTemplate mongoTemplate;
+    private final PictureService pictureService;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 
@@ -38,10 +38,12 @@ public class UsersService {
     private int maxUsernameLength;
 
     @Autowired
-    public UsersService(UserRepository userRepository, UserDetailRepository userDetailRepository, PictureEntityRepository pictureEntityRepository) {
+    public UsersService(UserRepository userRepository, UserDetailRepository userDetailRepository,
+                        MongoTemplate mongoTemplate, PictureService pictureService) {
         this.userRepository = userRepository;
         this.userDetailRepository = userDetailRepository;
-        this.pictureEntityRepository = pictureEntityRepository;
+        this.mongoTemplate = mongoTemplate;
+        this.pictureService = pictureService;
     }
 
     public UserEntity findByUsername(String username) {
@@ -52,50 +54,63 @@ public class UsersService {
         return user.get();
     }
 
-    public UserEntity findById(int id) {
-        Optional<UserEntity> user =  userRepository.findById(id);
+    public UserEntity findByUserId(int userId) {
+        Optional<UserEntity> user =  userRepository.findById(userId);
         if (user.isEmpty() || user.get().getAccountState() == AccountState.DELETED) {
-            throw new NotFoundException("User with id " + id + " does not exist");
+            log.info("User with id " + userId + " does not exist");
+            throw new NotFoundException("User with id " + userId + " does not exist");
         }
         return user.get();
     }
 
     @Transactional
     public UserEntity addUser(SignUpDto signUpDto) {
-        basicValidation(signUpDto.getUsername());
+        basicValidation(signUpDto.getUsername(), signUpDto.getEmail());
         Optional<UserEntity> existingUser = userRepository.findByUsername(signUpDto.getUsername());
-        UserEntity user = new UserEntity();
         if (existingUser.isPresent()) {
-            throw new BadRequestException("User with username " + user.getUsername() + " already exists");
+            throw new BadRequestException("User with username " + signUpDto.getUsername() + " already exists");
         }
-        user.setUsername(signUpDto.getUsername());
-        user.setName(signUpDto.getName());
-        user.setPassword(signUpDto.getPassword()); // maybe use passwordEncoder.encode(user.getPassword())
-        user.setAccountState(AccountState.ACTIVE);
+        UserEntity user = new UserEntity(signUpDto);
         userRepository.save(user);
 
-        UserDetail userDetail = new UserDetail();
-        userDetail.addDetail(findByUsername(signUpDto.getUsername()).getId(), UserDetailKey.EMAIL, signUpDto.getEmail());
-        userDetail.addDetail(findByUsername(signUpDto.getUsername()).getId(), UserDetailKey.DATE_CREATED, LocalDate.now().toString());
+        UserDetail userDetail = new UserDetail(findByUsername(signUpDto.getUsername()).getUserId());
+        userDetail.addValue(UserDetailKey.DATE_CREATED, new DateUserDetail(LocalDate.now()));
         userDetailRepository.save(userDetail);
         return user;
     }
 
+    /**
+     * We do not allow changing username
+     * @param userEntityDto
+     */
     public void updateUser(UserEntityDto userEntityDto) {
-        basicValidation(findById(userEntityDto.getId()).getUsername());
-        Optional<UserEntity> existingUser = userRepository.findById(userEntityDto.getId());
+        Optional<UserEntity> existingUser = userRepository.findById(userEntityDto.getUserId());
         if (existingUser.isEmpty() || existingUser.get().getAccountState() == AccountState.DELETED) {
-            throw new NotFoundException("User with username " + findById(userEntityDto.getId()).getUsername() + " does not exist");
+            throw new NotFoundException("User with username " + findByUserId(userEntityDto.getUserId()).getUsername() + " does not exist");
         }
-        if (userEntityDto.getPassword() != null)
+        if (!Objects.equals(existingUser.get().getEmail(), userEntityDto.getEmail())) {
+            basicValidation(userEntityDto.getUsername(), userEntityDto.getEmail());
+            existingUser.get().setEmail(userEntityDto.getEmail());
+        }
+        if (!Objects.equals(existingUser.get().getPassword(), userEntityDto.getPassword()) && userEntityDto.getPassword() != null)
             existingUser.get().setPassword(userEntityDto.getPassword());
-        existingUser.get().setName(userEntityDto.getName());
-        existingUser.get().setAccountState(userEntityDto.getAccountState());
+        if (!Objects.equals(existingUser.get().getName(), userEntityDto.getName()))
+            existingUser.get().setName(userEntityDto.getName());
+        if (!Objects.equals(existingUser.get().getAccountState(), userEntityDto.getAccountState()))
+            existingUser.get().setAccountState(userEntityDto.getAccountState());
         userRepository.save(existingUser.get());
-        log.info("user updated");
     }
 
-    private void basicValidation (String username) {
+    private void basicValidation (String username, String email) {
+        if (userRepository.existsByUsername(username)) {
+            throw new ConflictException("Username must be unique");
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new ConflictException("Email must be unique");
+        }
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            throw new BadRequestException("Email must be valid");
+        }
         if (username.length() < minUsernameLength || username.length() > maxUsernameLength) {
             throw new BadRequestException("Username must be between " + minUsernameLength + " and " + maxUsernameLength + " characters");
         }
@@ -114,41 +129,107 @@ public class UsersService {
 
     /**
      * Won't update dateCreated
+     * Please note that only country codes in PhoneCountryCode enum are allowed
      * @param userDetailDto
      */
+    @Transactional
     public void updateUserDetail(UserDetailDto userDetailDto) {
-        UserEntity user = findById(userDetailDto.getId());
-        UserDetail userDetail = userDetailRepository.findById(user.getId())
+        UserEntity user = findByUserId(userDetailDto.getUserId());
+        UserDetail userDetail = userDetailRepository.findById(user.getUserId())
                 .orElseThrow(() -> new NotFoundException("UserDetail with username " + user.getUsername() + " does not exist"));
-        userDetail.addDetail(user.getId(), UserDetailKey.EMAIL, userDetailDto.getEmail());
-        userDetail.addDetail(user.getId(), UserDetailKey.PHONE, userDetailDto.getPhone());
-        userDetail.addDetail(user.getId(), UserDetailKey.ADDRESS, userDetailDto.getAddress());
-        userDetail.addDetail(user.getId(), UserDetailKey.BIRTHDATE, userDetailDto.getBirthdate());
+        // check changes
+        updateAddress(userDetailDto, userDetail);
+        updatePhoneNumbers(userDetailDto, user, userDetail);
+        updateBirthdate(userDetailDto, userDetail);
         userDetailRepository.save(userDetail);
     }
 
-    public CombinedUserDto getUser(int id) {
-        return getCombinedUserDtoFromUserEntity(findById(id));
+    private void updatePhoneNumbers(UserDetailDto userDetailDto, UserEntity user, UserDetail userDetail) {
+        if (userDetailDto.getPhones() != null) {
+            Optional<PhoneNumbers> phoneNumbers = userDetail.getValue(UserDetailKey.PHONE_NUMBERS, PhoneNumbers.class);
+            if (phoneNumbers.isPresent()) {
+                if (phoneNumbers.get().equals(userDetailDto.getPhones())) {
+                    return;
+                }
+                userDetail.removeValue(UserDetailKey.PHONE_NUMBERS);
+            }
+            for (PhoneNumber phoneNumber : userDetailDto.getPhones().getListOfPhoneNumbers()) {
+                if (!isPhoneInValidFormat(phoneNumber.getTelephoneNumber()))
+                    throw new BadRequestException("Phone number " + phoneNumber.getTelephoneNumber() + " with prefix " + phoneNumber.getCountry() + " is not in a valid format");
+                if (isPhoneNumberAssignedToDifferentUser(phoneNumber, user.getUserId()))
+                    throw new BadRequestException("Phone number " + phoneNumber.getTelephoneNumber() + " with prefix " + phoneNumber.getCountry() + " is already assigned to a different user");
+            }
+            userDetail.addValue(UserDetailKey.PHONE_NUMBERS, userDetailDto.getPhones());
+        }
     }
 
-    public CombinedUserDto getUser(String username) {
+    public boolean isPhoneInValidFormat(String telephoneNumber) {
+        return telephoneNumber.matches("^[\\+]?\\d{9,12}$");
+    }
+
+    public boolean isPhoneNumberAssignedToDifferentUser(PhoneNumber phoneNumber, int userId) {
+        Criteria criteria = new Criteria();
+        criteria.andOperator(
+                Criteria.where("_id").ne(userId),
+                Criteria.where("element").elemMatch(
+                        Criteria.where("type").is("PHONE_NUMBERS")
+                                .and("listOfPhoneNumbers").is(phoneNumber)
+                )
+        );
+        Query query = new Query(criteria);
+        return mongoTemplate.exists(query, UserDetail.class);
+    }
+
+    private void updateAddress(UserDetailDto userDetailDto, UserDetail userDetail) {
+        AddressDto addressDto = userDetailDto.getAddress();
+        if(addressDto != null) {
+            Optional<Address> address = userDetail.getValue(UserDetailKey.ADDRESS, Address.class);
+            if (address.isPresent() && !address.get().equals(new Address(addressDto))) {
+                userDetail.removeValue(UserDetailKey.ADDRESS);
+                userDetail.addValue(UserDetailKey.ADDRESS, new Address(addressDto));
+            } else if (address.isEmpty()) {
+                userDetail.addValue(UserDetailKey.ADDRESS, new Address(addressDto));
+            }
+        }
+    }
+
+    private void updateBirthdate(UserDetailDto userDetailDto, UserDetail userDetail) {
+        if (userDetailDto.getBirthdate() != null) {
+            Optional<DateUserDetail> birthdate = userDetail.getValue(UserDetailKey.BIRTHDATE, DateUserDetail.class);
+            if (birthdate.isPresent() && !birthdate.get().getDate().equals(userDetailDto.getBirthdate())) {
+                userDetail.removeValue(UserDetailKey.BIRTHDATE);
+                userDetail.addValue(UserDetailKey.BIRTHDATE, new DateUserDetail(userDetailDto.getBirthdate()));
+            } else if (birthdate.isEmpty()) {
+                userDetail.addValue(UserDetailKey.BIRTHDATE, new DateUserDetail(userDetailDto.getBirthdate()));
+            }
+        }
+    }
+
+    public CombinedUserDto getUserByUserid(int userId) {
+        return getCombinedUserDtoFromUserEntity(findByUserId(userId));
+    }
+
+    public CombinedUserDto getUserByUsername(String username) {
         return getCombinedUserDtoFromUserEntity(findByUsername(username));
     }
 
+    @SneakyThrows
     private CombinedUserDto getCombinedUserDtoFromUserEntity(UserEntity user) {
-        UserDetail userDetail = userDetailRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("UserDetail with username " + user.getUsername() + " does not exist"));
-        PictureEntity pictureEntity = pictureEntityRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("PictureEntity with username " + user.getUsername() + " does not exist"));
+        if (user.getAccountState() == AccountState.DELETED) {
+            throw new NotFoundException("User with username " + user.getUsername() + " does not exist");
+        }
+        UserDetail userDetail = userDetailRepository.findById(user.getUserId()).orElseThrow(() -> new NotFoundException("UserDetail with username " + user.getUsername() + " does not exist"));
         CombinedUserDto combinedUserDto = new CombinedUserDto();
-        combinedUserDto.setId(user.getId());
+        combinedUserDto.setUserId(user.getUserId());
         combinedUserDto.setUsername(user.getUsername());
         combinedUserDto.setName(user.getName());
         combinedUserDto.setAccountState(user.getAccountState());
-        combinedUserDto.setEmail(userDetail.getDetails().get(UserDetailKey.EMAIL));
-        combinedUserDto.setPhone(userDetail.getDetails().get(UserDetailKey.PHONE));
-        combinedUserDto.setAddress(userDetail.getDetails().get(UserDetailKey.ADDRESS));
-        combinedUserDto.setBirthdate(userDetail.getDetails().get(UserDetailKey.BIRTHDATE));
-        combinedUserDto.setDateCreated(userDetail.getDetails().get(UserDetailKey.DATE_CREATED));
-        String encodedImage = Base64.getEncoder().encodeToString(pictureEntity.getThumbnail());
+        combinedUserDto.setEmail(user.getEmail());
+        combinedUserDto.setPhones(userDetail.getValue(UserDetailKey.PHONE_NUMBERS, PhoneNumbers.class).orElse(null));
+        userDetail.getValue(UserDetailKey.ADDRESS, Address.class).ifPresent(value -> combinedUserDto.setAddress(new AddressDto(value)));
+        combinedUserDto.setBirthdate(userDetail.getValue(UserDetailKey.BIRTHDATE, DateUserDetail.class).map(DateUserDetail::getDate).map(LocalDate::toString).orElse(null));
+        combinedUserDto.setDateCreated(userDetail.getValue(UserDetailKey.DATE_CREATED, DateUserDetail.class).map(DateUserDetail::getDate).map(LocalDate::toString).orElse(null));
+        String encodedImage = Base64.getEncoder().encodeToString(pictureService.getPicture(user.getUserId()));
         combinedUserDto.setThumbnail(encodedImage);
         return combinedUserDto;
     }
