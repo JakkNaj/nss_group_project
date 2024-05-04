@@ -92,7 +92,7 @@ export const EditProfile = (props: EditProfileProps) => {
 
 				if (!response.ok) {
 					const errorData = await response.json();
-					throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+					throw new Error(`${errorData.message}`);
 				}
 
 				setSuccessMessage("Profile updated successfully!");
@@ -137,6 +137,10 @@ export const EditProfile = (props: EditProfileProps) => {
 	const handleFileUpload = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
+		if (uploadErrorMessage) {
+			return;
+		}
+
 		if (!selectedFile) {
 			setUploadErrorMessage("No file selected for upload");
 			return;
@@ -153,7 +157,7 @@ export const EditProfile = (props: EditProfileProps) => {
 
 			if (!response.ok) {
 				const errorData = await response.json();
-				throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+				throw new Error(`${errorData.message}`);
 			}
 
 			const data = await response.text();
