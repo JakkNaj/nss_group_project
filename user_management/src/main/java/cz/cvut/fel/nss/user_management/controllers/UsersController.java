@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.util.Base64;
 
 
 @RestController
@@ -99,10 +100,18 @@ public class UsersController {
     }
 
     //TODO: odstranit multipart
-    @PostMapping("/{id}/profilePhoto")
+    /*@PostMapping("/{id}/profilePhoto")
     public ResponseEntity<String> uploadProfilePhoto(@PathVariable int id, @RequestHeader("file") MultipartFile file) {
         pictureService.addPicture(file, id);
         return ResponseEntity.ok("Profile photo uploaded successfully");
+    }*/
+
+    //Jakub: oprava endpointu pro upload fotky
+    @PostMapping("/{id}/profilePhoto")
+    public ResponseEntity<String> uploadProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) {
+        pictureService.addPicture(file, id);
+        String encodedImage = Base64.getEncoder().encodeToString(pictureService.getPicture(id));
+        return ResponseEntity.ok(encodedImage);
     }
 
     /**

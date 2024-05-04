@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import {mapResponseToUserType, UserType} from "../model/types/UserType";
+import { mapResponseToUserType, UserType } from "../model/types/UserType";
 import { usersData } from "../MockData.ts";
 import { SignupDto } from "../model/types/SignupDto.ts";
 
@@ -56,7 +56,7 @@ export const UserStore = {
 			throw error;
 		}
 	},
-	register: async (credentials :SignupDto) => {
+	register: async (credentials: SignupDto) => {
 		try {
 			const response = await fetch("http://localhost:8081/users", {
 				method: "POST",
@@ -82,5 +82,9 @@ export const UserStore = {
 			console.error(error);
 			throw error;
 		}
-	}
+	},
+	updateLoggedInUserAvatar: (avatar: string) => {
+		const loggedInUser = useUserStore.getState().loggedInUser;
+		useUserStore.setState({ loggedInUser: { ...loggedInUser, avatar: avatar } });
+	},
 };

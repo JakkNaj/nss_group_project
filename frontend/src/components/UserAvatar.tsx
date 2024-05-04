@@ -22,11 +22,13 @@ export const UserAvatar = (props: UserAvatarProps) => {
 
 	const avatarColor = generateColor(initials);
 
+	const avatarSrc = `data:image/jpeg;base64,${props.avatar}`;
+
 	return props.avatar ? (
 		<Avatar
 			className={props.className}
 			alt={props.name + " avatar"}
-			src={props.avatar}
+			src={avatarSrc}
 			style={{ width: `${props?.width}rem`, height: `${props?.width}rem` }}
 		/>
 	) : (

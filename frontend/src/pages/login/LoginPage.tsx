@@ -5,11 +5,11 @@ import styled from "styled-components";
 import Button from "@mui/material/Button";
 import { colors } from "../../styles/colors.ts";
 import { Link, useNavigate } from "react-router-dom";
-import React, {useState} from "react";
-import {UserStore} from "../../stores/UserStore.ts";
-import {PasswordInput} from "../../components/PasswordInput.tsx";
-import {ChatRoomStore} from "../../stores/ChatRoomStore.ts";
-import {ChatLogStore} from "../../stores/ChatLogStore.ts";
+import React, { useState } from "react";
+import { UserStore } from "../../stores/UserStore.ts";
+import { PasswordInput } from "../../components/PasswordInput.tsx";
+import { ChatRoomStore } from "../../stores/ChatRoomStore.ts";
+import { ChatLogStore } from "../../stores/ChatLogStore.ts";
 
 const Styled = {
 	Form: styled("form")({
@@ -74,14 +74,13 @@ export const LoginPage = () => {
 		try {
 			const user = await UserStore.login(username, password);
 			console.log("User logged in: ", user);
-			await ChatRoomStore.initializeStore(user.id);
-			await ChatLogStore.initializeStore(user.id);
+			/*await ChatRoomStore.initializeStore(user.id);
+			await ChatLogStore.initializeStore(user.id);*/
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);
 			setServerError((error as Error).message);
 		}
-
 	};
 
 	return (
@@ -91,7 +90,7 @@ export const LoginPage = () => {
 				variant="outlined"
 				fullWidth
 				label="Username"
-				onChange={e => setUsername(e.target.value)}
+				onChange={(e) => setUsername(e.target.value)}
 				error={!!usernameError}
 				helperText={usernameError}
 				InputProps={{
@@ -102,7 +101,7 @@ export const LoginPage = () => {
 					),
 				}}
 			/>
-			<PasswordInput setPassword={setPassword} passwordError={passwordError}/>
+			<PasswordInput setPassword={setPassword} passwordError={passwordError} />
 			{serverError && <p>{serverError}</p>}
 			<Styled.SubmitButton variant="contained" type="submit" onClick={handleLogin}>
 				Login
