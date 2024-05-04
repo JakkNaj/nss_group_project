@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import { StyledInputField } from "../../list/SearchField.tsx";
 import { colors } from "../../../../styles/colors.ts";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
+import { CircularProgress } from "@mui/material";
 
 const Styled = {
 	EditProfileContainer: styled("div")({
@@ -67,9 +68,12 @@ export const EditProfile = (props: EditProfileProps) => {
 	const [errorMessage, setErrorMessage] = useState("");
 	const [uploadErrorMessage, setUploadErrorMessage] = useState("");
 	const [uploadSuccessMessage, setUploadSuccessMessage] = useState("");
+	const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+	const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
 
 	const handleUpdateDetails = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
+		setIsLoadingDetails(true);
 
 		if (editedUsername !== username || editedName !== name || editedEmail !== email) {
 			const userEntityDto = {
@@ -105,6 +109,7 @@ export const EditProfile = (props: EditProfileProps) => {
 				}
 			}
 		}
+		setIsLoadingDetails(false);
 	};
 
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,6 +141,7 @@ export const EditProfile = (props: EditProfileProps) => {
 
 	const handleFileUpload = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
+		setIsLoadingAvatar(true);
 
 		if (uploadErrorMessage) {
 			return;
@@ -167,6 +173,7 @@ export const EditProfile = (props: EditProfileProps) => {
 		} catch (error) {
 			setUploadErrorMessage("Failed to upload profile picture");
 		}
+		setIsLoadingAvatar(false);
 	};
 
 	return (
@@ -185,6 +192,7 @@ export const EditProfile = (props: EditProfileProps) => {
 				<Styled.Button variant="contained" type="submit">
 					Upload Picture
 				</Styled.Button>
+				{isLoadingAvatar && <CircularProgress style={{ color: `${colors.darkerBackground}` }} />}
 			</Styled.UploadForm>
 			{uploadSuccessMessage && <p>{uploadSuccessMessage}</p>}
 
@@ -198,6 +206,7 @@ export const EditProfile = (props: EditProfileProps) => {
 				/>
 				<StyledInputField.TextField label="Name" fullWidth value={editedName} onChange={(e) => setEditedName(e.target.value)} />
 				<StyledInputField.TextField label="Email" fullWidth value={editedEmail} onChange={(e) => setEditedEmail(e.target.value)} />
+				{isLoadingDetails && <CircularProgress style={{ color: `${colors.darkerBackground}` }} />}
 				{successMessage && <p>{successMessage}</p>}
 				{errorMessage && <p>{errorMessage}</p>}
 				<Styled.Button variant="contained" type="submit">
@@ -206,7 +215,7 @@ export const EditProfile = (props: EditProfileProps) => {
 			</Styled.Form>
 
 			<Styled.Button onClick={props.handleCancel} variant="contained">
-				Cancel
+				Go back to profile details
 			</Styled.Button>
 		</Styled.EditProfileContainer>
 	);
