@@ -92,7 +92,7 @@ export const GroupChatDetail = ({ onBackClick, selectedGroupUser, setSelectedGro
 			) : (
 				<Styled.ProfileDetail>
 					<Styled.CloseIcon onClick={onBackClick} />
-					<Styled.Avatar username={activeChat.name} avatar={activeChat.avatar} width={7} />
+					<Styled.Avatar name={activeChat.name} avatar={activeChat.avatar} width={7} />
 					<Styled.ChatName>{activeChat.name}</Styled.ChatName>
 					<Styled.UserList>
 						{otherUsers.map((user) => (

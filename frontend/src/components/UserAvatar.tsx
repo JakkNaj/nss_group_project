@@ -1,14 +1,14 @@
 import Avatar from "@mui/material/Avatar";
 
 type UserAvatarProps = {
-	username: string;
+	name: string;
 	avatar: string | undefined;
 	className?: string;
 	width?: number;
 };
 
 export const UserAvatar = (props: UserAvatarProps) => {
-	const words = props.username.split(" ");
+	const words = props.name.split(" ");
 	const initials = (words[0][0] + (words[1] ? words[1][0] : "")).toUpperCase();
 
 	const generateColor = (initials: string) => {
@@ -25,7 +25,7 @@ export const UserAvatar = (props: UserAvatarProps) => {
 	return props.avatar ? (
 		<Avatar
 			className={props.className}
-			alt={props.username + " avatar"}
+			alt={props.name + " avatar"}
 			src={props.avatar}
 			style={{ width: `${props?.width}rem`, height: `${props?.width}rem` }}
 		/>

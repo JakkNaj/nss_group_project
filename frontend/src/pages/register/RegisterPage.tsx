@@ -11,6 +11,7 @@ import {UserStore} from "../../stores/UserStore.ts";
 import PersonIcon from '@mui/icons-material/Person';
 import {SignupDto} from "../../model/types/SignupDto.ts";
 import {ChatRoomStore} from "../../stores/ChatRoomStore.ts";
+import {ChatLogStore} from "../../stores/ChatLogStore.ts";
 
 
 const Styled = {
@@ -91,7 +92,7 @@ export const RegisterPage = () => {
 		}
 
 		const credentials : SignupDto = {
-			username: username,
+			username: `${username}`,
 			password: password,
 			name: name,
 			email: email,
@@ -99,8 +100,9 @@ export const RegisterPage = () => {
 
 		try {
 			const user = await UserStore.register(credentials);
-			await ChatRoomStore.initializeStore(user.username);
-
+			console.log("User registered: ", user);
+			await ChatRoomStore.initializeStore(user.id);
+			await ChatLogStore.initializeStore(user.id);
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);

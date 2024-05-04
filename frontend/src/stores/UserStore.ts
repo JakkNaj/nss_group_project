@@ -32,7 +32,7 @@ export const UserStore = {
 	reset: () => useUserStore.setState(defaultUserState),
 	login: async (username: string, password: string) => {
 		try {
-			const response = await fetch("http://localhost:8081/login", {
+			const response = await fetch("http://localhost:8081/users/login", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

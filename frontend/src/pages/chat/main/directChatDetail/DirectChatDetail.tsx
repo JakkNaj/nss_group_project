@@ -95,7 +95,7 @@ export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
 	return (
 		<Styled.ProfileDetail>
 			<Styled.CloseIcon onClick={onBackClick} />
-			<Styled.Avatar username={otherUser.name} avatar={otherUser.avatar} width={7} />
+			<Styled.Avatar name={otherUser.name} avatar={otherUser.avatar} width={7} />
 			<Styled.ChatName>{otherUser.name}</Styled.ChatName>
 			<Styled.SectionName>Email</Styled.SectionName>
 			<Styled.Email>{otherUser.email}</Styled.Email>

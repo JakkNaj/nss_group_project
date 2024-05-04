@@ -57,7 +57,7 @@ export const ChatHeader = (props: ChatHeaderProps) => {
 	return (
 		<Styled.ChatHeader>
 			<Styled.AvatarLayout>
-				<UserAvatar username={activeChatRoom.name} avatar={""} />
+				<UserAvatar name={activeChatRoom.name} avatar={""} />
 				<Styled.UsernameStatusLayout>
 					<Styled.Username>{activeChatRoom.name}</Styled.Username>
 					<Styled.Status>online 7m ago</Styled.Status>

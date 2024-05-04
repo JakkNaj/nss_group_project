@@ -64,7 +64,7 @@ export function GroupUserDetail({ user, onBackClick, onRemoveClick }: UserDetail
 	return (
 		<Styled.UserDetail>
 			<Styled.ArrowIcon onClick={onBackClick} />
-			<Styled.Avatar username={user.name} avatar={user.avatar} width={7} />
+			<Styled.Avatar name={user.name} avatar={user.avatar} width={7} />
 			<Styled.UserName>{user.name}</Styled.UserName>
 			<Styled.Email>{user.email}</Styled.Email>
 			<Styled.Telephone>{user.phoneNumber}</Styled.Telephone>

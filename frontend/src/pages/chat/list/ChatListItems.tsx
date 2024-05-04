@@ -37,7 +37,7 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, toggleProfileWin
 					onClick={() => handleChatItemClick(chat.chatLogId)}
 				>
 					<ListItemAvatar>
-						<UserAvatar username={ChatRoomStore.getChatName(chat.chatLogId)} avatar={chat.avatar} />
+						<UserAvatar name={ChatRoomStore.getChatName(chat.chatLogId)} avatar={chat.avatar} />
 					</ListItemAvatar>
 					<div
 						style={{

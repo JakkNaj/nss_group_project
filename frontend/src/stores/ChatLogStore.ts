@@ -88,5 +88,27 @@ export const ChatLogStore = {
             chatLog.messages.sort((a, b) => b.timestampInSeconds - a.timestampInSeconds);
             useChatLogStore.setState({ activeChatLog: chatLog });
         }
-    }
+    },
+    initializeStore: async (chatLogId: number) => {
+        try {
+            const response = await fetch(`http://localhost:8081/chat-history/chatLogsForUser?chatLogId=${chatLogId}&page=${0}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    //todo auth headers
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+            }
+
+            const chatLogData = await response.json();
+            useChatLogStore.setState({ chatLogs: [chatLogData] });
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    },
 }
