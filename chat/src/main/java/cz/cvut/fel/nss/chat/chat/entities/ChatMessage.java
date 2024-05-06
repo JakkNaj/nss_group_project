@@ -59,7 +59,7 @@ public class ChatMessage implements Comparable<ChatMessage> {
 
     public ChatMessageDto toDto() {
         log.info("Converting ChatMessage to ChatMessageDto \n" + this);
-        return new ChatMessageDto(id, content, senderId, type, timestampInSeconds, messageReference);
+        return new ChatMessageDto(id, messageLogId, content, senderId, type, timestampInSeconds, messageReference);
     }
 
     @Override
