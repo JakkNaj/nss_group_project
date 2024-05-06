@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +22,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor
 @Builder
 @Document(indexName = "chat-messages")
+@Slf4j
 public class ChatMessage implements Comparable<ChatMessage> {
     @Id
     private String id;
@@ -34,32 +36,30 @@ public class ChatMessage implements Comparable<ChatMessage> {
     private MessageType type;
     @Field(type = FieldType.Long, includeInParent = true)
     private long timestampInSeconds;
+    @Field(type = FieldType.Nested, includeInParent = true)
+    private MessageReference messageReference;
 
     public ChatMessage(JSONObject jsonObject) {
         try {
+            this.id = jsonObject.getString("id");
             this.messageLogId = jsonObject.getInt("messageLogId");
             this.content = jsonObject.getString("content");
             this.senderId = jsonObject.getInt("senderId");
             this.type = MessageType.valueOf(jsonObject.getString("type"));
             this.timestampInSeconds = jsonObject.getLong("timestampInSeconds");
+            if (jsonObject.has("messageReference") && !jsonObject.isNull("messageReference")) {
+                this.messageReference = new MessageReference(jsonObject.getJSONObject("messageReference"));
+            } else {
+                this.messageReference = null;
+            }
         } catch (JSONException e) {
             throw new RuntimeException("Issue making ChatMessage from JSON", e);
         }
     }
 
-    @Override
-    public String toString() {
-        return "ChatMessage{" +
-                "messageLogId='" + messageLogId + '\'' +
-                ", content='" + content + '\'' +
-                ", senderId='" + senderId + '\'' +
-                ", type=" + type +
-                ", timestampInSeconds=" + timestampInSeconds +
-                '}';
-    }
-
     public ChatMessageDto toDto() {
-        return new ChatMessageDto(id, content, senderId, type, timestampInSeconds);
+        log.info("Converting ChatMessage to ChatMessageDto \n" + this);
+        return new ChatMessageDto(id, content, senderId, type, timestampInSeconds, messageReference);
     }
 
     @Override
@@ -70,6 +70,20 @@ public class ChatMessage implements Comparable<ChatMessage> {
     public enum MessageType {
         CHAT,
         JOIN,
-        LEAVE
+        LEAVE,
+        REPLY
+    }
+
+    @Override
+    public String toString() {
+        return "ChatMessage{" +
+                "id='" + id + '\'' +
+                ", messageLogId=" + messageLogId +
+                ", content='" + content + '\'' +
+                ", senderId=" + senderId +
+                ", type=" + type +
+                ", timestampInSeconds=" + timestampInSeconds +
+                ", messageReference=" + messageReference +
+                '}';
     }
 }

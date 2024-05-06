@@ -3,6 +3,7 @@ import { Send } from "@mui/icons-material";
 import styled from "styled-components";
 import React, { useState } from "react";
 import { colors } from "../../../../styles/colors.ts";
+import {MessageReferenceType} from "../../../../model/types/MessageReference.ts";
 
 const Styled = {
 	InputContainer: styled.div`
@@ -20,9 +21,10 @@ const Styled = {
 
 interface MessageInputProps {
 	onSend: (message: string) => void;
+	replyMessageReference: MessageReferenceType;
 }
 
-export const MessageInput = ({ onSend }: MessageInputProps) => {
+export const MessageInput = ({ onSend, replyMessageReference }: MessageInputProps) => {
 	const [message, setMessage] = useState("");
 
 	const handleSend = () => {
@@ -39,8 +41,17 @@ export const MessageInput = ({ onSend }: MessageInputProps) => {
 		}
 	}
 
+	const isReply = () => {
+		return replyMessageReference.referencedMessageId !== ""
+	}
+
 	return (
 		<Styled.InputContainer>
+			{isReply() && (
+				<div>
+					Replying to: {replyMessageReference.referencedMessageContent}
+				</div>
+			)}
 			<TextField
 				value={message}
 				onChange={(e) => setMessage(e.target.value)}

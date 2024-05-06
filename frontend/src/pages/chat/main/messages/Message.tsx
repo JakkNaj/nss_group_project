@@ -6,6 +6,7 @@ import { useState } from "react";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
 import { UserStore } from "../../../../stores/UserStore.ts";
 import { ChatRoomStore } from "../../../../stores/ChatRoomStore.ts";
+import ReplyIcon from '@mui/icons-material/Reply';
 
 const Styled = {
 	MessageContainer: styled.div<{ $isUserMessage: boolean }>`
@@ -35,17 +36,26 @@ const Styled = {
 	Avatar: styled(UserAvatar)`
 		margin-right: 0;
 	`,
+	ReplyIcon: styled(ReplyIcon)`
+		cursor: pointer;
+
+		&:hover {
+			cursor: pointer;
+		}
+	`,
 };
 
 interface MessageProps {
 	message: MessageType;
 	userId: number;
+	handleReplyClick: (messageId : string, messageContent : string | null) => void;
 }
 
-export const Message = ({ message, userId }: MessageProps) => {
+export const Message = ({ message, userId, handleReplyClick }: MessageProps) => {
 	const isUserMessage = message.senderId === userId;
 	const [showTimestamp, setShowTimestamp] = useState(false);
 	const sender = UserStore.getUserById(message.senderId);
+	const [showReplyIcon, setShowReplyIcon] = useState(false);
 
 	const { activeChat } = ChatRoomStore.useStore((state) => ({
 		activeChat: state.activeChatRoom,
@@ -69,7 +79,19 @@ export const Message = ({ message, userId }: MessageProps) => {
 	}
 
 	return (
-		<Styled.MessageContainer $isUserMessage={isUserMessage}>
+		<Styled.MessageContainer $isUserMessage={isUserMessage} onMouseEnter={
+			() => {
+				if (!isUserMessage) {
+					setShowReplyIcon(true);
+				}
+			}
+		} onMouseLeave={
+			() => {
+				if (!isUserMessage) {
+					setShowReplyIcon(false);
+				}
+			}
+		}>
 			{!isUserMessage && <Styled.Avatar username={sender.name} avatar={sender.avatar} width={2} />}
 			<Styled.MessageCardContainer $isUserMessage={isUserMessage}>
 				{activeChat?.type === "GROUP" && !isUserMessage && (
@@ -83,9 +105,23 @@ export const Message = ({ message, userId }: MessageProps) => {
 					</Typography>
 				)}
 				<Styled.MessageCard $isUserMessage={isUserMessage} onClick={() => setShowTimestamp(!showTimestamp)}>
+					{
+						message.type == "REPLY" && message.messageReference && (
+							<CardContent>
+								<Typography variant="caption" color="textSecondary">
+									Replying to: {message.messageReference.referencedMessageContent}
+								</Typography>
+							</CardContent>
+						)
+					}
 					<Styled.CardContent $isUserMessage={isUserMessage}>
 						<Typography variant="body2">{message.content}</Typography>
 					</Styled.CardContent>
+					{showReplyIcon && (
+						<Styled.ReplyIcon
+							onClick={() => handleReplyClick(message.id, message.content)}
+						/>
+					)}
 				</Styled.MessageCard>
 			</Styled.MessageCardContainer>
 		</Styled.MessageContainer>

@@ -9,6 +9,9 @@ import { useChatLogStore } from "../../../stores/ChatLogStore.ts";
 import { EMessageType } from "../../../model/enums/EMessageType.ts";
 import { UserType } from "../../../model/types/UserType.ts";
 import { useSendMessage } from "../../../hooks/useSendMessage.tsx";
+import { useSendReply } from "../../../hooks/useSendReply.tsx";
+import {useState} from "react";
+import {MessageReferenceType} from "../../../model/types/MessageReference.ts";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
@@ -54,7 +57,22 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 		activeChatRoom: state.activeChatRoom,
 	}));
 
+	const createMessageReference = (messageId : string, messageContent : string | null) : MessageReferenceType => {
+		let first10symbols = messageContent?.substring(0, 10) + "..."
+
+		return {
+			referencedMessageId: messageId,
+			referencedMessageContent: first10symbols
+		};
+	}
+
+	const [replyMessageReference, setReplyMessageReference] = useState(
+		createMessageReference("", "")
+	);
+
 	const { sendMessage } = useSendMessage();
+	const { sendReply } = useSendReply();
+
 
 	const toggleRightSection = () => {
 		setRightSectionVisible(!rightSectionVisible);
@@ -68,13 +86,34 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 	const handleSendMessage = (message: string) => {
 		if (!activeChatLog) return null;
 		if (message && activeChatLog) {
-			sendMessage({
-				chatLogId: activeChatLog.chatLogId,
-				content: message,
-				type: EMessageType.CHAT,
-			});
+			if (replyMessageReference.referencedMessageId !== "") {
+				sendReply({
+					chatLogId: activeChatLog.chatLogId,
+					content: message,
+					type: EMessageType.REPLY,
+					messageReference: replyMessageReference
+				});
+			} else {
+				sendMessage({
+					chatLogId: activeChatLog.chatLogId,
+					content: message,
+					type: EMessageType.CHAT,
+				});
+			}
+			setReplyMessageReference(
+				createMessageReference("", "")
+			);
 		}
 	};
+
+
+
+	const handleReplyClick = (messageId : string, messageContent : string | null) => {
+		console.log("Replying to message with id: " + messageId + " and content: " + messageContent);
+		setReplyMessageReference(
+			createMessageReference(messageId, messageContent)
+		);
+	}
 
 	return (
 		<Styled.ChatWindow $rightSectionVisible={rightSectionVisible}>
@@ -82,8 +121,8 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 				<Styled.Header>
 					<ChatHeader toggleRightSection={toggleRightSection} />
 				</Styled.Header>
-				<MessagesContainer />
-				<MessageInput onSend={handleSendMessage} />
+				<MessagesContainer handleReplyClick={handleReplyClick}/>
+				<MessageInput onSend={handleSendMessage} replyMessageReference={replyMessageReference}/>
 			</Styled.Content>
 			<Styled.RightSection $isVisible={rightSectionVisible}>
 				{activeChatRoom?.type === "ONE_ON_ONE" ? (

@@ -26,7 +26,9 @@ public class KafkaChatListenerService {
     @KafkaListener(topics = "allChatMessages", groupId = "chat")
     public void receiveKafkaMessage(String chatMessage) {
         try {
+            log.info("Received message from Kafka: {}", chatMessage);
             JSONObject jsonObject = new JSONObject(chatMessage);
+            log.info("Converted to JSON: {}", jsonObject);
             Integer messageLogId = jsonObject.getInt("messageLogId");
             log.trace("Sending message to frontend for chat {}", messageLogId);
             Integer[] recipientIds = chatRoomRepository

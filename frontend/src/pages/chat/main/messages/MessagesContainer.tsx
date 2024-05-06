@@ -14,7 +14,11 @@ const Styled = {
 	`,
 };
 
-export const MessagesContainer = () => {
+type MessagesContainerProps = {
+	handleReplyClick: (messageId : string, messageContent : string | null) => void;
+};
+
+export const MessagesContainer = (props : MessagesContainerProps) => {
 	const userId = UserStore.getLoggedInUser().id;
 	const { activeChatLog } = useChatLogStore((state) => ({
 		activeChatLog: state.activeChatLog,
@@ -42,10 +46,12 @@ export const MessagesContainer = () => {
 		return <div>Start the conversation!</div>;
 	}
 
+
+
 	return (
 		<Styled.MessagesContainer>
-			{messages.map((message, index) => (
-				<Message key={index} message={message} userId={userId} />
+			{messages.map((message) => (
+				<Message key={message.id} message={message} userId={userId} handleReplyClick={props.handleReplyClick}/>
 			))}
 			<div ref={messagesEndRef} />
 		</Styled.MessagesContainer>

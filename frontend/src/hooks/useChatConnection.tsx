@@ -33,12 +33,18 @@ export const useChatConnection = ({ userId }: { userId: number }) => {
     const onMessageReceived = (message: IMessage) => {
         console.warn('Received message')
         const payload = JSON.parse(message.body);
+
+        console.log('vvvv Received message payload:');
+        console.log(payload);
+
         const newMessage: MessageType = {
+            id: payload.id,
             messageLogId: payload.messageLogId,
             senderId: payload.senderId,
             content: payload.content,
             timestampInSeconds: payload.timestampInSeconds,
             type: payload.type,
+            messageReference: payload.messageReference,
         };
 
         console.log(newMessage);
@@ -55,6 +61,8 @@ export const useChatConnection = ({ userId }: { userId: number }) => {
                 updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
                 break;
             case 'CHAT':
+                //same for reply
+            case 'REPLY':
                 updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
                 break;
             default:
