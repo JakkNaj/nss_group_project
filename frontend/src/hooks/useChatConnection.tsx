@@ -34,9 +34,6 @@ export const useChatConnection = ({ userId }: { userId: number }) => {
         console.warn('Received message')
         const payload = JSON.parse(message.body);
 
-        console.log('vvvv Received message payload:');
-        console.log(payload);
-
         const newMessage: MessageType = {
             id: payload.id,
             messageLogId: payload.messageLogId,
@@ -61,7 +58,8 @@ export const useChatConnection = ({ userId }: { userId: number }) => {
                 updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
                 break;
             case 'CHAT':
-                //same for reply
+                updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
+                break;
             case 'REPLY':
                 updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
                 break;

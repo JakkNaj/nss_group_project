@@ -14,7 +14,6 @@ export const useChatLogStore = create<ChatLogStore>((set) => ({
     chatLogs: [],
     activeChatLog: null,
     updateChatLogWithNewMessage: (chatLogId, message) => set((state) => {
-        console.log("updating chat log with new message: ", chatLogId, message);
         const chatLogIndex = state.chatLogs.findIndex((chatLog) => chatLog.chatLogId === chatLogId);
         if (chatLogIndex !== -1) {
             const updatedChatLog = {
