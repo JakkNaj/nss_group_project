@@ -34,9 +34,10 @@ const Styled = {
 	CardContent: styled(CardContent)<{ $isUserMessage: boolean; $isReply: boolean }>`
 		background-color: ${(props) =>
 			props.$isUserMessage ? colors.darkerBackground : colors.lightBackground};
-		padding: 0.57875rem !important;
+		padding: 0.8rem !important;
 		border-left: ${(props) => (props.$isReply ? `0.25rem solid ${props.$isUserMessage ? colors.darkerBackground : colors.lightBackground}` : "none")};
 		margin-left: ${(props) => (props.$isReply ? "0.5rem" : "0")};
+		text-align: ${(props) => (props.$isUserMessage ? "left" : "right")};
 	`,
 	Avatar: styled(UserAvatar)`
 		margin-right: 0;
