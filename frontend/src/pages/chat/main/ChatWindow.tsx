@@ -58,11 +58,13 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 	}));
 
 	const createMessageReference = (messageId : string, messageContent : string | null) : MessageReferenceType => {
-		let first10symbols = messageContent?.substring(0, 10) + "..."
-
+		let first50 = messageContent?.substring(0, 50) || "";
+		if (messageContent?.length && messageContent.length > 50) {
+			first50 += "...";
+		}
 		return {
 			referencedMessageId: messageId,
-			referencedMessageContent: first10symbols
+			referencedMessageContent: first50
 		};
 	}
 
