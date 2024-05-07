@@ -37,7 +37,7 @@ const Styled = {
 		padding: 0.8rem !important;
 		border-left: ${(props) => (props.$isReply ? `0.25rem solid ${props.$isUserMessage ? colors.darkerBackground : colors.lightBackground}` : "none")};
 		margin-left: ${(props) => (props.$isReply ? "0.5rem" : "0")};
-		text-align: ${(props) => (props.$isUserMessage ? "left" : "right")};
+		text-align: ${(props) => (props.$isUserMessage ? "right" : "left")};
 	`,
 	Avatar: styled(UserAvatar)`
 		margin-right: 0;
@@ -48,6 +48,7 @@ const Styled = {
 	`,
 	ReplyContent: styled.div<{ $isUserMessage: boolean }>`
 		background-color: ${props => props.$isUserMessage ? colors.lightBackground : colors.darkerBackground};
+		padding: 0.75rem;
 		padding-left: 0.5rem;
 		border-bottom: 0.0625rem solid ${colors.primaryText};
 	`,
