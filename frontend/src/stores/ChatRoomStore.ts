@@ -13,17 +13,23 @@ export type State = {
 	directChats: ChatRoomType[];
 	groupChats: ChatRoomType[];
 	activeChatRoom: ChatRoomType | null;
+	reset: () => void;
 };
 
-export const useChatStore = create<State>(() => ({
+export const useChatStore = create<State>((set) => ({
 	chats: [],
 	directChats: [],
 	groupChats: [],
 	activeChatRoom: null,
+	reset: () => {
+		console.warn("resetting chat store");
+		set({ chats: [], directChats: [], groupChats: [], activeChatRoom: null });
+	},
 }));
 
 export const ChatRoomStore = {
 	useStore: useChatStore,
+	reset: useChatStore.getState().reset,
 	initializeChats: (chatsData: ChatRoomType[]) => {
 		useChatStore.setState({
 			chats: chatsData,
@@ -44,19 +50,21 @@ export const ChatRoomStore = {
 		if (fetchedChatLog) {
 			await ChatLogStore.setActiveChatLog(fetchedChatLog);
 		}
-		useChatStore.setState({activeChatRoom: chat});
+		useChatStore.setState({ activeChatRoom: chat });
 	},
 	getChatUsers(chatId: number): UserType[] {
 		const chat = this.findChat(chatId);
 		if (chat) {
-			return chat.members.map((userId : number) => UserStore.getUserById(userId)).filter((user): user is UserType => user !== undefined);
+			return chat.members
+				.map((userId: number) => UserStore.getUserById(userId))
+				.filter((user): user is UserType => user !== undefined);
 		}
 		return [];
 	},
 	findChat: (chatId: number): ChatRoomType | undefined => {
 		return useChatStore.getState().chats.find((chat) => chat.chatLogId === chatId);
 	},
-	initializeStore: async (username : string) => {
+	initializeStore: async (username: string) => {
 		try {
 			const chatResponse = await fetch(`http://localhost:8081/getChatHistoryForUser?username=${username}`, {
 				method: "GET",
@@ -101,7 +109,8 @@ export const ChatRoomStore = {
 				chats: useChatStore.getState().chats.map((chat) => (chat.chatLogId === chatId ? updatedChat : chat)),
 				directChats: useChatStore.getState().directChats,
 				groupChats: useChatStore.getState().chats.filter((chat) => chat.type === EChatType.GROUP),
-				activeChatRoom: useChatStore.getState().activeChatRoom?.chatLogId === chatId ? updatedChat : useChatStore.getState().activeChatRoom,
+				activeChatRoom:
+					useChatStore.getState().activeChatRoom?.chatLogId === chatId ? updatedChat : useChatStore.getState().activeChatRoom,
 			});
 		}
 	},
@@ -116,7 +125,8 @@ export const ChatRoomStore = {
 				chats: useChatStore.getState().chats.map((chat) => (chat.chatLogId === chatId ? updatedChat : chat)),
 				directChats: useChatStore.getState().directChats,
 				groupChats: useChatStore.getState().chats.filter((chat) => chat.type === EChatType.GROUP),
-				activeChatRoom: useChatStore.getState().activeChatRoom?.chatLogId === chatId ? updatedChat : useChatStore.getState().activeChatRoom,
+				activeChatRoom:
+					useChatStore.getState().activeChatRoom?.chatLogId === chatId ? updatedChat : useChatStore.getState().activeChatRoom,
 			});
 		}
 	},
@@ -145,20 +155,20 @@ export const ChatRoomStore = {
 		}
 	},
 	addUserToChatRoomBEcall: async (chatId: number, userId: number) => {
-		const chatMessage : MessageType = {
+		const chatMessage: MessageType = {
 			messageLogId: chatId,
 			senderId: userId,
 			content: null,
 			type: EMessageType.JOIN,
-			timestampInSeconds: Math.floor(Date.now() / 1000)
+			timestampInSeconds: Math.floor(Date.now() / 1000),
 		};
 
 		//wait for response
 		try {
-			const response = await fetch('http://localhost:8080/chat/addUserToChat', {
-				method: 'POST',
+			const response = await fetch("http://localhost:8080/chat/addUserToChat", {
+				method: "POST",
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(chatMessage),
 			});
@@ -174,5 +184,5 @@ export const ChatRoomStore = {
 			console.error(`Error adding user ${userId} to chat ${chatId}: ${error}`);
 			return false;
 		}
-	}
+	},
 };
