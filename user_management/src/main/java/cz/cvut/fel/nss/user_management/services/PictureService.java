@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -77,18 +78,31 @@ public class PictureService {
     }
 
     @SneakyThrows
-    public byte[] getPicture(int userId) {
+    public byte[] getProfilePhoto(int userId) {
         Optional<PictureEntity> pictureEntity = pictureRepository.findById(userId);
-        if (pictureEntity.isEmpty()) {
-            // Load the default image file into a byte[]
-            byte[] defaultImage;
-            defaultImage = Files.readAllBytes(Paths.get("user_management/src/main/resources/assets/images/default-user-icon-scaled.png"));
-
-            // Use the default image to create a new PictureEntity
-            PictureEntity defaultPictureEntity = new PictureEntity();
-            defaultPictureEntity.savePicture(defaultImage, defaultImage, userId, "image/png");
-            return defaultPictureEntity.getStoredPicture();
-        } else
+        if (pictureEntity.isEmpty())
+            return getDefaultPictureEntity(userId).getStoredPicture();
+        else
             return pictureEntity.get().getStoredPicture();
+    }
+
+    @SneakyThrows
+    public byte[] getProfilePhotoThumbnail(int userId) {
+        Optional<PictureEntity> pictureEntity = pictureRepository.findById(userId);
+        if (pictureEntity.isEmpty())
+            return getDefaultPictureEntity(userId).getThumbnail();
+        else
+            return pictureEntity.get().getThumbnail();
+    }
+
+    private static PictureEntity getDefaultPictureEntity(int userId) throws IOException {
+        // Load the default image file into a byte[]
+        byte[] defaultImage;
+        defaultImage = Files.readAllBytes(Paths.get("user_management/src/main/resources/assets/images/default-user-icon-scaled.png"));
+
+        // Use the default image to create a new PictureEntity
+        PictureEntity defaultPictureEntity = new PictureEntity();
+        defaultPictureEntity.savePicture(defaultImage, defaultImage, userId, "image/png");
+        return defaultPictureEntity;
     }
 }
