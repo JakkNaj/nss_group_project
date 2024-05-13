@@ -229,7 +229,7 @@ public class UsersService {
         userDetail.getValue(UserDetailKey.ADDRESS, Address.class).ifPresent(value -> combinedUserDto.setAddress(new AddressDto(value)));
         combinedUserDto.setBirthdate(userDetail.getValue(UserDetailKey.BIRTHDATE, DateUserDetail.class).map(DateUserDetail::getDate).map(LocalDate::toString).orElse(null));
         combinedUserDto.setDateCreated(userDetail.getValue(UserDetailKey.DATE_CREATED, DateUserDetail.class).map(DateUserDetail::getDate).map(LocalDate::toString).orElse(null));
-        String encodedImage = Base64.getEncoder().encodeToString(pictureService.getPicture(user.getUserId()));
+        String encodedImage = Base64.getEncoder().encodeToString(pictureService.getProfilePhotoThumbnail(user.getUserId()));
         combinedUserDto.setThumbnail(encodedImage);
         return combinedUserDto;
     }
