@@ -3,6 +3,8 @@ import { UserAvatar } from "../../../components/UserAvatar.tsx";
 import { UserStore } from "../../../stores/UserStore.ts";
 import AccountMenu from "./AccountMenu.tsx";
 import { useNavigate } from "react-router-dom";
+import { ChatLogStore } from "../../../stores/ChatLogStore.ts";
+import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
 
 const Styled = {
 	HeaderLayout: styled("div")({
@@ -48,6 +50,8 @@ export const ChatPageHeader = ({ showProfileWindow }: ChatPageHeaderProps) => {
 	const navigate = useNavigate();
 	const handleLogoutClick = () => {
 		UserStore.reset();
+		ChatLogStore.reset();
+		ChatRoomStore.reset();
 		navigate("/"); //navigate to login page
 	};
 

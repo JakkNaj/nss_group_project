@@ -19,7 +19,7 @@ public class KafkaChatMessageProducerService {
     }
 
     public void sendMessage(ChatMessage message) {
-        log.trace("Sending message to Kafka: {}", message);
+        log.info("Sending message to Kafka: {}", message);
         kafkaTemplate.send(kafkaConfiguration.getDefaultTopic(), message);
     }
 }

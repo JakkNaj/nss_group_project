@@ -48,6 +48,7 @@ public class ChatController {
     }
 
     public void sendMessageToClient(ChatMessage chatMessage, Integer userId) {
-        simpMessagingTemplate.convertAndSend("/userId/" + userId, chatMessage);
+        log.info("Sending message {} to user {}", chatMessage,  userId);
+        simpMessagingTemplate.convertAndSend("/userId/" + userId, chatMessage.toDto());
     }
 }

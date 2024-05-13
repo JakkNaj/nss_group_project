@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
-import {UserStore} from "../../../stores/UserStore.ts";
+import { UserStore } from "../../../stores/UserStore.ts";
 
 interface DirectChatConnectProps {
 	toggleProfileWindow: () => void;
