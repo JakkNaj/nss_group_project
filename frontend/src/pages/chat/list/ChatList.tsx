@@ -3,8 +3,6 @@ import ChatListItems from "./ChatListItems.tsx";
 import styled from "styled-components";
 import { State } from "../../../stores/ChatRoomStore.ts";
 import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
-import { colors } from "../../../styles/colors.ts";
-import Button from "@mui/material/Button";
 import {DirectChatConnect} from "./DirectChatConnect.tsx";
 
 const Styled = {
@@ -15,12 +13,6 @@ const Styled = {
 		gap: "2rem",
 		textAlign: "left",
 		fontFamily: "Inter, sans-serif",
-	}),
-	Button: styled(Button)({
-		backgroundColor: `${colors.darkerBackground} !important`,
-		color: `${colors.primaryText} !important`,
-		fontFamily: "Zilla Slab, sans-serif !important",
-		width: "100%",
 	}),
 	ListSection: styled("section")({
 		display: "flex",
@@ -51,16 +43,24 @@ export const ChatList = ({ showChatWindow }: ChatListProps) => {
 			<SearchField />
 			<DirectChatConnect toggleProfileWindow={showChatWindow}/>
 			<Styled.ListSection>
-				<ChatListItems sectionName="Friends" chats={directChats} displayRowsNumber={6} toggleProfileWindow={showChatWindow} />
-				<Styled.Button variant="contained" onClick={handleAddFriends}>
-					Add friends
-				</Styled.Button>
+				<ChatListItems
+					sectionName="Friends"
+					chats={directChats}
+					displayRowsNumber={6}
+					toggleProfileWindow={showChatWindow}
+					buttonText="Add friends"
+					buttonAction={handleAddFriends}
+				/>
 			</Styled.ListSection>
 			<Styled.ListSection>
-				<ChatListItems sectionName="Groups" chats={groupChats} displayRowsNumber={4} toggleProfileWindow={showChatWindow} />
-				<Styled.Button variant="contained" onClick={handleCreateGroupChat}>
-					New group chat
-				</Styled.Button>
+				<ChatListItems
+					sectionName="Groups"
+					chats={groupChats}
+					displayRowsNumber={4}
+					toggleProfileWindow={showChatWindow}
+					buttonText="New group chat"
+					buttonAction={handleCreateGroupChat}
+				/>
 			</Styled.ListSection>
 		</Styled.ChatListLayout>
 	);

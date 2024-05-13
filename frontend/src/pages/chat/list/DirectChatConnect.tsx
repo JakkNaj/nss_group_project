@@ -2,6 +2,10 @@ import { FormEvent, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
 import { UserStore } from "../../../stores/UserStore.ts";
+import {colors} from "../../../styles/colors.ts";
+import styled from "styled-components";
+import {StyledInputField} from "./SearchField.tsx";
+
 
 interface DirectChatConnectProps {
 	toggleProfileWindow: () => void;
@@ -33,11 +37,27 @@ export const DirectChatConnect = ({ toggleProfileWindow }: DirectChatConnectProp
 		<div>
 			<h3>Connect to Direct Chat</h3>
 			<form onSubmit={handleConnect}>
-				<TextField variant="outlined" label="Chat ID" value={chatId} onChange={(e) => setChatId(e.target.value)} />
-				<Button variant="contained" type="submit">
+				<StyledInputField.TextField
+					variant="outlined"
+					label="Chat ID"
+					value={chatId}
+					onChange={(e) => setChatId(e.target.value)}
+				/>
+				<Styled.Button variant="contained" type="submit">
 					Connect
-				</Button>
+				</Styled.Button>
 			</form>
 		</div>
 	);
 };
+
+
+const Styled = {
+	Button: styled(Button)({
+		marginTop: "0.5rem !important",
+		backgroundColor: `${colors.darkerBackground} !important`,
+		color: `${colors.primaryText} !important`,
+		fontFamily: "Zilla Slab, sans-serif !important",
+		width: "100%",
+	}),
+}
