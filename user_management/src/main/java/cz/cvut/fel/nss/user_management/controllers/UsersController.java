@@ -99,7 +99,6 @@ public class UsersController {
         return ResponseEntity.ok("Profile photo uploaded successfully");
     }
 
-    //TODO: odstranit multipart
     /*@PostMapping("/{id}/profilePhoto")
     public ResponseEntity<String> uploadProfilePhoto(@PathVariable int id, @RequestHeader("file") MultipartFile file) {
         pictureService.addPicture(file, id);

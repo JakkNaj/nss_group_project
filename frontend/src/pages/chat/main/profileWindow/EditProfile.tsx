@@ -6,6 +6,7 @@ import { StyledInputField } from "../../list/SearchField.tsx";
 import { colors } from "../../../../styles/colors.ts";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
 import { CircularProgress } from "@mui/material";
+import {mapResponseToUserType} from "../../../../model/types/UserType.ts";
 
 const Styled = {
 	EditProfileContainer: styled("div")({
@@ -54,8 +55,8 @@ interface EditProfileProps {
 
 export const EditProfile = (props: EditProfileProps) => {
 	const { username, name, email, avatar } = UserStore.useStore((state) => ({
-		username: state.loggedInUser.name,
-		name: state.loggedInUser.username,
+		username: state.loggedInUser.username,
+		name: state.loggedInUser.name,
 		email: state.loggedInUser.email,
 		avatar: state.loggedInUser.avatar,
 	}));
@@ -70,10 +71,37 @@ export const EditProfile = (props: EditProfileProps) => {
 	const [uploadSuccessMessage, setUploadSuccessMessage] = useState("");
 	const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 	const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
+	const [usernameError, setUsernameError] = useState("");
+	const [emailError, setEmailError] = useState("");
+	const [nameError, setNameError] = useState("");
 
 	const handleUpdateDetails = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		setIsLoadingDetails(true);
+
+		setUsernameError("");
+		setNameError("");
+		setEmailError("");
+
+		const nameRegex = /^[a-zA-Z]+\s[a-zA-Z]+$/;
+		if (!nameRegex.test(editedName)) {
+			setNameError("Please enter a valid name and surname with space in between them.");
+			setIsLoadingDetails(false);
+			return;
+		}
+
+		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+		if (!emailRegex.test(editedEmail)) {
+			setEmailError("Please enter a valid email address.");
+			setIsLoadingDetails(false);
+			return;
+		}
+
+		if (!editedUsername) {
+			setUsernameError("Username cannot be empty.");
+			setIsLoadingDetails(false);
+			return;
+		}
 
 		if (editedUsername !== username || editedName !== name || editedEmail !== email) {
 			const userEntityDto = {
@@ -99,6 +127,10 @@ export const EditProfile = (props: EditProfileProps) => {
 					throw new Error(`${errorData.message}`);
 				}
 
+				const responseJson = await response.json();
+				const updatedUser = mapResponseToUserType(responseJson);
+				console.warn("Updated user:", updatedUser);
+				UserStore.updateLoggedInUser(updatedUser);
 				setSuccessMessage("Profile updated successfully!");
 			} catch (error) {
 				if (error instanceof Error) {
@@ -199,13 +231,29 @@ export const EditProfile = (props: EditProfileProps) => {
 			<h4>Edit Profile Information</h4>
 			<Styled.Form onSubmit={handleUpdateDetails}>
 				<StyledInputField.TextField
+					label="Name"
+					fullWidth
+					value={editedName}
+					onChange={(e) => setEditedName(e.target.value)}
+					error={!!nameError}
+					helperText={nameError}
+				/>
+				<StyledInputField.TextField
 					label="Username"
 					fullWidth
 					value={editedUsername}
 					onChange={(e) => setEditedUsername(e.target.value)}
+					error={!!usernameError}
+					helperText={usernameError}
 				/>
-				<StyledInputField.TextField label="Name" fullWidth value={editedName} onChange={(e) => setEditedName(e.target.value)} />
-				<StyledInputField.TextField label="Email" fullWidth value={editedEmail} onChange={(e) => setEditedEmail(e.target.value)} />
+				<StyledInputField.TextField
+					label="Email"
+					fullWidth
+					value={editedEmail}
+					onChange={(e) => setEditedEmail(e.target.value)}
+					error={!!emailError}
+					helperText={emailError}
+				/>
 				{isLoadingDetails && <CircularProgress style={{ color: `${colors.darkerBackground}` }} />}
 				{successMessage && <p>{successMessage}</p>}
 				{errorMessage && <p>{errorMessage}</p>}

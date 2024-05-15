@@ -29,6 +29,7 @@ const Styled = {
 		borderRight: "0.0625rem solid black",
 		height: "100%",
 		overflowY: "auto",
+		maxWidth: "36rem",
 	}),
 	Main: styled("main")({
 		gridArea: "main",

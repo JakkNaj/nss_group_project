@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Button, TextField } from "@mui/material";
+import { Button } from "@mui/material";
 import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
 import { UserStore } from "../../../stores/UserStore.ts";
 import {colors} from "../../../styles/colors.ts";
@@ -35,8 +35,8 @@ export const DirectChatConnect = ({ toggleProfileWindow }: DirectChatConnectProp
 
 	return (
 		<div>
-			<h3>Connect to Direct Chat</h3>
-			<form onSubmit={handleConnect}>
+			<h3>Connect directly to Chat</h3>
+			<Styled.Form onSubmit={handleConnect}>
 				<StyledInputField.TextField
 					variant="outlined"
 					label="Chat ID"
@@ -46,7 +46,7 @@ export const DirectChatConnect = ({ toggleProfileWindow }: DirectChatConnectProp
 				<Styled.Button variant="contained" type="submit">
 					Connect
 				</Styled.Button>
-			</form>
+			</Styled.Form>
 		</div>
 	);
 };
@@ -58,6 +58,12 @@ const Styled = {
 		backgroundColor: `${colors.darkerBackground} !important`,
 		color: `${colors.primaryText} !important`,
 		fontFamily: "Zilla Slab, sans-serif !important",
-		width: "100%",
+		width: "40%",
+	}),
+	Form: styled("form")({
+		display: "flex",
+		flexDirection: "row",
+		justifyContent: "space-between",
+		gap: "0.5rem"
 	}),
 }

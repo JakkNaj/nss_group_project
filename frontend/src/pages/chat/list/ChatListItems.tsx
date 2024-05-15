@@ -72,7 +72,7 @@ const Styled = {
 		backgroundColor: `${colors.darkerBackground} !important`,
 		color: `${colors.primaryText} !important`,
 		fontFamily: "Zilla Slab, sans-serif !important",
-		width: "60%",
+		width: "40%",
 	}),
 	TitleSection: styled("div")({
 		display: "flex",
