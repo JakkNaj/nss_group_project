@@ -77,6 +77,16 @@ public class UsersController {
      * @param id
      * @return
      */
+    @GetMapping("/{id}/thumbnail")
+    public ResponseEntity<byte[]> getThumbnail(@PathVariable int id) {
+        if (userService.getUserByUserid(id).getAccountState() == AccountState.DELETED) {
+            throw new NotFoundException("User with id " + id + " does not exist");
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        return new ResponseEntity<>(pictureService.getProfilePhotoThumbnail(id), headers, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}/profilePhoto")
     public ResponseEntity<byte[]> getProfilePhoto(@PathVariable int id) {
         if (userService.getUserByUserid(id).getAccountState() == AccountState.DELETED) {
@@ -84,7 +94,7 @@ public class UsersController {
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
-        return new ResponseEntity<>(pictureService.getPicture(id), headers, HttpStatus.OK);
+        return new ResponseEntity<>(pictureService.getProfilePhoto(id), headers, HttpStatus.OK);
     }
 
     /**
@@ -94,7 +104,7 @@ public class UsersController {
      * @return
      */
     @PutMapping("/{id}/profilePhoto")
-    public ResponseEntity<String> updateProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<byte[]> updateProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) {
         pictureService.addPicture(file, id);
         return ResponseEntity.ok("Profile photo uploaded successfully");
     }
