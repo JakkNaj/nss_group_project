@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { UserStore } from "../../../../stores/UserStore.ts";
 import styled from "styled-components";
 import Button from "@mui/material/Button";
@@ -54,16 +54,9 @@ interface EditProfileProps {
 }
 
 export const EditProfile = (props: EditProfileProps) => {
-	const { username, name, email, avatar } = UserStore.useStore((state) => ({
-		username: state.loggedInUser.username,
-		name: state.loggedInUser.name,
-		email: state.loggedInUser.email,
-		avatar: state.loggedInUser.avatar,
-	}));
-
-	const [editedUsername, setEditedUsername] = useState(username);
-	const [editedName, setEditedName] = useState(name);
-	const [editedEmail, setEditedEmail] = useState(email);
+	const [editedUsername, setEditedUsername] = useState("");
+	const [editedName, setEditedName] = useState("");
+	const [editedEmail, setEditedEmail] = useState("");
 	const [editedPassword, setEditedPassword] = useState("");
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [successMessage, setSuccessMessage] = useState("");
@@ -76,6 +69,23 @@ export const EditProfile = (props: EditProfileProps) => {
 	const [emailError, setEmailError] = useState("");
 	const [nameError, setNameError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
+
+	const loggedInUser = UserStore.useStore((state) => state.loggedInUser);
+
+	useEffect(() => {
+		if (loggedInUser) {
+			setEditedUsername(loggedInUser.username);
+			setEditedName(loggedInUser.name);
+			setEditedEmail(loggedInUser.email);
+		}
+	}, [loggedInUser]);
+
+	// If loggedInUser is null, return a message or a different component
+	if (!loggedInUser) {
+		return <p>No user is currently logged in.</p>;
+	}
+
+	const { id, username, name, email, avatar } = loggedInUser;
 
 	const handleUpdateDetails = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -114,7 +124,7 @@ export const EditProfile = (props: EditProfileProps) => {
 
 		if (editedUsername !== username || editedName !== name || editedEmail !== email) {
 			const userEntityDto = {
-				userId: UserStore.getLoggedInUser().id,
+				userId: id,
 				name: editedName,
 				username: editedUsername,
 				email: editedEmail,
@@ -185,12 +195,9 @@ export const EditProfile = (props: EditProfileProps) => {
 		event.preventDefault();
 		setIsLoadingAvatar(true);
 
-		if (uploadErrorMessage) {
-			return;
-		}
-
 		if (!selectedFile) {
-			setUploadErrorMessage("No file selected for upload");
+			setUploadErrorMessage("No file selected");
+			setIsLoadingAvatar(false);
 			return;
 		}
 
@@ -198,9 +205,10 @@ export const EditProfile = (props: EditProfileProps) => {
 		formData.append("file", selectedFile);
 
 		try {
-			const response = await fetch(`http://localhost:8081/users/${UserStore.getLoggedInUser().id}/profilePhoto`, {
+			const response = await fetch(`http://localhost:8081/users/${id}/profilePhoto`, {
 				method: "POST",
 				body: formData,
+				// include auth tokens
 			});
 
 			if (!response.ok) {
@@ -208,13 +216,19 @@ export const EditProfile = (props: EditProfileProps) => {
 				throw new Error(`${errorData.message}`);
 			}
 
-			const data = await response.text();
-			UserStore.updateLoggedInUserAvatar(data);
-
-			setUploadSuccessMessage("Profile picture uploaded successfully");
+			const base64Image = await response.text();
+			// Update the avatar
+			UserStore.updateLoggedInUserAvatar(base64Image);
+			setUploadSuccessMessage("Profile picture uploaded successfully!");
 		} catch (error) {
-			setUploadErrorMessage("Failed to upload profile picture");
+			if (error instanceof Error) {
+				setUploadErrorMessage(error.message);
+				console.error("Failed to upload profile picture:", error);
+			} else {
+				console.error("An unknown error occurred:", error);
+			}
 		}
+
 		setIsLoadingAvatar(false);
 	};
 

@@ -64,7 +64,7 @@ export const ChatRoomStore = {
 	findChat: (chatId: number): ChatRoomType | undefined => {
 		return useChatStore.getState().chats.find((chat) => chat.chatLogId === chatId);
 	},
-	initializeStore: async (username: string) => {
+	initializeStore: async (userId: number) => {
 		try {
 			const chatResponse = await fetch(`http://localhost:8081/chatRoom?userId=${userId}`, {
 				method: "GET",

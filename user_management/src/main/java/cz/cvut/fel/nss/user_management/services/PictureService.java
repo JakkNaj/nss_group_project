@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -104,5 +105,15 @@ public class PictureService {
         PictureEntity defaultPictureEntity = new PictureEntity();
         defaultPictureEntity.savePicture(defaultImage, defaultImage, userId, "image/png");
         return defaultPictureEntity;
+    }
+
+    public String getProfilePhotoAsString(int userId) throws IOException {
+        byte[] profilePhoto = getProfilePhoto(userId);
+        return Base64.getEncoder().encodeToString(profilePhoto);
+    }
+
+    public String getProfilePhotoThumbnailAsString(int userId) throws IOException {
+        byte[] profilePhotoThumbnail = getProfilePhotoThumbnail(userId);
+        return Base64.getEncoder().encodeToString(profilePhotoThumbnail);
     }
 }

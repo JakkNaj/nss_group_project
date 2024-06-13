@@ -5,24 +5,43 @@ import { SignupDto } from "../model/types/SignupDto.ts";
 
 export type UserState = {
 	users: typeof usersData;
-	loggedInUser: UserType;
+	loggedInUser: UserType | null;
 };
 
 const getUserById = (userId: number) => usersData.find((user) => user.id === userId);
 
 const defaultUserState: UserState = {
 	users: usersData,
-	loggedInUser: {
-		id: 1,
-		avatar: "",
-		name: "Adam Auro",
-		email: "adam.auro@example.com",
-		username: "adamíí",
-		phoneNumber: "123-456-7890",
-	},
+	loggedInUser: null,
 };
 
-const useUserStore = create<UserState>(() => defaultUserState);
+const useUserStore = create<UserState>(
+	(set) => ({
+		...defaultUserState,
+		setLoggedInUser: (user: UserType | null) => {
+			set({ loggedInUser: user });
+			if (user) {
+				console.warn('setting user in local storage', user)
+				localStorage.setItem('user', JSON.stringify(user));
+			} else {
+				localStorage.removeItem('user');
+			}
+		},
+	})
+);
+
+// When the application starts, check if the user credentials exist in the local storage
+console.warn('checking local storage for user')
+const savedUser = localStorage.getItem('user');
+console.log('saved user:', savedUser)
+if (savedUser) {
+	useUserStore.setState({ loggedInUser: JSON.parse(savedUser) });
+}
+
+//save user credentials in local storage --> todo later change for token
+const saveUserToLocalStorage = (user: UserType) => {
+	localStorage.setItem('user', JSON.stringify(user));
+}
 
 export const UserStore = {
 	useStore: useUserStore,
@@ -49,6 +68,8 @@ export const UserStore = {
 			const data = await response.json();
 			const user = mapResponseToUserType(data);
 			useUserStore.setState({ loggedInUser: user });
+			saveUserToLocalStorage(user);
+
 			//todo fetch users data (friends)
 			return user;
 		} catch (error) {
@@ -72,10 +93,10 @@ export const UserStore = {
 			}
 
 			const data = await response.json();
-			console.log(data);
 
 			const user = mapResponseToUserType(data);
 			useUserStore.setState({ loggedInUser: user });
+			saveUserToLocalStorage(user);
 
 			return user;
 		} catch (error) {
@@ -84,7 +105,13 @@ export const UserStore = {
 		}
 	},
 	updateLoggedInUserAvatar: (avatar: string) => {
+		console.log("updating users avatar with: ", avatar);
 		const loggedInUser = useUserStore.getState().loggedInUser;
-		useUserStore.setState({ loggedInUser: { ...loggedInUser, avatar: avatar } });
+		if (!loggedInUser) {
+			throw new Error("No user is logged in.");
+		}
+		loggedInUser.avatar = avatar;
+		useUserStore.setState({ loggedInUser: loggedInUser });
+		saveUserToLocalStorage(loggedInUser);
 	},
 };

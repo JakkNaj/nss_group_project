@@ -17,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URI;
-import java.util.Base64;
 
 
 @RestController
@@ -32,6 +32,7 @@ public class UsersController {
         this.userService = userService;
         this.pictureService = pictureService;
     }
+
 
     @PostMapping()
     public ResponseEntity<CombinedUserDto> addUser(@RequestBody SignUpDto credentials) {
@@ -78,23 +79,21 @@ public class UsersController {
      * @return
      */
     @GetMapping("/{id}/thumbnail")
-    public ResponseEntity<byte[]> getThumbnail(@PathVariable int id) {
+    public ResponseEntity<String> getThumbnail(@PathVariable int id) throws IOException {
         if (userService.getUserByUserid(id).getAccountState() == AccountState.DELETED) {
             throw new NotFoundException("User with id " + id + " does not exist");
         }
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
-        return new ResponseEntity<>(pictureService.getProfilePhotoThumbnail(id), headers, HttpStatus.OK);
+        String thumbnail = pictureService.getProfilePhotoThumbnailAsString(id);
+        return new ResponseEntity<>(thumbnail, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/profilePhoto")
-    public ResponseEntity<byte[]> getProfilePhoto(@PathVariable int id) {
+    public ResponseEntity<String> getProfilePhoto(@PathVariable int id) throws IOException {
         if (userService.getUserByUserid(id).getAccountState() == AccountState.DELETED) {
             throw new NotFoundException("User with id " + id + " does not exist");
         }
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
-        return new ResponseEntity<>(pictureService.getProfilePhoto(id), headers, HttpStatus.OK);
+        String profilePhoto = pictureService.getProfilePhotoAsString(id);
+        return new ResponseEntity<>(profilePhoto, HttpStatus.OK);
     }
 
     /**
@@ -104,23 +103,23 @@ public class UsersController {
      * @return
      */
     @PutMapping("/{id}/profilePhoto")
-    public ResponseEntity<byte[]> updateProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> updateProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) throws IOException {
         pictureService.addPicture(file, id);
-        return ResponseEntity.ok("Profile photo uploaded successfully");
+        String thumbnail = pictureService.getProfilePhotoThumbnailAsString(id);
+        return new ResponseEntity<>(thumbnail, HttpStatus.OK);
     }
 
-    /*@PostMapping("/{id}/profilePhoto")
-    public ResponseEntity<String> uploadProfilePhoto(@PathVariable int id, @RequestHeader("file") MultipartFile file) {
-        pictureService.addPicture(file, id);
-        return ResponseEntity.ok("Profile photo uploaded successfully");
-    }*/
-
-    //Jakub: oprava endpointu pro upload fotky
+    /**
+     * Upload or update profile photo of a user
+     * @param id
+     * @param file
+     * @return
+     */
     @PostMapping("/{id}/profilePhoto")
-    public ResponseEntity<String> uploadProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) throws IOException {
         pictureService.addPicture(file, id);
-        String encodedImage = Base64.getEncoder().encodeToString(pictureService.getPicture(id));
-        return ResponseEntity.ok(encodedImage);
+        String thumbnail = pictureService.getProfilePhotoThumbnailAsString(id);
+        return new ResponseEntity<>(thumbnail, HttpStatus.OK);
     }
 
     /**

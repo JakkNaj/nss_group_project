@@ -13,7 +13,6 @@ export const useChatConnection = ({ userId }: { userId: number }) => {
 	}));
 
 	useEffect(() => {
-		console.warn("called useEffect in useChatConnection");
 		if (userId) {
 			console.warn("Connecting to websocket");
 			const socket = new SockJS("http://localhost:8080/start-websocket-communication");
