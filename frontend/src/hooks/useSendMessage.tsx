@@ -1,15 +1,25 @@
 import { useStompClientStore } from "../stores/StompClientStore.ts";
 import { UserStore } from "../stores/UserStore.ts";
+import {useEffect, useState} from "react";
 
 export const useSendMessage = () => {
+	const [senderId, setSenderId] = useState<number>(-1);
 	const stompClient = useStompClientStore((state) => state.stompClient);
+
+	const user = UserStore.getLoggedInUser();
+
+	useEffect(() => {
+		if (user) {
+			setSenderId(user.id);
+		}
+	}, []);
 
 	const sendMessage = ({ content, chatLogId, type = "CHAT" }: { content: string | null; chatLogId: number; type?: string }) => {
 		if (stompClient?.connected) {
 			console.warn("Sending message through websocket")
 			const chatMessage = {
 				messageLogId: chatLogId,
-				senderId: UserStore.getLoggedInUser().id,
+				senderId: senderId,
 				content: content,
 				type: type,
 				timestampInSeconds: Math.floor(Date.now() / 1000),

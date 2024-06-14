@@ -19,13 +19,20 @@ type MessagesContainerProps = {
 };
 
 export const MessagesContainer = (props : MessagesContainerProps) => {
-	const userId = UserStore.getLoggedInUser().id;
+	const [userId, setUserId] = useState<number>(-1);
 	const { activeChatLog } = useChatLogStore((state) => ({
 		activeChatLog: state.activeChatLog,
 	}));
 
 	const [messages, setMessages] = useState(activeChatLog?.messages || []);
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		const user = UserStore.getLoggedInUser();
+		if (user) {
+			setUserId(user.id);
+		}
+	}, []);
 
 	useEffect(() => {
 		if (activeChatLog?.messages) {
@@ -40,12 +47,14 @@ export const MessagesContainer = (props : MessagesContainerProps) => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages]);
 
-	if (!activeChatLog) {
+
+	if (!(userId >= 0)){
+		return <div>Error: no user logged in.</div>;
+	} else if (!activeChatLog) {
 		return <div>Error: No active chat found.</div>;
 	} else if (activeChatLog.messages.length === 0) {
 		return <div>Start the conversation!</div>;
 	}
-
 
 
 	return (

@@ -16,6 +16,7 @@ const Styled = {
 		justifyContent: "flex-start",
 		paddingLeft: "4rem",
 		paddingTop: "2rem",
+		paddingBottom: "2rem",
 		height: "100%",
 	}),
 	UserAvatar: styled(UserAvatar)({

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import {FormEvent, useEffect, useState} from "react";
 import { Button } from "@mui/material";
 import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
 import { UserStore } from "../../../stores/UserStore.ts";
@@ -12,14 +12,27 @@ interface DirectChatConnectProps {
 }
 
 export const DirectChatConnect = ({ toggleProfileWindow }: DirectChatConnectProps) => {
+	const [loggedInUserId, setLoggedInUserId] = useState(-1);
 	const [chatId, setChatId] = useState("");
+
+	const user = UserStore.getLoggedInUser();
+
+	useEffect(() => {
+		if (user) {
+			setLoggedInUserId(user.id);
+		}
+	}, []);
+
+	if(!(loggedInUserId >= 0)){
+		return <div>Error: no user logged in.</div>;
+	}
 
 	const handleConnect = async (event: FormEvent) => {
 		event.preventDefault();
 		const id = parseInt(chatId);
 		if (!isNaN(id)) {
 			try {
-				await ChatRoomStore.addUserToChatRoomBEcall(id, UserStore.getLoggedInUser().id);
+				await ChatRoomStore.addUserToChatRoomBEcall(id, loggedInUserId);
 				const chatRoom = await ChatRoomStore.getChatRoom(id);
 				if (chatRoom) {
 					await ChatRoomStore.setActiveChatRoom(chatRoom);

@@ -1,17 +1,17 @@
 import styled from "styled-components";
 import { ChatHeader } from "./ChatHeader.tsx";
-import { DirectChatDetail } from "./directChatDetail/DirectChatDetail.tsx";
-import { GroupChatDetail } from "./groupChatDetail/GroupChatDetail.tsx";
-import { ChatRoomStore, State } from "../../../stores/ChatRoomStore.ts";
-import { MessagesContainer } from "./messages/MessagesContainer.tsx";
-import { MessageInput } from "./messages/MessageInput.tsx";
-import { useChatLogStore } from "../../../stores/ChatLogStore.ts";
-import { EMessageType } from "../../../model/enums/EMessageType.ts";
-import { UserType } from "../../../model/types/UserType.ts";
-import { useSendMessage } from "../../../hooks/useSendMessage.tsx";
-import { useSendReply } from "../../../hooks/useSendReply.tsx";
+import { DirectChatDetail } from "../directChatDetail/DirectChatDetail.tsx";
+import { GroupChatDetail } from "../groupChatDetail/GroupChatDetail.tsx";
+import { ChatRoomStore, State } from "../../../../stores/ChatRoomStore.ts";
+import { MessagesContainer } from "../messages/MessagesContainer.tsx";
+import { MessageInput } from "../messages/MessageInput.tsx";
+import { useChatLogStore } from "../../../../stores/ChatLogStore.ts";
+import { EMessageType } from "../../../../model/enums/EMessageType.ts";
+import { UserType } from "../../../../model/types/UserType.ts";
+import { useSendMessage } from "../../../../hooks/useSendMessage.tsx";
+import { useSendReply } from "../../../../hooks/useSendReply.tsx";
 import {useState} from "react";
-import {MessageReferenceType} from "../../../model/types/MessageReference.ts";
+import {MessageReferenceType} from "../../../../model/types/MessageReference.ts";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`

@@ -4,6 +4,7 @@ import { ChatRoomStore, State } from "../../../../stores/ChatRoomStore.ts";
 import { colors } from "../../../../styles/colors.ts";
 import { UserStore } from "../../../../stores/UserStore.ts";
 import CloseIcon from "@mui/icons-material/Close";
+import {useEffect, useState} from "react";
 
 const Styled = {
 	ProfileDetail: styled.section({
@@ -65,13 +66,23 @@ interface DirectChatProps {
 }
 
 export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
+	const [loggedInUserId, setloggedInUserId] = useState<number>(-1);
 	const { activeChat } = ChatRoomStore.useStore((state: State) => ({
 		activeChat: state.activeChatRoom,
 	}));
+	const user = UserStore.useStore((state) => state.loggedInUser);
+
+	useEffect(() => {
+		if (user) {
+			setloggedInUserId(user.id);
+		}
+	}, []);
 
 	//this should not happen
 	if (!activeChat) {
 		return <div>Error: No active chat found.</div>;
+	} else if (!(loggedInUserId >= 0)) {
+		return <div>Error: no user logged in.</div>;
 	}
 
 	const otherUsers = ChatRoomStore.getChatUsers(activeChat.chatLogId);
@@ -86,7 +97,7 @@ export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
 		return <div>Error: No logged-in user found.</div>;
 	}
 
-	const otherUser = otherUsers.filter((user) => user.id !== UserStore.getLoggedInUser().id)[0];
+	const otherUser = otherUsers.filter((user) => user.id !== loggedInUserId)[0];
 
 	if (!otherUsers) {
 		return <div>Error: No other user in chat found.</div>;

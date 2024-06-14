@@ -2,7 +2,7 @@ import { UserStore } from "../../../../stores/UserStore.ts";
 import styled from "styled-components";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
 import { colors } from "../../../../styles/colors.ts";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { EditProfile } from "./EditProfile.tsx";
 import Button from "@mui/material/Button";
 
@@ -12,7 +12,7 @@ const Styled = {
 		flexDirection: "column",
 		alignItems: "flex-start",
 		justifyContent: "flex-start",
-		paddingLeft: "4rem",
+		paddingLeft: "60px",
 		paddingTop: "2rem",
 	}),
 	UserAvatar: styled(UserAvatar)({
@@ -48,12 +48,21 @@ const Styled = {
 };
 
 export const ProfileWindow = () => {
-	const { username, name, email, avatar } = UserStore.useStore((state) => ({
-		username: state.loggedInUser.name,
-		name: state.loggedInUser.username,
-		email: state.loggedInUser.email,
-		avatar: state.loggedInUser.avatar,
-	}));
+	const [name, setName] = useState("");
+	const [email, setEmail] = useState("");
+	const [avatar, setAvatar] = useState("");
+	const [username, setUsername] = useState("");
+
+	const loggedInUser = UserStore.useStore((state) => state.loggedInUser);
+
+	useEffect(() => {
+		if (loggedInUser) {
+			setAvatar(loggedInUser.avatar);
+			setEmail(loggedInUser.email);
+			setName(loggedInUser.name);
+			setUsername(loggedInUser.username)
+		}
+	}, []);
 
 	const [isEditing, setIsEditing] = useState(false);
 

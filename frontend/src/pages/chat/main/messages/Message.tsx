@@ -107,7 +107,7 @@ export const Message = ({ message, userId, handleReplyClick }: MessageProps) => 
 				}
 			}}
 		>
-			{!isUserMessage && <Styled.Avatar username={sender.name} avatar={sender.avatar} width={2} />}
+			{!isUserMessage && <Styled.Avatar name={sender.name} avatar={sender.avatar} width={2} />}
 			<Styled.MessageCardContainer $isUserMessage={isUserMessage}>
 				{activeChat?.type === "GROUP" && !isUserMessage && (
 					<Typography variant="caption" color="textSecondary">

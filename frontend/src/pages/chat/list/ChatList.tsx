@@ -17,25 +17,28 @@ const Styled = {
 	ListSection: styled("section")({
 		display: "flex",
 		flexDirection: "column",
+		width: "100%",
 	}),
 };
 
 interface ChatListProps {
 	showChatWindow: () => void;
+	showFriendsWindow: () => void;
+	showGroupsWindow: () => void;
 }
 
-export const ChatList = ({ showChatWindow }: ChatListProps) => {
+export const ChatList = ({ showChatWindow, showFriendsWindow, showGroupsWindow }: ChatListProps) => {
 	const { directChats, groupChats } = ChatRoomStore.useStore((state: State) => ({
 		directChats: state.directChats,
 		groupChats: state.groupChats,
 	}));
 
 	const handleAddFriends = () => {
-		console.log("Add more friends clicked");
+		showFriendsWindow();
 	};
 
 	const handleCreateGroupChat = () => {
-		console.log("Create new group chat clicked");
+		showGroupsWindow();
 	};
 
 	return (
@@ -47,7 +50,7 @@ export const ChatList = ({ showChatWindow }: ChatListProps) => {
 					sectionName="Friends"
 					chats={directChats}
 					displayRowsNumber={6}
-					toggleProfileWindow={showChatWindow}
+					showChatWindow={showChatWindow}
 					buttonText="Add friends"
 					buttonAction={handleAddFriends}
 				/>
@@ -57,7 +60,7 @@ export const ChatList = ({ showChatWindow }: ChatListProps) => {
 					sectionName="Groups"
 					chats={groupChats}
 					displayRowsNumber={4}
-					toggleProfileWindow={showChatWindow}
+					showChatWindow={showChatWindow}
 					buttonText="New group chat"
 					buttonAction={handleCreateGroupChat}
 				/>

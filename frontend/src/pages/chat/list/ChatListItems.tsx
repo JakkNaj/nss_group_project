@@ -10,12 +10,12 @@ type ChatListItemsProps = {
 	sectionName: string;
 	chats: ChatRoomType[];
 	displayRowsNumber: number;
-	toggleProfileWindow: () => void;
+	showChatWindow: () => void;
 	buttonText: string;
 	buttonAction: () => void;
 };
 
-const ChatListItems = ({ sectionName, chats, displayRowsNumber, toggleProfileWindow, buttonText, buttonAction }: ChatListItemsProps) => {
+const ChatListItems = ({ sectionName, chats, displayRowsNumber, showChatWindow, buttonText, buttonAction }: ChatListItemsProps) => {
 	const getLastMessage = (chatId: number) => {
 		const message = ChatLogStore.getLastMessageFromChatLog(chatId);
 		if (message && message.content) {
@@ -27,7 +27,7 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, toggleProfileWin
 
 	const handleChatItemClick = (chatId: number) => {
 		ChatRoomStore.updateActiveChatRoom(chatId);
-		toggleProfileWindow();
+		showChatWindow();
 	};
 
 	return (

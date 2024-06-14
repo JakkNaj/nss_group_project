@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { UserAvatar } from "../../../components/UserAvatar.tsx";
-import { ChatRoomStore, State } from "../../../stores/ChatRoomStore.ts";
+import { UserAvatar } from "../../../../components/UserAvatar.tsx";
+import { ChatRoomStore, State } from "../../../../stores/ChatRoomStore.ts";
 
 const Styled = {
 	ChatHeader: styled("div")({
