@@ -7,9 +7,9 @@ import { useState } from "react";
 import { UserStore } from "../../stores/UserStore.ts";
 import { UserType } from "../../model/types/UserType.ts";
 import { useChatConnection } from "../../hooks/useChatConnection.tsx";
-import FriendsWindow from "./main/FriendsWindow/FriendsWindow.tsx";
+import FriendsWindow from "./main/friendsWindow/FriendsWindow.tsx";
 import { MainState } from "./main/MainState.ts";
-import GroupsWindow from "./main/GroupsWindow/GroupsWindow.tsx";
+import GroupsWindow from "./main/groupsWindow/GroupsWindow.tsx";
 
 const Styled = {
 	ChatPageContainer: styled("div")({
