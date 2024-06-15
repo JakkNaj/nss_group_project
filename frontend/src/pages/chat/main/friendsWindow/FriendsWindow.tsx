@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { StyledInputField } from '../../list/SearchField.tsx';
+import { SetStateAction, useState} from 'react';
+import {StyledInputField} from '../../list/SearchField.tsx';
 import IconButton from '@mui/material/IconButton';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -23,8 +23,8 @@ const Styled = {
         alignItems: "center",
     }),
     RequestCardIcons: styled("div")({
-       display: "flex",
-       gap: "0.5rem",
+        display: "flex",
+        gap: "0.5rem",
     }),
     Button: styled(Button)({
         backgroundColor: `${colors.darkerBackground} !important`,
@@ -51,13 +51,13 @@ const FriendsWindow = () => {
     };
 
     const handleSendRequest = () => {
-        if (username){
+        if (username) {
             console.log("Adding user with username ", username);
             setExplainText(`If user with username ${username} exists, they will recieve your Friend request`)
         }
     }
 
-    const onChangeInputField = (e) => {
+    const onChangeInputField = (e: { target: { value: SetStateAction<string>; }; }) => {
         setUsername(e.target.value);
         setExplainText("");
     }

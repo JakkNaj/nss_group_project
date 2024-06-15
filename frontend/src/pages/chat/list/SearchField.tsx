@@ -7,6 +7,7 @@ import {ChatRoomStore} from "../../../stores/ChatRoomStore.ts";
 
 export const StyledInputField = {
 	TextField: styled(TextField)({
+		width: "12rem",
 		borderRadius: "0.6rem",
 		boxShadow: "0.2315625rem 0.2315625rem 0 0 #000",
 		"& fieldset": {
