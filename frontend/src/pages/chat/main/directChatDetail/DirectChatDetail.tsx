@@ -5,6 +5,7 @@ import { colors } from "../../../../styles/colors.ts";
 import { UserStore } from "../../../../stores/UserStore.ts";
 import CloseIcon from "@mui/icons-material/Close";
 import {useEffect, useState} from "react";
+import {BlockStore} from "../../../../stores/BlockStore.ts";
 
 const Styled = {
 	ProfileDetail: styled.section({
@@ -103,6 +104,18 @@ export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
 		return <div>Error: No other user in chat found.</div>;
 	}
 
+	const isBlocked = BlockStore.isBlocked(otherUser.username);
+
+	const handleBlockClick = () => {
+		if (isBlocked) {
+			console.log("Blocking user with id: ", otherUser.id);
+			BlockStore.unblockUser(otherUser.username);
+		} else {
+			console.log("Unblocking user with id: ", otherUser.id);
+			BlockStore.blockUser(otherUser.username);
+		}
+	};
+
 	return (
 		<Styled.ProfileDetail>
 			<Styled.CloseIcon onClick={onBackClick} />
@@ -112,7 +125,9 @@ export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
 			<Styled.Email>{otherUser.email}</Styled.Email>
 			<Styled.SectionName>Phone number</Styled.SectionName>
 			<Styled.Telephone>{otherUser.phoneNumber}</Styled.Telephone>
-			<Styled.BlockButton>{"Block " + otherUser.name}</Styled.BlockButton>
+			<Styled.BlockButton onClick={handleBlockClick}>
+				{isBlocked? "Unblock " : "Block "}{otherUser.name}
+			</Styled.BlockButton>
 		</Styled.ProfileDetail>
 	);
 };

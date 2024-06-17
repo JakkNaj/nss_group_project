@@ -1,10 +1,12 @@
 package cz.cvut.fel.nss.user_relations.controller;
 
+import cz.cvut.fel.nss.user_relations.entity.FriendRequest;
 import cz.cvut.fel.nss.user_relations.service.FriendRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -15,11 +17,13 @@ public class FriendRequestController {
     FriendRequestService friendRequestService;
 
     @GetMapping("/{username}")
-    public ResponseEntity<String> getAllFriendRequests(
+    public ResponseEntity<List<FriendRequest>> getAllFriendRequests(
             @PathVariable String username
     ){
-        return ResponseEntity.of(Optional.ofNullable(friendRequestService.getAllFriendRequests(username).toString()));
+        List<FriendRequest> friendRequests = friendRequestService.getAllFriendRequestsForRecipient(username);
+        return ResponseEntity.ok(friendRequests);
     }
+
 
     @PostMapping("/{recipient}")
     public ResponseEntity<String> sendFriendRequest(

@@ -11,6 +11,8 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
 
     List<FriendRequest> findAllBySenderUsername(String senderUsername);
 
+    List<FriendRequest> findAllByRecipientUsername(String recipientUsername);
+
     void deleteAllBySenderUsernameAndRecipientUsername(String senderUsername, String recipientUsername);
 
     List<FriendRequest> findAllBySenderUsernameAndRecipientUsername(String senderUsername, String recipientUsername);

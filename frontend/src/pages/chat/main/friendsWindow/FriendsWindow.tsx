@@ -1,4 +1,4 @@
-import { SetStateAction, useState} from 'react';
+import {SetStateAction, useEffect, useState} from 'react';
 import {StyledInputField} from '../../list/SearchField.tsx';
 import IconButton from '@mui/material/IconButton';
 import CheckIcon from '@mui/icons-material/Check';
@@ -6,6 +6,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import styled from "styled-components";
 import Button from "@mui/material/Button";
 import {colors} from "../../../../styles/colors.ts";
+import {FriendRequestStore} from "../../../../stores/FriendRequestStore.ts";
+import {UserStore} from "../../../../stores/UserStore.ts";
 
 const Styled = {
     FriendsWindowContainer: styled("div")({
@@ -36,11 +38,26 @@ const Styled = {
 }
 
 const FriendsWindow = () => {
+    const [loggedInUsername, setLoggedInUsername] = useState("");
     const [username, setUsername] = useState('');
     const [explainText, setExplainText] = useState("");
 
-    // Replace this with the actual friend requests data
-    const friendRequests = ['user1', 'user2', 'user3'];
+    const loggedInUser = UserStore.getLoggedInUser();
+
+    useEffect(() => {
+        if (loggedInUser) {
+            setLoggedInUsername(loggedInUser.username);
+            //fetch all friend requests
+            FriendRequestStore.fetchAllFriendRequests(loggedInUser.username);
+        }
+    }, []);
+
+    const friendRequests = FriendRequestStore.useStore((state) => state.friendRequests);
+
+    //should not happen
+    if (!loggedInUser){
+        return <div>No user logged in.</div>
+    }
 
     const handleAccept = (username: string) => {
         console.log(`Accepted friend request from ${username}`);
@@ -51,8 +68,9 @@ const FriendsWindow = () => {
     };
 
     const handleSendRequest = () => {
-        if (username) {
-            console.log("Adding user with username ", username);
+        if (username && loggedInUsername) {
+            console.log("Sending FR to user: ", username);
+            FriendRequestStore.sendFriendRequest(username, loggedInUsername);
             setExplainText(`If user with username ${username} exists, they will recieve your Friend request`)
         }
     }
@@ -91,6 +109,7 @@ const FriendsWindow = () => {
                     </Styled.RequestCardIcons>
                 </Styled.RequestCard>
             ))}
+            {friendRequests.length === 0 && <div>No unanswered friend requests</div>}
         </Styled.FriendsWindowContainer>
     );
 };
