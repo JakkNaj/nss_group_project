@@ -1,12 +1,12 @@
-import { create } from "zustand";
-import { EChatType } from "../model/enums/EChatType";
-import { ChatRoomType } from "../model/types/ChatRoomType.ts";
-import { UserStore } from "./UserStore.ts";
-import { UserType } from "../model/types/UserType.ts";
-import { chatRoomsData as mockData } from "../MockData.ts";
-import { ChatLogStore, useChatLogStore } from "./ChatLogStore.ts";
-import { MessageType } from "../model/types/MessageType.ts";
-import { EMessageType } from "../model/enums/EMessageType.ts";
+import {create} from "zustand";
+import {EChatType} from "../model/enums/EChatType";
+import {ChatRoomType} from "../model/types/ChatRoomType.ts";
+import {UserType} from "../model/types/UserType.ts";
+import {chatRoomsData as mockData} from "../MockData.ts";
+import {ChatLogStore, useChatLogStore} from "./ChatLogStore.ts";
+import {MessageType} from "../model/types/MessageType.ts";
+import {EMessageType} from "../model/enums/EMessageType.ts";
+import {UserStore} from "./UserStore.ts";
 
 export type State = {
 	chats: ChatRoomType[];
@@ -52,12 +52,12 @@ export const ChatRoomStore = {
 		}
 		useChatStore.setState({ activeChatRoom: chat });
 	},
-	getChatUsers(chatId: number): UserType[] {
-		const chat = this.findChat(chatId);
+	getChatUsers: async (chatId: number): Promise<UserType[]> => {
+		const chat = ChatRoomStore.findChat(chatId);
 		if (chat) {
-			return chat.members
-				.map((userId: number) => UserStore.getUserById(userId))
-				.filter((user): user is UserType => user !== undefined);
+			const usersPromises = chat.members.map(userId => UserStore.fetchUserDetails(userId));
+			const users = await Promise.all(usersPromises);
+			return users;
 		}
 		return [];
 	},

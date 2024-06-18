@@ -1,12 +1,13 @@
-import { Card, CardContent, Typography } from "@mui/material";
+import {Card, CardContent, Typography} from "@mui/material";
 import styled from "styled-components";
-import { MessageType } from "../../../../model/types/MessageType.ts";
-import { colors } from "../../../../styles/colors.ts";
-import { useState } from "react";
-import { UserAvatar } from "../../../../components/UserAvatar.tsx";
-import { UserStore } from "../../../../stores/UserStore.ts";
-import { ChatRoomStore } from "../../../../stores/ChatRoomStore.ts";
+import {MessageType} from "../../../../model/types/MessageType.ts";
+import {colors} from "../../../../styles/colors.ts";
+import {useEffect, useState} from "react";
+import {UserAvatar} from "../../../../components/UserAvatar.tsx";
+import {ChatRoomStore} from "../../../../stores/ChatRoomStore.ts";
 import ReplyIcon from '@mui/icons-material/Reply';
+import {UserStore} from "../../../../stores/UserStore.ts";
+import {UserType} from "../../../../model/types/UserType.ts";
 
 const Styled = {
 	MessageContainer: styled.div<{ $isUserMessage: boolean }>`
@@ -69,12 +70,20 @@ interface MessageProps {
 export const Message = ({ message, userId, handleReplyClick }: MessageProps) => {
 	const isUserMessage = message.senderId === userId;
 	const [showTimestamp, setShowTimestamp] = useState(false);
-	const sender = UserStore.getUserById(message.senderId);
+	const [sender, setSender] = useState<UserType | null>(null);
 	const [showReplyIcon, setShowReplyIcon] = useState(false);
 
 	const { activeChat } = ChatRoomStore.useStore((state) => ({
 		activeChat: state.activeChatRoom,
 	}));
+
+	useEffect(() => {
+		const fetchSender = async () => {
+			const sender = await UserStore.fetchUserDetails(message.senderId);
+			setSender(sender);
+		}
+		fetchSender();
+	}, [message.senderId]);
 
 	//should not happen
 	if (!sender) {

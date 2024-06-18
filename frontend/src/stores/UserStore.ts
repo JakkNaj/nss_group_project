@@ -1,17 +1,12 @@
 import { create } from "zustand";
 import { mapResponseToUserType, UserType } from "../model/types/UserType";
-import { usersData } from "../MockData.ts";
 import { SignupDto } from "../model/types/SignupDto.ts";
 
 export type UserState = {
-	users: typeof usersData;
 	loggedInUser: UserType | null;
 };
 
-const getUserById = (userId: number) => usersData.find((user) => user.id === userId);
-
 const defaultUserState: UserState = {
-	users: usersData,
 	loggedInUser: null,
 };
 
@@ -47,7 +42,6 @@ export const UserStore = {
 	useStore: useUserStore,
 	updateLoggedInUser: (user: UserType) => useUserStore.setState({ loggedInUser: user }),
 	getLoggedInUser: () => useUserStore.getState().loggedInUser,
-	getUserById: getUserById,
 	reset: () => useUserStore.setState(defaultUserState),
 	login: async (username: string, password: string) => {
 		try {
@@ -114,4 +108,25 @@ export const UserStore = {
 		useUserStore.setState({ loggedInUser: loggedInUser });
 		saveUserToLocalStorage(loggedInUser);
 	},
+	fetchUserDetails: async (userId: number) => {
+		try {
+			const response = await fetch(`http://localhost:8081/users/${userId}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+			}
+
+			const data = await response.json();
+			return mapResponseToUserType(data);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	}
 };

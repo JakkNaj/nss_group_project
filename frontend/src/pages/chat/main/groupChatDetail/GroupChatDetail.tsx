@@ -6,6 +6,7 @@ import { UserType } from "../../../../model/types/UserType.ts";
 import { colors } from "../../../../styles/colors.ts";
 import { ChatNameWithIcon } from "./ChatNameWithIcon.tsx";
 import CloseIcon from "@mui/icons-material/Close";
+import {useEffect, useState} from "react";
 
 const Styled = {
 	ProfileDetail: styled.section({
@@ -53,19 +54,28 @@ interface GroupChatProps {
 }
 
 export const GroupChatDetail = ({ onBackClick, selectedGroupUser, setSelectedGroupUser }: GroupChatProps) => {
+	const [chatUsers, setChatUsers] = useState<UserType[]>([]);
 	const { activeChat } = ChatRoomStore.useStore((state: State) => ({
 		activeChat: state.activeChatRoom,
 	}));
+
+	useEffect(() => {
+		const fetchUsers = async () => {
+			if (activeChat) {
+				const users = await ChatRoomStore.getChatUsers(activeChat.chatLogId);
+				setChatUsers(users);
+			}
+		}
+		fetchUsers();
+	}, []);
 
 	//this should not happen
 	if (!activeChat) {
 		return <div>Error: No active chat found.</div>;
 	}
 
-	const otherUsers = ChatRoomStore.getChatUsers(activeChat.chatLogId);
-
 	//this should not happen
-	if (!otherUsers) {
+	if (!chatUsers) {
 		return <div>Error: No other user in chat found.</div>;
 	}
 
@@ -95,7 +105,7 @@ export const GroupChatDetail = ({ onBackClick, selectedGroupUser, setSelectedGro
 					<Styled.Avatar name={activeChat.name} avatar={activeChat.avatar} width={7} />
 					<Styled.ChatName>{activeChat.name}</Styled.ChatName>
 					<Styled.UserList>
-						{otherUsers.map((user) => (
+						{chatUsers.map((user) => (
 							<ChatNameWithIcon key={user.id} name={user.name} onIconClick={() => handleIconClick(user)} />
 						))}
 					</Styled.UserList>
