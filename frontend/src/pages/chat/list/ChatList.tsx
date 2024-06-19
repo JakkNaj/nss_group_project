@@ -44,7 +44,7 @@ export const ChatList = ({ showChatWindow, showFriendsWindow, showGroupsWindow }
 	return (
 		<Styled.ChatListLayout>
 			<SearchField />
-			<DirectChatConnect toggleProfileWindow={showChatWindow}/>
+			<DirectChatConnect showChatWindow={showChatWindow}/>
 			<Styled.ListSection>
 				<ChatListItems
 					sectionName="Friends"

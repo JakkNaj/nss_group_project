@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import SockJS from "sockjs-client";
 import { IMessage, Stomp } from "@stomp/stompjs";
 import { ChatRoomStore } from "../stores/ChatRoomStore.ts";
@@ -8,7 +8,6 @@ import { useStompClientStore } from "../stores/StompClientStore.ts";
 import {UserType} from "../model/types/UserType.ts";
 
 export const useChatConnection = (user : UserType | null) => {
-	const [userId, setUserId] = useState<number>(-1);
 	const { disconnectStompClient, setStompClient } = useStompClientStore();
 	const { updateChatLogWithNewMessage } = useChatLogStore((state) => ({
 		updateChatLogWithNewMessage: state.updateChatLogWithNewMessage,
@@ -16,12 +15,7 @@ export const useChatConnection = (user : UserType | null) => {
 
 	useEffect(() => {
 		if (user) {
-			setUserId(user.id);
-		}
-	}, []);
-
-	useEffect(() => {
-		if (userId >= 0) {
+			const userId = user.id;
 			console.warn("Connecting to websocket");
 			const socket = new SockJS("http://localhost:8080/start-websocket-communication");
 			const client = Stomp.over(socket);
@@ -33,14 +27,17 @@ export const useChatConnection = (user : UserType | null) => {
 			};
 
 			client.connect({}, subscribeToChat, onError);
-		}
 
-		return () => {
-			// disconnect from websocket when component unmounts
-			console.warn("component unmounted, disconnecting from websocket");
-			disconnectStompClient();
-		};
-	}, []);
+			return () => {
+				// disconnect from websocket when component unmounts
+				console.warn("component unmounted, disconnecting from websocket");
+				disconnectStompClient();
+			}
+		} else {
+			console.log("No user logged in.");
+			return;
+		}
+	}, [user]);
 
 	const onMessageReceived = (message: IMessage) => {
 		console.warn("Received message");
@@ -61,6 +58,7 @@ export const useChatConnection = (user : UserType | null) => {
 		switch (newMessage.type) {
 			case "JOIN":
 				// Update the chat to indicate that a user has joined
+				console.log("USER JOINED CHAT, IS useChatConnection")
 				ChatRoomStore.addUserToChat(newMessage.messageLogId, newMessage.senderId);
 				updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
 				break;

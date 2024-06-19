@@ -28,7 +28,6 @@ const useUserStore = create<UserState>(
 // When the application starts, check if the user credentials exist in the local storage
 console.warn('checking local storage for user')
 const savedUser = localStorage.getItem('user');
-console.log('saved user:', savedUser)
 if (savedUser) {
 	useUserStore.setState({ loggedInUser: JSON.parse(savedUser) });
 }

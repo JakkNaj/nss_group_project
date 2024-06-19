@@ -8,10 +8,10 @@ import {StyledInputField} from "./SearchField.tsx";
 
 
 interface DirectChatConnectProps {
-	toggleProfileWindow: () => void;
+	showChatWindow: () => void;
 }
 
-export const DirectChatConnect = ({ toggleProfileWindow }: DirectChatConnectProps) => {
+export const DirectChatConnect = ({ showChatWindow }: DirectChatConnectProps) => {
 	const [loggedInUserId, setLoggedInUserId] = useState(-1);
 	const [chatId, setChatId] = useState("");
 
@@ -28,6 +28,7 @@ export const DirectChatConnect = ({ toggleProfileWindow }: DirectChatConnectProp
 	}
 
 	const handleConnect = async (event: FormEvent) => {
+		console.log("Connecting to chat");
 		event.preventDefault();
 		const id = parseInt(chatId);
 		if (!isNaN(id)) {
@@ -36,7 +37,7 @@ export const DirectChatConnect = ({ toggleProfileWindow }: DirectChatConnectProp
 				const chatRoom = await ChatRoomStore.getChatRoom(id);
 				if (chatRoom) {
 					await ChatRoomStore.setActiveChatRoom(chatRoom);
-					toggleProfileWindow();
+					showChatWindow();
 				} else {
 					console.error("Chat room not found");
 				}

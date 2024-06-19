@@ -1,7 +1,5 @@
 import {create} from 'zustand';
 import axios from 'axios';
-import {UserStore} from "./UserStore.ts";
-import {FriendsStore} from "./FriendStore.ts";
 
 type FriendRequestState = {
     friendRequests: string[];
@@ -28,8 +26,8 @@ const useFriendRequestStore = create<FriendRequestState>((set) => ({
             const response = await axios.post(`http://localhost:8082/friendRequest/accept/${sender}`, { recipient });
             if (response.status === 200) {
                 // todo propagate the friend to the friends store - user identified with username inside the friend request
-                //const senderDetails = await UserStore.fetchUserDetails(sender);
-                //FriendsStore.addFriend(senderDetails);
+                // const senderDetails = await UserStore.fetchUserDetails(sender);
+                // FriendsStore.addFriend(senderDetails);
                 set((state) => ({ friendRequests: state.friendRequests.filter((request) => request !== sender) }));
             }
         } catch (error) {

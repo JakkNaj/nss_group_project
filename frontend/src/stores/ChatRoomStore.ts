@@ -62,7 +62,15 @@ export const ChatRoomStore = {
 		return [];
 	},
 	findChat: (chatId: number): ChatRoomType | undefined => {
-		return useChatStore.getState().chats.find((chat) => chat.chatLogId === chatId);
+		const state = useChatStore.getState();
+		const chat = state.chats.find((chat) => chat.chatLogId === chatId);
+		if (chat) {
+			return chat;
+		}
+		if (state.activeChatRoom && state.activeChatRoom.chatLogId === chatId) {
+			return state.activeChatRoom;
+		}
+		return undefined;
 	},
 	initializeStore: async (userId: number) => {
 		try {
@@ -117,6 +125,9 @@ export const ChatRoomStore = {
 	addUserToChat: (chatId: number, userId: number) => {
 		const chat = ChatRoomStore.findChat(chatId);
 		if (chat) {
+			if (chat.members.includes(userId)) {
+				return false;
+			}
 			const updatedChat = {
 				...chat,
 				members: [...chat.members, userId],
@@ -128,7 +139,9 @@ export const ChatRoomStore = {
 				activeChatRoom:
 					useChatStore.getState().activeChatRoom?.chatLogId === chatId ? updatedChat : useChatStore.getState().activeChatRoom,
 			});
+			return true
 		}
+		return false;
 	},
 	getChatRoom: async (chatId: number): Promise<ChatRoomType | null> => {
 		try {

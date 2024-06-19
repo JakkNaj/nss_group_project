@@ -3,6 +3,9 @@ import styled from "styled-components";
 import { Message } from "./Message.tsx";
 import { UserStore } from "../../../../stores/UserStore.ts";
 import { useChatLogStore } from "../../../../stores/ChatLogStore.ts";
+import {UserType} from "../../../../model/types/UserType.ts";
+import {CircularProgress} from "@mui/material";
+import {MessageType} from "../../../../model/types/MessageType.ts";
 
 const Styled = {
 	MessagesContainer: styled.div`
@@ -16,6 +19,7 @@ const Styled = {
 
 type MessagesContainerProps = {
 	handleReplyClick: (messageId : string, messageContent : string | null) => void;
+	chatMembers: UserType[];
 };
 
 export const MessagesContainer = (props : MessagesContainerProps) => {
@@ -56,12 +60,30 @@ export const MessagesContainer = (props : MessagesContainerProps) => {
 		return <div>Start the conversation!</div>;
 	}
 
+	if (!props.chatMembers) {
+		return <CircularProgress/>;
+	}
+
+	const connectMessageWithSender = (message: MessageType) => {
+		const sender = props.chatMembers.find((member) => member.id === message.senderId);
+		if (!sender) {
+			return <p key={message.id}>Message sender with id {message.senderId} not found</p>;
+		}
+		return <Message key={message.id} message={message} sender={sender} handleReplyClick={props.handleReplyClick}/>;
+	}
 
 	return (
 		<Styled.MessagesContainer>
-			{messages.map((message) => (
-				<Message key={message.id} message={message} userId={userId} handleReplyClick={props.handleReplyClick}/>
-			))}
+			{messages.map((message) => {
+				switch (message.type) {
+					case 'CHAT':
+						return connectMessageWithSender(message);
+					case 'JOIN':
+						return <p key={message.id}>user with id: {message.senderId} joined the chat</p>;
+					default:
+						return null;
+				}
+			})}
 			<div ref={messagesEndRef} />
 		</Styled.MessagesContainer>
 	);

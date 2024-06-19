@@ -67,7 +67,7 @@ export const useChatLogStore = create<ChatLogStore>((set) => ({
 				}
 				return { chatLogs };
 			});
-
+			console.log("done fetching chat log");
 			return chatLog;
 		} catch (error) {
 			console.error(error);

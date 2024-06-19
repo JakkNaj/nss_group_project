@@ -10,8 +10,10 @@ import { EMessageType } from "../../../../model/enums/EMessageType.ts";
 import { UserType } from "../../../../model/types/UserType.ts";
 import { useSendMessage } from "../../../../hooks/useSendMessage.tsx";
 import { useSendReply } from "../../../../hooks/useSendReply.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {MessageReferenceType} from "../../../../model/types/MessageReference.ts";
+import {UserStore} from "../../../../stores/UserStore.ts";
+import {CircularProgress} from "@mui/material";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
@@ -49,6 +51,8 @@ type ChatWindowProps = {
 };
 
 export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, selectedGroupUser, setSelectedGroupUser }: ChatWindowProps) => {
+	const [members, setMembers] = useState<UserType[]>([])
+	const [membersLoaded, setMembersLoaded] = useState(false);
 	const { activeChatLog } = useChatLogStore((state) => ({
 		activeChatLog: state.activeChatLog,
 	}));
@@ -56,6 +60,24 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 	const { activeChatRoom } = ChatRoomStore.useStore((state: State) => ({
 		activeChatRoom: state.activeChatRoom,
 	}));
+
+	useEffect(() => {
+		console.log("in chat window ",activeChatLog)
+	}, []);
+
+	useEffect(() => {
+		const fetchMembers = async () => {
+			const users = activeChatRoom?.members || [];
+			await Promise.all(users.map(async (userId) => {
+				const user = await UserStore.fetchUserDetails(userId);
+				if (user) {
+					setMembers((prev) => [...prev, user]);
+				}
+			}));
+		}
+		fetchMembers().then(() => setMembersLoaded(true));
+	}, [activeChatRoom?.members]);
+
 
 	const createMessageReference = (messageId : string, messageContent : string | null) : MessageReferenceType => {
 		let first50 = messageContent?.substring(0, 50) || "";
@@ -108,13 +130,15 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 		}
 	};
 
-
-
 	const handleReplyClick = (messageId : string, messageContent : string | null) => {
 		console.log("Replying to message with id: " + messageId + " and content: " + messageContent);
 		setReplyMessageReference(
 			createMessageReference(messageId, messageContent)
 		);
+	}
+
+	if (!membersLoaded) {
+		return <CircularProgress />;
 	}
 
 	return (
@@ -123,7 +147,7 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 				<Styled.Header>
 					<ChatHeader toggleRightSection={toggleRightSection} />
 				</Styled.Header>
-				<MessagesContainer handleReplyClick={handleReplyClick}/>
+				<MessagesContainer handleReplyClick={handleReplyClick} chatMembers={members}/>
 				<MessageInput onSend={handleSendMessage} replyMessageReference={replyMessageReference}/>
 			</Styled.Content>
 			<Styled.RightSection $isVisible={rightSectionVisible}>
