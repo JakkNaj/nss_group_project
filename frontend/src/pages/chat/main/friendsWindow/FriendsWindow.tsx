@@ -8,6 +8,8 @@ import Button from "@mui/material/Button";
 import {colors} from "../../../../styles/colors.ts";
 import {FriendRequestStore} from "../../../../stores/FriendRequestStore.ts";
 import {UserStore} from "../../../../stores/UserStore.ts";
+import {FriendsStore} from "../../../../stores/FriendStore.ts";
+import {CircularProgress} from "@mui/material";
 
 const Styled = {
     FriendsWindowContainer: styled("div")({
@@ -38,25 +40,35 @@ const Styled = {
 }
 
 const FriendsWindow = () => {
+    const [loading, setLoading] = useState(false);
     const [loggedInUsername, setLoggedInUsername] = useState("");
     const [username, setUsername] = useState('');
     const [explainText, setExplainText] = useState("");
+
 
     const loggedInUser = UserStore.getLoggedInUser();
 
     useEffect(() => {
         if (loggedInUser) {
             setLoggedInUsername(loggedInUser.username);
-            //fetch all friend requests
-            FriendRequestStore.fetchAllFriendRequests(loggedInUser.username);
+            //fetch all friend requests and friends
+            Promise.all([
+                FriendRequestStore.fetchAllFriendRequests(loggedInUser.username),
+                FriendsStore.fetchAllFriends(loggedInUser.username)
+            ]).then(() => setLoading(false));
         }
     }, []);
 
     const friendRequests = FriendRequestStore.useStore((state) => state.friendRequests);
+    const friends = FriendsStore.useStore((state) => state.friends);
 
     //should not happen
     if (!loggedInUser){
         return <div>No user logged in.</div>
+    }
+
+    if (loading) {
+        return <CircularProgress />;
     }
 
     const handleAccept = (username: string) => {
@@ -110,6 +122,13 @@ const FriendsWindow = () => {
                 </Styled.RequestCard>
             ))}
             {friendRequests.length === 0 && <div>No unanswered friend requests</div>}
+            <h3 style={{marginTop: "4rem"}}>Friends</h3>
+            {friends.map((friend) => (
+                <div key={friend.id}>
+                    {friend.username}
+                </div>
+            ))}
+            {friends.length === 0 && <div>No friends yet</div>}
         </Styled.FriendsWindowContainer>
     );
 };
