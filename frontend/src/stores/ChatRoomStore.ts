@@ -1,12 +1,12 @@
-import { create } from "zustand";
-import { EChatType } from "../model/enums/EChatType";
-import { ChatRoomType } from "../model/types/ChatRoomType.ts";
-import { UserStore } from "./UserStore.ts";
-import { UserType } from "../model/types/UserType.ts";
-import { chatRoomsData as mockData } from "../MockData.ts";
-import { ChatLogStore, useChatLogStore } from "./ChatLogStore.ts";
-import { MessageType } from "../model/types/MessageType.ts";
-import { EMessageType } from "../model/enums/EMessageType.ts";
+import {create} from "zustand";
+import {EChatType} from "../model/enums/EChatType";
+import {ChatRoomType} from "../model/types/ChatRoomType.ts";
+import {UserType} from "../model/types/UserType.ts";
+import {chatRoomsData as mockData} from "../MockData.ts";
+import {ChatLogStore, useChatLogStore} from "./ChatLogStore.ts";
+import {MessageType} from "../model/types/MessageType.ts";
+import {EMessageType} from "../model/enums/EMessageType.ts";
+import {UserStore} from "./UserStore.ts";
 
 export type State = {
 	chats: ChatRoomType[];
@@ -52,21 +52,29 @@ export const ChatRoomStore = {
 		}
 		useChatStore.setState({ activeChatRoom: chat });
 	},
-	getChatUsers(chatId: number): UserType[] {
-		const chat = this.findChat(chatId);
+	getChatUsers: async (chatId: number): Promise<UserType[]> => {
+		const chat = ChatRoomStore.findChat(chatId);
 		if (chat) {
-			return chat.members
-				.map((userId: number) => UserStore.getUserById(userId))
-				.filter((user): user is UserType => user !== undefined);
+			const usersPromises = chat.members.map(userId => UserStore.fetchUserDetails(userId));
+			const users = await Promise.all(usersPromises);
+			return users;
 		}
 		return [];
 	},
 	findChat: (chatId: number): ChatRoomType | undefined => {
-		return useChatStore.getState().chats.find((chat) => chat.chatLogId === chatId);
+		const state = useChatStore.getState();
+		const chat = state.chats.find((chat) => chat.chatLogId === chatId);
+		if (chat) {
+			return chat;
+		}
+		if (state.activeChatRoom && state.activeChatRoom.chatLogId === chatId) {
+			return state.activeChatRoom;
+		}
+		return undefined;
 	},
-	initializeStore: async (username: string) => {
+	initializeStore: async (userId: number) => {
 		try {
-			const chatResponse = await fetch(`http://localhost:8081/getChatHistoryForUser?username=${username}`, {
+			const chatResponse = await fetch(`http://localhost:8081/chatRoom?userId=${userId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -117,6 +125,9 @@ export const ChatRoomStore = {
 	addUserToChat: (chatId: number, userId: number) => {
 		const chat = ChatRoomStore.findChat(chatId);
 		if (chat) {
+			if (chat.members.includes(userId)) {
+				return false;
+			}
 			const updatedChat = {
 				...chat,
 				members: [...chat.members, userId],
@@ -128,7 +139,9 @@ export const ChatRoomStore = {
 				activeChatRoom:
 					useChatStore.getState().activeChatRoom?.chatLogId === chatId ? updatedChat : useChatStore.getState().activeChatRoom,
 			});
+			return true
 		}
+		return false;
 	},
 	getChatRoom: async (chatId: number): Promise<ChatRoomType | null> => {
 		try {

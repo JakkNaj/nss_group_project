@@ -1,18 +1,21 @@
 import { ChatPageHeader } from "./header/ChatPageHeader.tsx";
 import { ChatList } from "./list/ChatList.tsx";
 import styled from "styled-components";
-import { ChatWindow } from "./main/ChatWindow.tsx";
-import { ProfileWindow } from "./main/ProfileWindow.tsx";
+import { ChatWindow } from "./main/chatWindow/ChatWindow.tsx";
+import { ProfileWindow } from "./main/profileWindow/ProfileWindow.tsx";
 import { useState } from "react";
-import {UserStore} from "../../stores/UserStore.ts";
-import {UserType} from "../../model/types/UserType.ts";
-import {useChatConnection} from "../../hooks/useChatConnection.tsx";
+import { UserStore } from "../../stores/UserStore.ts";
+import { UserType } from "../../model/types/UserType.ts";
+import { useChatConnection } from "../../hooks/useChatConnection.tsx";
+import FriendsWindow from "./main/friendsWindow/FriendsWindow.tsx";
+import { MainState } from "./main/MainState.ts";
+import GroupsWindow from "./main/groupsWindow/GroupsWindow.tsx";
 
 const Styled = {
 	ChatPageContainer: styled("div")({
 		fontFamily: "Inter, sans-serif",
 		display: "grid",
-		gridTemplateColumns: "2fr 4fr",
+		gridTemplateColumns: "minmax(0, 28rem) 1fr",
 		gridTemplateRows: "1fr 14fr",
 		gridTemplateAreas: `
             "header header"
@@ -29,6 +32,7 @@ const Styled = {
 		borderRight: "0.0625rem solid black",
 		height: "100%",
 		overflowY: "auto",
+		maxWidth: "36rem",
 	}),
 	Main: styled("main")({
 		gridArea: "main",
@@ -40,21 +44,28 @@ const Styled = {
 };
 
 export const ChatPage = () => {
-	const [showProfile, setShowProfile] = useState(true);
+	const [mainState, setMainState] = useState<MainState>(MainState.PROFILE);
 	const [selectedGroupUser, setSelectedGroupUser] = useState<UserType | null>(null);
 	const [rightSectionVisible, setRightSectionVisible] = useState(false);
 
-
 	//useChatConnection hook to register listeners to websocket communication
-	useChatConnection({ userId: UserStore.getLoggedInUser().id });
+	useChatConnection(UserStore.getLoggedInUser());
 
 	const showProfileWindow = () => {
-		setShowProfile(true);
+		setMainState(MainState.PROFILE);
 	};
 
 	const showChatWindow = () => {
-		setShowProfile(false);
+		setMainState(MainState.CHAT);
 	};
+
+	const showFriendsWindow = () => {
+		setMainState(MainState.FRIENDS);
+	}
+
+	const showGroupsWindow = () => {
+		setMainState(MainState.GROUPS);
+	}
 
 	return (
 		<Styled.ChatPageContainer>
@@ -62,9 +73,24 @@ export const ChatPage = () => {
 				<ChatPageHeader showProfileWindow={showProfileWindow} />
 			</Styled.Header>
 			<Styled.LeftSection>
-				<ChatList showChatWindow={showChatWindow} />
+				<ChatList showChatWindow={showChatWindow} showFriendsWindow={showFriendsWindow} showGroupsWindow={showGroupsWindow} />
 			</Styled.LeftSection>
-			<Styled.Main>{showProfile ? <ProfileWindow /> : <ChatWindow rightSectionVisible={rightSectionVisible} setRightSectionVisible={setRightSectionVisible} selectedGroupUser={selectedGroupUser} setSelectedGroupUser={setSelectedGroupUser}/>}</Styled.Main>
+			<Styled.Main>
+				{mainState === MainState.FRIENDS ? (
+					<FriendsWindow />
+				) : mainState === MainState.PROFILE ? (
+					<ProfileWindow />
+				) : mainState === MainState.CHAT ? (
+					<ChatWindow
+						rightSectionVisible={rightSectionVisible}
+						setRightSectionVisible={setRightSectionVisible}
+						selectedGroupUser={selectedGroupUser}
+						setSelectedGroupUser={setSelectedGroupUser}
+					/>
+				) : (
+					<GroupsWindow />
+				)}
+			</Styled.Main>
 		</Styled.ChatPageContainer>
 	);
 };

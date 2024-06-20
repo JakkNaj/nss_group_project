@@ -38,9 +38,10 @@ interface ChatPageHeaderProps {
 }
 
 export const ChatPageHeader = ({ showProfileWindow }: ChatPageHeaderProps) => {
-	const { username, avatar } = UserStore.useStore((state) => ({
-		username: state.loggedInUser.name,
+	const { username, name, avatar } = UserStore.useStore((state) => ({
+		username: state.loggedInUser.username,
 		avatar: state.loggedInUser.avatar,
+		name: state.loggedInUser.name,
 	}));
 
 	const handleAccountClick = () => {
@@ -59,8 +60,8 @@ export const ChatPageHeader = ({ showProfileWindow }: ChatPageHeaderProps) => {
 		<Styled.HeaderLayout>
 			<Styled.Heading>Retro Chat : Messages</Styled.Heading>
 			<Styled.AvatarLayout>
-				<Styled.Username>{username}</Styled.Username>
-				<UserAvatar username={username} avatar={avatar} />
+				<Styled.Username>{`${name} : ${username}`}</Styled.Username>
+				<UserAvatar name={name} avatar={avatar} />
 				<AccountMenu onAccountClick={handleAccountClick} onLogoutClick={handleLogoutClick} />
 			</Styled.AvatarLayout>
 		</Styled.HeaderLayout>

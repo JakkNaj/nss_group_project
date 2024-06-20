@@ -5,10 +5,11 @@ import styled from "styled-components";
 import Button from "@mui/material/Button";
 import { colors } from "../../styles/colors.ts";
 import { Link, useNavigate } from "react-router-dom";
-import React, {useState} from "react";
-import {UserStore} from "../../stores/UserStore.ts";
-import {PasswordInput} from "../../components/PasswordInput.tsx";
-import {ChatRoomStore} from "../../stores/ChatRoomStore.ts";
+import React, { useState } from "react";
+import { UserStore } from "../../stores/UserStore.ts";
+import { PasswordInput } from "../../components/PasswordInput.tsx";
+import { ChatRoomStore } from "../../stores/ChatRoomStore.ts";
+import { ChatLogStore } from "../../stores/ChatLogStore.ts";
 
 const Styled = {
 	Form: styled("form")({
@@ -54,9 +55,6 @@ export const LoginPage = () => {
 	const [passwordError, setPasswordError] = useState("");
 	const [serverError, setServerError] = useState("");
 
-	//only for testing until user management is ready
-	const [id, setId] = useState(1);
-
 	const handleLogin = async (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 
@@ -74,24 +72,15 @@ export const LoginPage = () => {
 		}
 
 		try {
-			//todo remove using mock data
-			//const user = await UserStore.login(username, password);
-			//await ChatRoomStore.initializeStore(user.username);
-			//ChatRoomStore.initializeStoreWithMockData();
-			UserStore.updateLoggedInUser({
-				id: id,
-				avatar: "",
-				name: `Exam Ple0${id}`,
-				email: "example@example.com",
-				username: `${username}`,
-				phoneNumber: "123-456-7890",
-			})
+			const user = await UserStore.login(username, password);
+			console.log("User logged in: ", user);
+			/*await ChatRoomStore.initializeStore(user.id);
+			await ChatLogStore.initializeStore(user.id);*/
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);
 			setServerError((error as Error).message);
 		}
-
 	};
 
 	return (
@@ -101,7 +90,7 @@ export const LoginPage = () => {
 				variant="outlined"
 				fullWidth
 				label="Username"
-				onChange={e => setUsername(e.target.value)}
+				onChange={(e) => setUsername(e.target.value)}
 				error={!!usernameError}
 				helperText={usernameError}
 				InputProps={{
@@ -112,14 +101,7 @@ export const LoginPage = () => {
 					),
 				}}
 			/>
-			{/*only for testing before user management is ready */}
-			<StyledInputField.TextField
-				variant="outlined"
-				fullWidth
-				label="ID"
-				onChange={e => setId(Number(e.target.value))}
-			/>
-			<PasswordInput setPassword={setPassword} passwordError={passwordError}/>
+			<PasswordInput setPassword={setPassword} passwordError={passwordError} />
 			{serverError && <p>{serverError}</p>}
 			<Styled.SubmitButton variant="contained" type="submit" onClick={handleLogin}>
 				Login

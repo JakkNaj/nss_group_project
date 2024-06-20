@@ -9,7 +9,7 @@ export type UserType = {
 
 export function mapResponseToUserType(response: any): UserType {
 	return {
-		id: response.id || 0,
+		id: response.userId || 0,
 		name: response.name || "",
 		email: response.email || "",
 		username: response.username || "",

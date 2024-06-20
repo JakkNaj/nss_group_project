@@ -25,6 +25,10 @@ public class FriendRequestService {
         return friendRequestRepository.findAllBySenderUsername(username);
     }
 
+    public List<FriendRequest> getAllFriendRequestsForRecipient(String username) {
+        return friendRequestRepository.findAllByRecipientUsername(username);
+    }
+
     public void sendFriendRequest(String sender, String recipient) {
         FriendRequest newFriendRequest = new FriendRequest();
         newFriendRequest.setSenderUsername(sender);

@@ -3,8 +3,6 @@ import ChatListItems from "./ChatListItems.tsx";
 import styled from "styled-components";
 import { State } from "../../../stores/ChatRoomStore.ts";
 import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
-import { colors } from "../../../styles/colors.ts";
-import Button from "@mui/material/Button";
 import {DirectChatConnect} from "./DirectChatConnect.tsx";
 
 const Styled = {
@@ -16,51 +14,56 @@ const Styled = {
 		textAlign: "left",
 		fontFamily: "Inter, sans-serif",
 	}),
-	Button: styled(Button)({
-		backgroundColor: `${colors.darkerBackground} !important`,
-		color: `${colors.primaryText} !important`,
-		fontFamily: "Zilla Slab, sans-serif !important",
-		width: "100%",
-	}),
 	ListSection: styled("section")({
 		display: "flex",
 		flexDirection: "column",
+		width: "100%",
 	}),
 };
 
 interface ChatListProps {
 	showChatWindow: () => void;
+	showFriendsWindow: () => void;
+	showGroupsWindow: () => void;
 }
 
-export const ChatList = ({ showChatWindow }: ChatListProps) => {
+export const ChatList = ({ showChatWindow, showFriendsWindow, showGroupsWindow }: ChatListProps) => {
 	const { directChats, groupChats } = ChatRoomStore.useStore((state: State) => ({
 		directChats: state.directChats,
 		groupChats: state.groupChats,
 	}));
 
 	const handleAddFriends = () => {
-		console.log("Add more friends clicked");
+		showFriendsWindow();
 	};
 
 	const handleCreateGroupChat = () => {
-		console.log("Create new group chat clicked");
+		showGroupsWindow();
 	};
 
 	return (
 		<Styled.ChatListLayout>
 			<SearchField />
-			<DirectChatConnect toggleProfileWindow={showChatWindow}/>
+			<DirectChatConnect showChatWindow={showChatWindow}/>
 			<Styled.ListSection>
-				<ChatListItems sectionName="Friends" chats={directChats} displayRowsNumber={6} toggleProfileWindow={showChatWindow} />
-				<Styled.Button variant="contained" onClick={handleAddFriends}>
-					Add friends
-				</Styled.Button>
+				<ChatListItems
+					sectionName="Friends"
+					chats={directChats}
+					displayRowsNumber={6}
+					showChatWindow={showChatWindow}
+					buttonText="Add friends"
+					buttonAction={handleAddFriends}
+				/>
 			</Styled.ListSection>
 			<Styled.ListSection>
-				<ChatListItems sectionName="Groups" chats={groupChats} displayRowsNumber={4} toggleProfileWindow={showChatWindow} />
-				<Styled.Button variant="contained" onClick={handleCreateGroupChat}>
-					New group chat
-				</Styled.Button>
+				<ChatListItems
+					sectionName="Groups"
+					chats={groupChats}
+					displayRowsNumber={4}
+					showChatWindow={showChatWindow}
+					buttonText="New group chat"
+					buttonAction={handleCreateGroupChat}
+				/>
 			</Styled.ListSection>
 		</Styled.ChatListLayout>
 	);

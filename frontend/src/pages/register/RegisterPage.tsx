@@ -7,11 +7,11 @@ import Button from "@mui/material/Button";
 import { colors } from "../../styles/colors.ts";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
-import {UserStore} from "../../stores/UserStore.ts";
-import PersonIcon from '@mui/icons-material/Person';
-import {SignupDto} from "../../model/types/SignupDto.ts";
-import {ChatRoomStore} from "../../stores/ChatRoomStore.ts";
-
+import { UserStore } from "../../stores/UserStore.ts";
+import PersonIcon from "@mui/icons-material/Person";
+import { SignupDto } from "../../model/types/SignupDto.ts";
+import { ChatRoomStore } from "../../stores/ChatRoomStore.ts";
+import { ChatLogStore } from "../../stores/ChatLogStore.ts";
 
 const Styled = {
 	Form: styled("form")({
@@ -65,7 +65,7 @@ export const RegisterPage = () => {
 		event.preventDefault();
 		setUsernameError("");
 		setPasswordError("");
-		setEmailError("")
+		setEmailError("");
 		setNameError("");
 
 		if (!username) {
@@ -85,13 +85,13 @@ export const RegisterPage = () => {
 		}
 
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-		if(!emailRegex.test(email)) {
+		if (!emailRegex.test(email)) {
 			setEmailError("Please enter a valid email address.");
 			return;
 		}
 
-		const credentials : SignupDto = {
-			username: username,
+		const credentials: SignupDto = {
+			username: `${username}`,
 			password: password,
 			name: name,
 			email: email,
@@ -99,16 +99,15 @@ export const RegisterPage = () => {
 
 		try {
 			const user = await UserStore.register(credentials);
-			await ChatRoomStore.initializeStore(user.username);
-
+			console.log("User registered: ", user);
+			/*await ChatRoomStore.initializeStore(user.id);
+			await ChatLogStore.initializeStore(user.id);*/
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);
 			setServerError((error as Error).message);
 		}
 	};
-
-
 
 	return (
 		<Styled.Form>

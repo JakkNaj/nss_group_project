@@ -21,6 +21,7 @@ export const PasswordInput = (props: PasswordInputProps) => {
     return (
         <StyledInputField.TextField
             variant="outlined"
+            label="Password"
             fullWidth
             type={showPassword ? 'text' : 'password'}
             onChange={e => props.setPassword(e.target.value)}

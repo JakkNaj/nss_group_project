@@ -4,6 +4,9 @@ import { ChatRoomStore, State } from "../../../../stores/ChatRoomStore.ts";
 import { colors } from "../../../../styles/colors.ts";
 import { UserStore } from "../../../../stores/UserStore.ts";
 import CloseIcon from "@mui/icons-material/Close";
+import {useEffect, useState} from "react";
+import {BlockStore} from "../../../../stores/BlockStore.ts";
+import {UserType} from "../../../../model/types/UserType.ts";
 
 const Styled = {
 	ProfileDetail: styled.section({
@@ -65,20 +68,39 @@ interface DirectChatProps {
 }
 
 export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
+	const [loggedInUserId, setloggedInUserId] = useState<number>(-1);
+	const [chatUsers, setChatUsers] = useState<UserType[]>([]);
 	const { activeChat } = ChatRoomStore.useStore((state: State) => ({
 		activeChat: state.activeChatRoom,
 	}));
+	const user = UserStore.useStore((state) => state.loggedInUser);
+
+	useEffect(() => {
+		if (user) {
+			setloggedInUserId(user.id);
+		}
+	}, []);
+
+	useEffect(() => {
+		const fetchUsers = async () => {
+			if (activeChat){
+				const users = await ChatRoomStore.getChatUsers(activeChat.chatLogId);
+				setChatUsers(users);
+			}
+		}
+		fetchUsers();
+	}, [activeChat?.chatLogId]);
 
 	//this should not happen
 	if (!activeChat) {
 		return <div>Error: No active chat found.</div>;
+	} else if (!(loggedInUserId >= 0)) {
+		return <div>Error: no user logged in.</div>;
 	}
 
-	const otherUsers = ChatRoomStore.getChatUsers(activeChat.chatLogId);
-
 	//this should not happen
-	if (!otherUsers) {
-		return <div>Error: No other user in chat found.</div>;
+	if (!chatUsers) {
+		return <div>Error: No users in chat found.</div>;
 	}
 
 	//this should not happen
@@ -86,22 +108,36 @@ export const DirectChatDetail = ({ onBackClick }: DirectChatProps) => {
 		return <div>Error: No logged-in user found.</div>;
 	}
 
-	const otherUser = otherUsers.filter((user) => user.id !== UserStore.getLoggedInUser().id)[0];
+	const otherUser = chatUsers.filter((user) => user.id !== loggedInUserId)[0];
 
-	if (!otherUsers) {
+	if (!otherUser) {
 		return <div>Error: No other user in chat found.</div>;
 	}
+
+	const isBlocked = BlockStore.isBlocked(otherUser.username);
+
+	const handleBlockClick = () => {
+		if (isBlocked) {
+			console.log("Blocking user with id: ", otherUser.id);
+			BlockStore.unblockUser(otherUser.username);
+		} else {
+			console.log("Unblocking user with id: ", otherUser.id);
+			BlockStore.blockUser(otherUser.username);
+		}
+	};
 
 	return (
 		<Styled.ProfileDetail>
 			<Styled.CloseIcon onClick={onBackClick} />
-			<Styled.Avatar username={otherUser.name} avatar={otherUser.avatar} width={7} />
+			<Styled.Avatar name={otherUser.name} avatar={otherUser.avatar} width={7} />
 			<Styled.ChatName>{otherUser.name}</Styled.ChatName>
 			<Styled.SectionName>Email</Styled.SectionName>
 			<Styled.Email>{otherUser.email}</Styled.Email>
 			<Styled.SectionName>Phone number</Styled.SectionName>
 			<Styled.Telephone>{otherUser.phoneNumber}</Styled.Telephone>
-			<Styled.BlockButton>{"Block " + otherUser.name}</Styled.BlockButton>
+			<Styled.BlockButton onClick={handleBlockClick}>
+				{isBlocked? "Unblock " : "Block "}{otherUser.name}
+			</Styled.BlockButton>
 		</Styled.ProfileDetail>
 	);
 };

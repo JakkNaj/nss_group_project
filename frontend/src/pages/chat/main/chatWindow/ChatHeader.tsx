@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { UserAvatar } from "../../../components/UserAvatar.tsx";
-import { ChatRoomStore, State } from "../../../stores/ChatRoomStore.ts";
+import { UserAvatar } from "../../../../components/UserAvatar.tsx";
+import { ChatRoomStore, State } from "../../../../stores/ChatRoomStore.ts";
 
 const Styled = {
 	ChatHeader: styled("div")({
@@ -57,7 +57,7 @@ export const ChatHeader = (props: ChatHeaderProps) => {
 	return (
 		<Styled.ChatHeader>
 			<Styled.AvatarLayout>
-				<UserAvatar username={activeChatRoom.name} avatar={""} />
+				<UserAvatar name={activeChatRoom.name} avatar={""} />
 				<Styled.UsernameStatusLayout>
 					<Styled.Username>{activeChatRoom.name}</Styled.Username>
 					<Styled.Status>online 7m ago</Styled.Status>

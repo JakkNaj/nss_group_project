@@ -1,12 +1,13 @@
-import { Card, CardContent, Typography } from "@mui/material";
+import {Card, CardContent, Typography} from "@mui/material";
 import styled from "styled-components";
-import { MessageType } from "../../../../model/types/MessageType.ts";
-import { colors } from "../../../../styles/colors.ts";
-import { useState } from "react";
-import { UserAvatar } from "../../../../components/UserAvatar.tsx";
-import { UserStore } from "../../../../stores/UserStore.ts";
-import { ChatRoomStore } from "../../../../stores/ChatRoomStore.ts";
+import {MessageType} from "../../../../model/types/MessageType.ts";
+import {colors} from "../../../../styles/colors.ts";
+import {useState} from "react";
+import {UserAvatar} from "../../../../components/UserAvatar.tsx";
+import {ChatRoomStore} from "../../../../stores/ChatRoomStore.ts";
 import ReplyIcon from '@mui/icons-material/Reply';
+import {UserStore} from "../../../../stores/UserStore.ts";
+import {UserType} from "../../../../model/types/UserType.ts";
 
 const Styled = {
 	MessageContainer: styled.div<{ $isUserMessage: boolean }>`
@@ -62,24 +63,19 @@ const Styled = {
 
 interface MessageProps {
 	message: MessageType;
-	userId: number;
+	sender: UserType;
 	handleReplyClick: (messageId: string, messageContent: string | null) => void;
 }
 
-export const Message = ({ message, userId, handleReplyClick }: MessageProps) => {
-	const isUserMessage = message.senderId === userId;
+export const Message = ({ message, sender, handleReplyClick }: MessageProps) => {
 	const [showTimestamp, setShowTimestamp] = useState(false);
-	const sender = UserStore.getUserById(message.senderId);
 	const [showReplyIcon, setShowReplyIcon] = useState(false);
 
 	const { activeChat } = ChatRoomStore.useStore((state) => ({
 		activeChat: state.activeChatRoom,
 	}));
 
-	//should not happen
-	if (!sender) {
-		return <div>Error: not found sender of the message!</div>;
-	}
+	const isUserMessage = sender.id === UserStore.getLoggedInUser()?.id;
 
 	function formatDate(timestampInSeconds: number) {
 		const date = new Date(timestampInSeconds * 1000);
@@ -107,7 +103,7 @@ export const Message = ({ message, userId, handleReplyClick }: MessageProps) => 
 				}
 			}}
 		>
-			{!isUserMessage && <Styled.Avatar username={sender.name} avatar={sender.avatar} width={2} />}
+			{!isUserMessage && <Styled.Avatar name={sender.name} avatar={sender.avatar} width={2} />}
 			<Styled.MessageCardContainer $isUserMessage={isUserMessage}>
 				{activeChat?.type === "GROUP" && !isUserMessage && (
 					<Typography variant="caption" color="textSecondary">
