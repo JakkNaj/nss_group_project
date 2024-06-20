@@ -25,28 +25,28 @@ public class FriendRequestController {
     }
 
 
-    @PostMapping("/{recipient}")
+    @PostMapping("/{sender}/{recipient}")
     public ResponseEntity<String> sendFriendRequest(
             @PathVariable String recipient,
-            String sender ////sender je Principal.getUsername()
+            @PathVariable String sender //// todo sender je Principal.getUsername()
     ){
         friendRequestService.sendFriendRequest(sender, recipient);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/accept/{sender}")
+    @PostMapping("/accept/{sender}/{recipient}")
     public ResponseEntity<String> acceptFriendRequest(
             @PathVariable String sender,
-            String recipient ////recipient je Principal.getUsername()
+            @PathVariable String recipient //// todo recipient je Principal.getUsername()
     ){
         friendRequestService.acceptFriendRequest(sender, recipient);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/decline/{sender}")
+    @PostMapping("/decline/{sender}/{recipient}")
     public ResponseEntity<String> declineFriendRequest(
             @PathVariable String sender,
-            String recipient ////recipient je Principal.getUsername()
+            @PathVariable String recipient //// todo recipient je Principal.getUsername()
     ){
         friendRequestService.declineFriendRequest(sender, recipient);
         return ResponseEntity.noContent().build();

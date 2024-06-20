@@ -72,11 +72,11 @@ const FriendsWindow = () => {
     }
 
     const handleAccept = (username: string) => {
-        console.log(`Accepted friend request from ${username}`);
+        FriendRequestStore.acceptFriendRequest(username, loggedInUsername);
     };
 
     const handleDecline = (username: string) => {
-        console.log(`Declined friend request from ${username}`);
+        FriendRequestStore.declineFriendRequest(username, loggedInUsername);
     };
 
     const handleSendRequest = () => {
