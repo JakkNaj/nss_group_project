@@ -1,9 +1,9 @@
-import { useStompClientStore } from "../stores/StompClientStore.ts";
-import { UserStore } from "../stores/UserStore.ts";
-import {MessageReferenceType} from "../model/types/MessageReference.ts";
 import {useEffect, useState} from "react";
+import {useStompClientStore} from "../stores/StompClientStore.ts";
+import {UserStore} from "../stores/UserStore.ts";
 
-export const useSendReply = () => {
+
+export const useSendLeave = () => {
     const [senderId, setSenderId] = useState<number>(-1);
     const stompClient = useStompClientStore((state) => state.stompClient);
 
@@ -16,19 +16,17 @@ export const useSendReply = () => {
     }, []);
 
     if (senderId <= 0) {
-        return { sendReply: () => {} };
+        return { sendLeave: () => {} };
     }
 
-    const sendReply = ({ content, chatLogId, type = "REPLY", messageReference }: { content: string | null; chatLogId: number; type?: string; messageReference : MessageReferenceType }) => {
+    const sendLeave = ({ chatLogId, type = "LEAVE" }: { chatLogId: number; type?: string }) => {
         if (stompClient?.connected) {
-            console.warn("Sending reply through websocket")
+            console.warn("Sending leave through websocket")
             const chatMessage = {
                 messageLogId: chatLogId,
                 senderId: senderId,
-                content: content,
                 type: type,
                 timestampInSeconds: Math.floor(Date.now() / 1000),
-                messageReference: messageReference
             };
 
             console.log(chatMessage);
@@ -37,5 +35,5 @@ export const useSendReply = () => {
         }
     };
 
-    return { sendReply };
-};
+    return { sendLeave };
+}

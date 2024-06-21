@@ -52,6 +52,9 @@ export const ChatRoomStore = {
 		}
 		useChatStore.setState({ activeChatRoom: chat });
 	},
+	getActiveChatRoom: () => {
+		return useChatStore.getState().activeChatRoom;
+	},
 	getChatUsers: async (chatId: number): Promise<UserType[]> => {
 		const chat = ChatRoomStore.findChat(chatId);
 		if (chat) {
@@ -74,7 +77,7 @@ export const ChatRoomStore = {
 	},
 	initializeStore: async (userId: number) => {
 		try {
-			const chatResponse = await fetch(`http://localhost:8081/chatRoom?userId=${userId}`, {
+			const chatResponse = await fetch(`http://localhost:8080/chat-history/chatRoom?userId=${userId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -106,20 +109,18 @@ export const ChatRoomStore = {
 		const chatsData = mockData;
 		ChatRoomStore.initializeChats(chatsData);
 	},
-	removeUserFromChat: (chatId: number, userId: number) => {
+	leaveChat: (chatId: number) => {
+		console.log("leaving chat with id: ", chatId);
 		const chat = ChatRoomStore.findChat(chatId);
 		if (chat) {
-			const updatedChat = {
-				...chat,
-				members: chat.members.filter((memberId) => memberId !== userId),
-			};
 			useChatStore.setState({
-				chats: useChatStore.getState().chats.map((chat) => (chat.chatLogId === chatId ? updatedChat : chat)),
-				directChats: useChatStore.getState().directChats,
-				groupChats: useChatStore.getState().chats.filter((chat) => chat.type === EChatType.GROUP),
+				chats: useChatStore.getState().chats.filter((chat) => chat.chatLogId !== chatId),
+				directChats: useChatStore.getState().directChats.filter((chat) => chat.chatLogId !== chatId),
+				groupChats: useChatStore.getState().groupChats.filter((chat) => chat.chatLogId !== chatId),
 				activeChatRoom:
-					useChatStore.getState().activeChatRoom?.chatLogId === chatId ? updatedChat : useChatStore.getState().activeChatRoom,
+					useChatStore.getState().activeChatRoom?.chatLogId === chatId ? null : useChatStore.getState().activeChatRoom,
 			});
+			ChatLogStore.removeChatLog(chatId);
 		}
 	},
 	addUserToChat: (chatId: number, userId: number) => {
@@ -160,12 +161,34 @@ export const ChatRoomStore = {
 			}
 
 			const chatRoom = await response.json();
-			console.log(chatRoom);
+			console.warn("fetched joined chatRoom: " , chatRoom);
 			return chatRoom;
 		} catch (error) {
 			console.error(error);
 			return null;
 		}
+	},
+	addGroupChat: (chat: ChatRoomType) => {
+		if (useChatStore.getState().groupChats.find(existingChat => existingChat.chatLogId === chat.chatLogId)) {
+			return false;
+		}
+		useChatStore.setState({
+			chats: useChatStore.getState().chats,
+			directChats: useChatStore.getState().directChats,
+			groupChats: [...useChatStore.getState().groupChats, chat],
+			activeChatRoom: useChatStore.getState().activeChatRoom
+		});
+	},
+	addDirectChat: (chat: ChatRoomType) => {
+		if (useChatStore.getState().directChats.includes(chat)) {
+			return false;
+		}
+		useChatStore.setState({
+			chats: useChatStore.getState().chats,
+			directChats: [...useChatStore.getState().directChats, chat],
+			groupChats: useChatStore.getState().groupChats,
+			activeChatRoom: useChatStore.getState().activeChatRoom});
+
 	},
 	addUserToChatRoomBEcall: async (chatId: number, userId: number) => {
 		const chatMessage: MessageType = {
@@ -174,6 +197,7 @@ export const ChatRoomStore = {
 			content: null,
 			type: EMessageType.JOIN,
 			timestampInSeconds: Math.floor(Date.now() / 1000),
+			messageReference: null,
 		};
 
 		//wait for response

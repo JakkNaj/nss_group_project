@@ -98,7 +98,7 @@ export const UserStore = {
 		}
 	},
 	updateLoggedInUserAvatar: (avatar: string) => {
-		console.log("updating users avatar with: ", avatar);
+		console.log("updating user avatar!")
 		const loggedInUser = useUserStore.getState().loggedInUser;
 		if (!loggedInUser) {
 			throw new Error("No user is logged in.");

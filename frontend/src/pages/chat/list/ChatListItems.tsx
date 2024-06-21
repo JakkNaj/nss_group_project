@@ -11,11 +11,9 @@ type ChatListItemsProps = {
 	chats: ChatRoomType[];
 	displayRowsNumber: number;
 	showChatWindow: () => void;
-	buttonText: string;
-	buttonAction: () => void;
 };
 
-const ChatListItems = ({ sectionName, chats, displayRowsNumber, showChatWindow, buttonText, buttonAction }: ChatListItemsProps) => {
+const ChatListItems = ({ sectionName, chats, displayRowsNumber, showChatWindow }: ChatListItemsProps) => {
 	const getLastMessage = (chatId: number) => {
 		const message = ChatLogStore.getLastMessageFromChatLog(chatId);
 		if (message && message.content) {
@@ -30,23 +28,44 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, showChatWindow, 
 		showChatWindow();
 	};
 
+
+	const getChatName = (chat: ChatRoomType) => {
+		const foundChat = chats.find(c => c.chatLogId === chat.chatLogId);
+		if (foundChat && foundChat.name) {
+			return foundChat.name;
+		}
+		return "No name";
+	}
+
+	let activeChatRoomId = ChatRoomStore.getActiveChatRoom()?.chatLogId;
+	if (!activeChatRoomId)
+		activeChatRoomId = -1;
+
 	return (
 		<List>
 			<Styled.TitleSection>
 				<h3>{sectionName}</h3>
-				<Styled.Button variant="contained" onClick={buttonAction}>
-					{buttonText}
-				</Styled.Button>
 			</Styled.TitleSection>
 			{chats.slice(0, displayRowsNumber).map((chat) => (
 				<ListItem
 					key={chat.chatLogId}
 					alignItems="flex-start"
-					sx={{ padding: 0, paddingBottom: "22px" }}
+					sx={{
+						paddingTop: "1rem",
+						paddingBottom: "1rem",
+						border: chat.chatLogId === activeChatRoomId ? "1px solid black" : 'none',
+						borderRadius: "1rem",
+						cursor: "pointer",
+						transition: "all 0.3s ease",
+						"&:hover": {
+							backgroundColor: colors.darkerBackground,
+							transform: 'scale(1.02)',
+						},
+					}}
 					onClick={() => handleChatItemClick(chat.chatLogId)}
 				>
 					<ListItemAvatar>
-						<UserAvatar name={ChatRoomStore.getChatName(chat.chatLogId)} avatar={chat.avatar} />
+						<UserAvatar name={getChatName(chat)} avatar={chat.avatar} />
 					</ListItemAvatar>
 					<div
 						style={{
@@ -56,7 +75,7 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, showChatWindow, 
 							maxWidth: "100%",
 						}}
 					>
-						<ListItemText primary={ChatRoomStore.getChatName(chat.chatLogId)} secondary={getLastMessage(chat.chatLogId)} />
+						<ListItemText primary={getChatName(chat)} secondary={getLastMessage(chat.chatLogId)} />
 					</div>
 				</ListItem>
 			))}

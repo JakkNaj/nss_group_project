@@ -14,6 +14,7 @@ import {useEffect, useState} from "react";
 import {MessageReferenceType} from "../../../../model/types/MessageReference.ts";
 import {UserStore} from "../../../../stores/UserStore.ts";
 import {CircularProgress} from "@mui/material";
+import {colors} from "../../../../styles/colors.ts";
 
 const Styled = {
 	ChatWindow: styled.section<{ $rightSectionVisible: boolean }>`
@@ -104,7 +105,7 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 
 	if (!activeChatLog) {
 		//activeChat is null only when there are no chats
-		return <div>Add friends to start chatting</div>;
+		return <div style={{margin: "4rem"}}>Join any chat to start chatting!</div>;
 	}
 
 	const handleSendMessage = (message: string) => {
@@ -138,7 +139,12 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 	}
 
 	if (!membersLoaded) {
-		return <CircularProgress />;
+		return (
+			<div style={{margin: "4rem"}}>
+				<CircularProgress style={{ color: `${colors.darkerBackground}` }} />
+				<p>Joining the chat, please wait</p>
+			</div>
+		);
 	}
 
 	return (

@@ -16,6 +16,7 @@ export const useChatLogStore = create<ChatLogStore>((set) => ({
 	activeChatLog: null,
 	updateChatLogWithNewMessage: (chatLogId, message) =>
 		set((state) => {
+			console.log("updating chat log with new message", chatLogId, message);
 			const chatLogIndex = state.chatLogs.findIndex((chatLog) => chatLog.chatLogId === chatLogId);
 			if (chatLogIndex !== -1) {
 				const updatedChatLog = {
@@ -100,4 +101,34 @@ export const ChatLogStore = {
 		}
 	},
 	reset: useChatLogStore.getState().reset,
+	initializeStore: async (userId: number) => {
+		try {
+			const chatResponse = await fetch(`http://localhost:8080/chat-history/chatLogsForUser?userId=${userId}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					//todo auth headers
+				},
+			});
+
+			if (!chatResponse.ok) {
+				const errorData = await chatResponse.json();
+				throw new Error(`HTTP error! status: ${chatResponse.status}, message: ${errorData.message}`);
+			}
+
+			const pageData = await chatResponse.json();
+			const chatLogs = pageData.content;
+			useChatLogStore.setState({ chatLogs: chatLogs });
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+	removeChatLog: (chatLogId: number) => {
+		useChatLogStore.setState({
+			chatLogs: useChatLogStore.getState().chatLogs.filter((chatLog) => chatLog.chatLogId !== chatLogId),
+			activeChatLog:
+				useChatLogStore.getState().activeChatLog?.chatLogId === chatLogId ? null : useChatLogStore.getState().activeChatLog,
+		});
+	},
 };

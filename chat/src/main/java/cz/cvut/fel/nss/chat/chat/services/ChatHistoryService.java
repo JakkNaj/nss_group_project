@@ -10,6 +10,8 @@ import cz.cvut.fel.nss.chat.chat.repositories.ChatRoomRepository;
 import cz.cvut.fel.nss.chat.config.ChatConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,21 +52,16 @@ public class ChatHistoryService {
         return chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new NotFoundException("Chat room with id " + chatRoomId + " not found"));
     }
 
-    public List<ChatLog> getChatHistoryForUser(Integer userId) {
+    public Page<ChatLog> getChatHistoryForUser(Integer userId, Pageable pageable) {
         log.trace("Getting chat history for userId={}", userId);
 
-        PageRequest pageRequest = PageRequest.of(0, chatConfig.getPageSize());
+        Page<ChatRoom> chatRooms = chatRoomRepository.findAllByMembersContainingOrderByLastMessageTimestampDesc(userId, pageable);
 
-        List<Integer> chatIds = chatRoomRepository.findAllByMembersContainingOrderByLastMessageTimestampDesc(userId, pageRequest)
-                .stream()
-                .map(ChatRoom::getChatLogId)
+        List<ChatLog> chatLogs = chatRooms.stream()
+                .map(chatRoom -> getChatHistory(chatRoom.getChatLogId(), PageRequest.of(0, chatConfig.getPageSize())))
                 .toList();
 
-        log.trace("Found chatIds={}", chatIds);
-
-        return chatIds.stream()
-                .map(chatId -> getChatHistory(chatId, pageRequest))
-                .toList();
+        return new PageImpl<>(chatLogs, pageable, chatLogs.size());
     }
 
     public List<ChatRoom> getChatRoomsForUser(Integer userId, Pageable pageable) {

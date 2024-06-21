@@ -2,10 +2,7 @@ package cz.cvut.fel.nss.user_management.controllers;
 
 import cz.cvut.fel.nss.user_management.entities.AccountState;
 import cz.cvut.fel.nss.user_management.entities.UserEntity;
-import cz.cvut.fel.nss.user_management.entities.dto.CombinedUserDto;
-import cz.cvut.fel.nss.user_management.entities.dto.SignUpDto;
-import cz.cvut.fel.nss.user_management.entities.dto.UserDetailDto;
-import cz.cvut.fel.nss.user_management.entities.dto.UserEntityDto;
+import cz.cvut.fel.nss.user_management.entities.dto.*;
 import cz.cvut.fel.nss.user_management.exception.NotFoundException;
 import cz.cvut.fel.nss.user_management.services.PictureService;
 import cz.cvut.fel.nss.user_management.services.UsersService;
@@ -42,7 +39,7 @@ public class UsersController {
     }
 
     @PutMapping()
-    public ResponseEntity<CombinedUserDto> updateUser(@RequestBody UserEntityDto userDto) {
+    public ResponseEntity<CombinedUserDto> updateUser(@RequestBody UpdateUserEntityDto userDto) {
         userService.updateUser(userDto);
         CombinedUserDto updatedUserDetail = userService.getUserByUserid(userDto.getUserId());
         return ResponseEntity.ok(updatedUserDetail);

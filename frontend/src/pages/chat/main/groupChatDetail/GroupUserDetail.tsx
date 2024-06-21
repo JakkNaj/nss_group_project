@@ -57,10 +57,9 @@ const Styled = {
 interface UserDetailProps {
 	user: { id: number; name: string; avatar: string; email: string; phoneNumber: string };
 	onBackClick: () => void;
-	onRemoveClick: () => void;
 }
 
-export function GroupUserDetail({ user, onBackClick, onRemoveClick }: UserDetailProps) {
+export function GroupUserDetail({ user, onBackClick }: UserDetailProps) {
 	return (
 		<Styled.UserDetail>
 			<Styled.ArrowIcon onClick={onBackClick} />
@@ -68,7 +67,6 @@ export function GroupUserDetail({ user, onBackClick, onRemoveClick }: UserDetail
 			<Styled.UserName>{user.name}</Styled.UserName>
 			<Styled.Email>{user.email}</Styled.Email>
 			<Styled.Telephone>{user.phoneNumber}</Styled.Telephone>
-			<Styled.RemoveButton onClick={onRemoveClick}>Remove from group</Styled.RemoveButton>
 		</Styled.UserDetail>
 	);
 }

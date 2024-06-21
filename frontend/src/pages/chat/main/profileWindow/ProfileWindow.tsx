@@ -47,7 +47,11 @@ const Styled = {
 	}),
 };
 
-export const ProfileWindow = () => {
+type ProfileWindowProps = {
+	showChat: () => void;
+}
+
+export const ProfileWindow = (props : ProfileWindowProps) => {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [avatar, setAvatar] = useState("");
@@ -85,6 +89,9 @@ export const ProfileWindow = () => {
 			<Styled.Email>{email}</Styled.Email>
 			<Styled.Button onClick={handleEditProfile} variant="contained">
 				Edit Profile
+			</Styled.Button>
+			<Styled.Button onClick={() => props.showChat()} variant="contained">
+				Back to chatting!
 			</Styled.Button>
 		</Styled.ProfileWindowContainer>
 	);

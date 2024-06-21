@@ -59,13 +59,14 @@ export const ChatPage = () => {
 		setMainState(MainState.CHAT);
 	};
 
-	const showFriendsWindow = () => {
+	//user relations not implemented yet
+	/*const showFriendsWindow = () => {
 		setMainState(MainState.FRIENDS);
 	}
 
 	const showGroupsWindow = () => {
 		setMainState(MainState.GROUPS);
-	}
+	}*/
 
 	return (
 		<Styled.ChatPageContainer>
@@ -73,13 +74,13 @@ export const ChatPage = () => {
 				<ChatPageHeader showProfileWindow={showProfileWindow} />
 			</Styled.Header>
 			<Styled.LeftSection>
-				<ChatList showChatWindow={showChatWindow} showFriendsWindow={showFriendsWindow} showGroupsWindow={showGroupsWindow} />
+				<ChatList showChatWindow={showChatWindow} />
 			</Styled.LeftSection>
 			<Styled.Main>
 				{mainState === MainState.FRIENDS ? (
 					<FriendsWindow />
 				) : mainState === MainState.PROFILE ? (
-					<ProfileWindow />
+					<ProfileWindow showChat={showChatWindow}/>
 				) : mainState === MainState.CHAT ? (
 					<ChatWindow
 						rightSectionVisible={rightSectionVisible}

@@ -5,6 +5,7 @@ import cz.cvut.fel.nss.chat.chat.services.ChatHistoryService;
 import cz.cvut.fel.nss.chat.chat.entities.ChatLog;
 import cz.cvut.fel.nss.chat.config.ChatConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +26,12 @@ public class ChatHistoryController {
     }
 
     @GetMapping("/chatLogsForUser")
-    public List<ChatLog> getChatHistoryForUser(@RequestParam("userId") Integer userId) {
-        return chatHistoryService.getChatHistoryForUser(userId);
+    public Page<ChatLog> getChatHistoryForUser(
+            @RequestParam("userId") Integer userId,
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, chatConfig.getPageSize());
+        return chatHistoryService.getChatHistoryForUser(userId, pageRequest);
     }
 
     @GetMapping("/chatRoom")

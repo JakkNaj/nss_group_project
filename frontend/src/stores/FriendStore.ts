@@ -2,11 +2,11 @@ import {create} from 'zustand';
 import {UserType} from "../model/types/UserType.ts";
 import axios from "axios";
 
-type Friendship = {
+/*type Friendship = {
     id: number;
     friend1: string;
     friend2: string;
-}
+}*/
 
 type FriendsStore = {
     friends: UserType[];
@@ -23,10 +23,10 @@ const useFriendsStore = create<FriendsStore>((set) => ({
             const response = await axios.get(`http://localhost:8082/friends/${username}`);
             if (response.status === 200) {
                 console.log("friends fetched data: ", response.data);
-                const friendships: Friendship[] = response.data;
-                const friendUsernames = friendships.map(friendship =>
+                /*const friendships: Friendship[] = response.data;*/
+                /*const friendUsernames = friendships.map(friendship =>
                     friendship.friend1 === username ? friendship.friend2 : friendship.friend1
-                );
+                );*/
                 const friends: UserType[] = [];
                 // todo map friends to UserDetails - missing endpoint to fetch based on string
                 /*for (const friendUsername of friendUsernames) {
