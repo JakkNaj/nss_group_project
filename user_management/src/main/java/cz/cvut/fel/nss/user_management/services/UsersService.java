@@ -79,41 +79,48 @@ public class UsersService {
         return user;
     }
 
-    /**
-     * We do not allow changing username
-     * @param userEntityDto
-     */
-    public void updateUser(UserEntityDto userEntityDto) {
-        Optional<UserEntity> existingUser = userRepository.findById(userEntityDto.getUserId());
+
+    public void updateUser(UpdateUserEntityDto updateUserEntityDto) {
+        Optional<UserEntity> existingUser = userRepository.findById(updateUserEntityDto.getUserId());
         if (existingUser.isEmpty() || existingUser.get().getAccountState() == AccountState.DELETED) {
-            throw new NotFoundException("User with username " + findByUserId(userEntityDto.getUserId()).getUsername() + " does not exist");
+            throw new NotFoundException("User with username " + findByUserId(updateUserEntityDto.getUserId()).getUsername() + " does not exist");
         }
-        if (!Objects.equals(existingUser.get().getEmail(), userEntityDto.getEmail())) {
-            basicValidation(userEntityDto.getUsername(), userEntityDto.getEmail());
-            existingUser.get().setEmail(userEntityDto.getEmail());
+        if (!Objects.equals(existingUser.get().getEmail(), updateUserEntityDto.getEmail())) {
+            emailValidation(updateUserEntityDto.getEmail());
+            existingUser.get().setEmail(updateUserEntityDto.getEmail());
         }
-        if (!Objects.equals(existingUser.get().getPassword(), userEntityDto.getPassword()) && userEntityDto.getPassword() != null)
-            existingUser.get().setPassword(userEntityDto.getPassword());
-        if (!Objects.equals(existingUser.get().getName(), userEntityDto.getName()))
-            existingUser.get().setName(userEntityDto.getName());
-        if (!Objects.equals(existingUser.get().getAccountState(), userEntityDto.getAccountState()))
-            existingUser.get().setAccountState(userEntityDto.getAccountState());
+        if (!Objects.equals(existingUser.get().getUsername(), updateUserEntityDto.getUsername())) {
+            usernameValidation(updateUserEntityDto.getUsername());
+            existingUser.get().setUsername(updateUserEntityDto.getUsername());
+        }
+        if (!Objects.equals(existingUser.get().getName(), updateUserEntityDto.getName()))
+            existingUser.get().setName(updateUserEntityDto.getName());
+        if (!Objects.equals(existingUser.get().getAccountState(), updateUserEntityDto.getAccountState()))
+            existingUser.get().setAccountState(updateUserEntityDto.getAccountState());
         userRepository.save(existingUser.get());
     }
 
-    private void basicValidation (String username, String email) {
-        if (userRepository.existsByUsername(username)) {
-            throw new ConflictException("Username must be unique");
-        }
+    private void emailValidation (String email) {
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("Email must be unique");
         }
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             throw new BadRequestException("Email must be valid");
         }
+    }
+
+    private void usernameValidation (String username) {
+        if (userRepository.existsByUsername(username)) {
+            throw new ConflictException("Username must be unique");
+        }
         if (username.length() < minUsernameLength || username.length() > maxUsernameLength) {
             throw new BadRequestException("Username must be between " + minUsernameLength + " and " + maxUsernameLength + " characters");
         }
+    }
+
+    private void basicValidation (String username, String email) {
+        usernameValidation(username);
+        emailValidation(email);
     }
 
     public void authenticateUser(String username, String encodedPassword) {

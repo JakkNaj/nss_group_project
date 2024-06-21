@@ -58,7 +58,6 @@ export const EditProfile = (props: EditProfileProps) => {
 	const [editedUsername, setEditedUsername] = useState("");
 	const [editedName, setEditedName] = useState("");
 	const [editedEmail, setEditedEmail] = useState("");
-	const [editedPassword, setEditedPassword] = useState("");
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [successMessage, setSuccessMessage] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
@@ -69,7 +68,6 @@ export const EditProfile = (props: EditProfileProps) => {
 	const [usernameError, setUsernameError] = useState("");
 	const [emailError, setEmailError] = useState("");
 	const [nameError, setNameError] = useState("");
-	const [passwordError, setPasswordError] = useState("");
 
 	const loggedInUser = UserStore.useStore((state) => state.loggedInUser);
 
@@ -95,7 +93,6 @@ export const EditProfile = (props: EditProfileProps) => {
 		setUsernameError("");
 		setNameError("");
 		setEmailError("");
-		setPasswordError("");
 
 		const nameRegex = /^[a-zA-Z]+\s[a-zA-Z]+$/;
 		if (!nameRegex.test(editedName)) {
@@ -117,19 +114,12 @@ export const EditProfile = (props: EditProfileProps) => {
 			return;
 		}
 
-		if (!editedPassword) {
-			setPasswordError("Password cannot be empty.");
-			setIsLoadingDetails(false);
-			return;
-		}
-
 		if (editedUsername !== username || editedName !== name || editedEmail !== email) {
 			const userEntityDto = {
 				userId: id,
 				name: editedName,
 				username: editedUsername,
 				email: editedEmail,
-				password: editedPassword,
 				accountState: "ACTIVE",
 			};
 
@@ -279,15 +269,6 @@ export const EditProfile = (props: EditProfileProps) => {
 					error={!!emailError}
 					helperText={emailError}
 				/>
-				<StyledInputField.TextField
-					label="Password"
-					type="password"
-					fullWidth
-					value={editedPassword}
-					onChange={(e) => setEditedPassword(e.target.value)}
-					error={!!passwordError}
-					helperText={passwordError}
-				/>
 				{isLoadingDetails && <CircularProgress style={{ color: `${colors.darkerBackground}` }} />}
 				{successMessage && <p>{successMessage}</p>}
 				{errorMessage && <p>{errorMessage}</p>}
@@ -295,7 +276,6 @@ export const EditProfile = (props: EditProfileProps) => {
 					Update Details
 				</Styled.Button>
 			</Styled.Form>
-
 			<Styled.Button onClick={props.handleCancel} variant="contained">
 				Go back to profile details
 			</Styled.Button>
