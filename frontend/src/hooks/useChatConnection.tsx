@@ -63,7 +63,6 @@ export const useChatConnection = (user : UserType | null) => {
 		switch (newMessage.type) {
 			case "JOIN":
 				// Update the chat to indicate that a user has joined
-				console.log("USER JOINED CHAT, IS useChatConnection")
 				ChatRoomStore.addUserToChat(newMessage.messageLogId, newMessage.senderId);
 				updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
 				break;

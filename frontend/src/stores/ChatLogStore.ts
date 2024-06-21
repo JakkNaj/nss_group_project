@@ -117,7 +117,16 @@ export const ChatLogStore = {
 			}
 
 			const pageData = await chatResponse.json();
-			const chatLogs = pageData.content;
+			let chatLogs = pageData.content;
+
+			// Sort the messages in each chat log by their timestamps
+			chatLogs = chatLogs.map((chatLog : ChatLogType) => {
+				return {
+					...chatLog,
+					messages: chatLog.messages.sort((a, b) => a.timestampInSeconds - b.timestampInSeconds)
+				};
+			});
+
 			useChatLogStore.setState({ chatLogs: chatLogs });
 		} catch (error) {
 			console.error(error);
