@@ -52,6 +52,9 @@ export const ChatRoomStore = {
 		}
 		useChatStore.setState({ activeChatRoom: chat });
 	},
+	getActiveChatRoom: () => {
+		return useChatStore.getState().activeChatRoom;
+	},
 	getChatUsers: async (chatId: number): Promise<UserType[]> => {
 		const chat = ChatRoomStore.findChat(chatId);
 		if (chat) {

@@ -10,8 +10,7 @@ import React, { useState } from "react";
 import { UserStore } from "../../stores/UserStore.ts";
 import PersonIcon from "@mui/icons-material/Person";
 import { SignupDto } from "../../model/types/SignupDto.ts";
-import { ChatRoomStore } from "../../stores/ChatRoomStore.ts";
-import { ChatLogStore } from "../../stores/ChatLogStore.ts";
+import {CircularProgress} from "@mui/material";
 
 const Styled = {
 	Form: styled("form")({
@@ -60,9 +59,11 @@ export const RegisterPage = () => {
 	const [emailError, setEmailError] = useState("");
 	const [nameError, setNameError] = useState("");
 	const [serverError, setServerError] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleRegister = async (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
+		setIsLoading(true);
 		setUsernameError("");
 		setPasswordError("");
 		setEmailError("");
@@ -100,12 +101,12 @@ export const RegisterPage = () => {
 		try {
 			const user = await UserStore.register(credentials);
 			console.log("User registered: ", user);
-			/*await ChatRoomStore.initializeStore(user.id);
-			await ChatLogStore.initializeStore(user.id);*/
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);
 			setServerError((error as Error).message);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -201,6 +202,7 @@ export const RegisterPage = () => {
 				Already have an account?
 				<Styled.RegisterLink to="/">Login here</Styled.RegisterLink>
 			</Styled.P>
+			{isLoading && <CircularProgress style={{ color: `${colors.darkerBackground}` }} />}
 		</Styled.Form>
 	);
 };

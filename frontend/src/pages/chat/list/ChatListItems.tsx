@@ -37,6 +37,10 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, showChatWindow }
 		return "No name";
 	}
 
+	let activeChatRoomId = ChatRoomStore.getActiveChatRoom()?.chatLogId;
+	if (!activeChatRoomId)
+		activeChatRoomId = -1;
+
 	return (
 		<List>
 			<Styled.TitleSection>
@@ -46,7 +50,18 @@ const ChatListItems = ({ sectionName, chats, displayRowsNumber, showChatWindow }
 				<ListItem
 					key={chat.chatLogId}
 					alignItems="flex-start"
-					sx={{ padding: 0, paddingBottom: "22px" }}
+					sx={{
+						paddingTop: "1rem",
+						paddingBottom: "1rem",
+						border: chat.chatLogId === activeChatRoomId ? "1px solid black" : 'none',
+						borderRadius: "1rem",
+						cursor: "pointer",
+						transition: "all 0.3s ease",
+						"&:hover": {
+							backgroundColor: colors.darkerBackground,
+							transform: 'scale(1.02)',
+						},
+					}}
 					onClick={() => handleChatItemClick(chat.chatLogId)}
 				>
 					<ListItemAvatar>

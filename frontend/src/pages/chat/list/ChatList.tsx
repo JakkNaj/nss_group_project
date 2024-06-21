@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { State } from "../../../stores/ChatRoomStore.ts";
 import { ChatRoomStore } from "../../../stores/ChatRoomStore.ts";
 import {DirectChatConnect} from "./DirectChatConnect.tsx";
+import {ChatLogStore} from "../../../stores/ChatLogStore.ts";
 
 const Styled = {
 	ChatListLayout: styled("div")({
@@ -30,7 +31,16 @@ export const ChatList = ({ showChatWindow }: ChatListProps) => {
 		groupChats: state.groupChats,
 	}));
 
-	console.log("in ChatList, groupChats: ", groupChats);
+	const sortedChats = [...groupChats].sort((a, b) => {
+		const lastMessageA = ChatLogStore.getLastMessageFromChatLog(a.chatLogId);
+		const lastMessageB = ChatLogStore.getLastMessageFromChatLog(b.chatLogId);
+
+		// If a chat doesn't have any messages, set its timestamp to 0
+		const timestampA = lastMessageA ? lastMessageA.timestampInSeconds : 0;
+		const timestampB = lastMessageB ? lastMessageB.timestampInSeconds : 0;
+
+		return timestampB - timestampA;
+	});
 
 	return (
 		<Styled.ChatListLayout>
@@ -39,7 +49,7 @@ export const ChatList = ({ showChatWindow }: ChatListProps) => {
 			<Styled.ListSection>
 				<ChatListItems
 					sectionName="Joined Chats"
-					chats={groupChats}
+					chats={sortedChats}
 					displayRowsNumber={10}
 					showChatWindow={showChatWindow}
 				/>

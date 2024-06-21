@@ -10,6 +10,7 @@ import { UserStore } from "../../stores/UserStore.ts";
 import { PasswordInput } from "../../components/PasswordInput.tsx";
 import {ChatRoomStore} from "../../stores/ChatRoomStore.ts";
 import {ChatLogStore} from "../../stores/ChatLogStore.ts";
+import {CircularProgress} from "@mui/material";
 
 const Styled = {
 	Form: styled("form")({
@@ -54,9 +55,11 @@ export const LoginPage = () => {
 	const [usernameError, setUsernameError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
 	const [serverError, setServerError] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleLogin = async (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
+		setIsLoading(true);
 
 		if (!username) {
 			setUsernameError("Username is required");
@@ -80,6 +83,8 @@ export const LoginPage = () => {
 		} catch (error) {
 			console.error(error);
 			setServerError((error as Error).message);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -110,6 +115,7 @@ export const LoginPage = () => {
 				Don't have an account?
 				<Styled.RegisterLink to="/register">Register here</Styled.RegisterLink>
 			</Styled.P>
+			{isLoading && <CircularProgress style={{ color: `${colors.darkerBackground}` }} />}
 		</Styled.Form>
 	);
 };
