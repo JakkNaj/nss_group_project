@@ -8,8 +8,8 @@ import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { UserStore } from "../../stores/UserStore.ts";
 import { PasswordInput } from "../../components/PasswordInput.tsx";
-import { ChatRoomStore } from "../../stores/ChatRoomStore.ts";
-import { ChatLogStore } from "../../stores/ChatLogStore.ts";
+import {ChatRoomStore} from "../../stores/ChatRoomStore.ts";
+import {ChatLogStore} from "../../stores/ChatLogStore.ts";
 
 const Styled = {
 	Form: styled("form")({
@@ -74,8 +74,8 @@ export const LoginPage = () => {
 		try {
 			const user = await UserStore.login(username, password);
 			console.log("User logged in: ", user);
-			/*await ChatRoomStore.initializeStore(user.id);
-			await ChatLogStore.initializeStore(user.id);*/
+			await ChatRoomStore.initializeStore(user.id);
+			await ChatLogStore.initializeStore(user.id);
 			navigate("/chat");
 		} catch (error) {
 			console.error(error);

@@ -23,23 +23,14 @@ const Styled = {
 
 interface ChatListProps {
 	showChatWindow: () => void;
-	showFriendsWindow: () => void;
-	showGroupsWindow: () => void;
 }
 
-export const ChatList = ({ showChatWindow, showFriendsWindow, showGroupsWindow }: ChatListProps) => {
-	const { directChats, groupChats } = ChatRoomStore.useStore((state: State) => ({
-		directChats: state.directChats,
+export const ChatList = ({ showChatWindow }: ChatListProps) => {
+	const { groupChats } = ChatRoomStore.useStore((state: State) => ({
 		groupChats: state.groupChats,
 	}));
 
-	const handleAddFriends = () => {
-		showFriendsWindow();
-	};
-
-	const handleCreateGroupChat = () => {
-		showGroupsWindow();
-	};
+	console.log("in ChatList, groupChats: ", groupChats);
 
 	return (
 		<Styled.ChatListLayout>
@@ -47,22 +38,10 @@ export const ChatList = ({ showChatWindow, showFriendsWindow, showGroupsWindow }
 			<DirectChatConnect showChatWindow={showChatWindow}/>
 			<Styled.ListSection>
 				<ChatListItems
-					sectionName="Friends"
-					chats={directChats}
-					displayRowsNumber={6}
-					showChatWindow={showChatWindow}
-					buttonText="Add friends"
-					buttonAction={handleAddFriends}
-				/>
-			</Styled.ListSection>
-			<Styled.ListSection>
-				<ChatListItems
-					sectionName="Groups"
+					sectionName="Joined Chats"
 					chats={groupChats}
-					displayRowsNumber={4}
+					displayRowsNumber={10}
 					showChatWindow={showChatWindow}
-					buttonText="New group chat"
-					buttonAction={handleCreateGroupChat}
 				/>
 			</Styled.ListSection>
 		</Styled.ChatListLayout>

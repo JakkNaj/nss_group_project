@@ -74,7 +74,7 @@ export const ChatRoomStore = {
 	},
 	initializeStore: async (userId: number) => {
 		try {
-			const chatResponse = await fetch(`http://localhost:8081/chatRoom?userId=${userId}`, {
+			const chatResponse = await fetch(`http://localhost:8080/chat-history/chatRoom?userId=${userId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -160,12 +160,34 @@ export const ChatRoomStore = {
 			}
 
 			const chatRoom = await response.json();
-			console.log(chatRoom);
+			console.warn("fetched joined chatRoom: " , chatRoom);
 			return chatRoom;
 		} catch (error) {
 			console.error(error);
 			return null;
 		}
+	},
+	addGroupChat: (chat: ChatRoomType) => {
+		if (useChatStore.getState().groupChats.find(existingChat => existingChat.chatLogId === chat.chatLogId)) {
+			return false;
+		}
+		useChatStore.setState({
+			chats: useChatStore.getState().chats,
+			directChats: useChatStore.getState().directChats,
+			groupChats: [...useChatStore.getState().groupChats, chat],
+			activeChatRoom: useChatStore.getState().activeChatRoom
+		});
+	},
+	addDirectChat: (chat: ChatRoomType) => {
+		if (useChatStore.getState().directChats.includes(chat)) {
+			return false;
+		}
+		useChatStore.setState({
+			chats: useChatStore.getState().chats,
+			directChats: [...useChatStore.getState().directChats, chat],
+			groupChats: useChatStore.getState().groupChats,
+			activeChatRoom: useChatStore.getState().activeChatRoom});
+
 	},
 	addUserToChatRoomBEcall: async (chatId: number, userId: number) => {
 		const chatMessage: MessageType = {
@@ -174,6 +196,7 @@ export const ChatRoomStore = {
 			content: null,
 			type: EMessageType.JOIN,
 			timestampInSeconds: Math.floor(Date.now() / 1000),
+			messageReference: null,
 		};
 
 		//wait for response

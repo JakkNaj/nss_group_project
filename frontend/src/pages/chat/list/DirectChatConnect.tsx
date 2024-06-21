@@ -36,6 +36,7 @@ export const DirectChatConnect = ({ showChatWindow }: DirectChatConnectProps) =>
 				await ChatRoomStore.addUserToChatRoomBEcall(id, loggedInUserId);
 				const chatRoom = await ChatRoomStore.getChatRoom(id);
 				if (chatRoom) {
+					ChatRoomStore.addGroupChat(chatRoom);
 					await ChatRoomStore.setActiveChatRoom(chatRoom);
 					showChatWindow();
 				} else {

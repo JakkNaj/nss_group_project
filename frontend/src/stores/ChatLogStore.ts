@@ -100,4 +100,27 @@ export const ChatLogStore = {
 		}
 	},
 	reset: useChatLogStore.getState().reset,
+	initializeStore: async (userId: number) => {
+		try {
+			const chatResponse = await fetch(`http://localhost:8080/chat-history/chatLogsForUser?userId=${userId}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					//todo auth headers
+				},
+			});
+
+			if (!chatResponse.ok) {
+				const errorData = await chatResponse.json();
+				throw new Error(`HTTP error! status: ${chatResponse.status}, message: ${errorData.message}`);
+			}
+
+			const pageData = await chatResponse.json();
+			const chatLogs = pageData.content;
+			useChatLogStore.setState({ chatLogs: chatLogs });
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
 };
