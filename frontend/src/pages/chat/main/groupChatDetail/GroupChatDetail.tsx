@@ -7,6 +7,7 @@ import { colors } from "../../../../styles/colors.ts";
 import { ChatNameWithIcon } from "./ChatNameWithIcon.tsx";
 import CloseIcon from "@mui/icons-material/Close";
 import {useEffect, useState} from "react";
+import {useSendLeave} from "../../../../hooks/useSendLeave.tsx";
 
 const Styled = {
 	ProfileDetail: styled.section({
@@ -59,6 +60,8 @@ export const GroupChatDetail = ({ onBackClick, selectedGroupUser, setSelectedGro
 		activeChat: state.activeChatRoom,
 	}));
 
+	const { sendLeave } = useSendLeave();
+
 	useEffect(() => {
 		const fetchUsers = async () => {
 			if (activeChat) {
@@ -87,18 +90,16 @@ export const GroupChatDetail = ({ onBackClick, selectedGroupUser, setSelectedGro
 		setSelectedGroupUser(null);
 	};
 
-	const handleRemoveClick = () => {
-		// logic to remove the user from the group
-	};
-
 	const handleLeaveClick = () => {
-		// logic to remove the current user from the group
+		if (activeChat) {
+			sendLeave({chatLogId: activeChat.chatLogId});
+		}
 	};
 
 	return (
 		<div>
 			{selectedGroupUser ? (
-				<GroupUserDetail user={selectedGroupUser} onBackClick={handleBackClick} onRemoveClick={handleRemoveClick} />
+				<GroupUserDetail user={selectedGroupUser} onBackClick={handleBackClick} />
 			) : (
 				<Styled.ProfileDetail>
 					<Styled.CloseIcon onClick={onBackClick} />

@@ -78,6 +78,10 @@ export const MessagesContainer = (props : MessagesContainerProps) => {
 				switch (message.type) {
 					case 'CHAT':
 						return connectMessageWithSender(message);
+					case 'REPLY':
+						return connectMessageWithSender(message);
+					case 'LEAVE':
+						return <p key={message.id}>user with id: {message.senderId} left the chat</p>;
 					case 'JOIN':
 						return <p key={message.id}>user with id: {message.senderId} joined the chat</p>;
 					default:

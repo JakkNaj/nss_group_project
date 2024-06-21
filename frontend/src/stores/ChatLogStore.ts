@@ -16,6 +16,7 @@ export const useChatLogStore = create<ChatLogStore>((set) => ({
 	activeChatLog: null,
 	updateChatLogWithNewMessage: (chatLogId, message) =>
 		set((state) => {
+			console.log("updating chat log with new message", chatLogId, message);
 			const chatLogIndex = state.chatLogs.findIndex((chatLog) => chatLog.chatLogId === chatLogId);
 			if (chatLogIndex !== -1) {
 				const updatedChatLog = {
@@ -122,5 +123,12 @@ export const ChatLogStore = {
 			console.error(error);
 			throw error;
 		}
+	},
+	removeChatLog: (chatLogId: number) => {
+		useChatLogStore.setState({
+			chatLogs: useChatLogStore.getState().chatLogs.filter((chatLog) => chatLog.chatLogId !== chatLogId),
+			activeChatLog:
+				useChatLogStore.getState().activeChatLog?.chatLogId === chatLogId ? null : useChatLogStore.getState().activeChatLog,
+		});
 	},
 };

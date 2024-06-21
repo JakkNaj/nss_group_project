@@ -39,6 +39,11 @@ export const useChatConnection = (user : UserType | null) => {
 		}
 	}, [user]);
 
+	if (!user) {
+		console.log("No user logged in.");
+		return;
+	}
+
 	const onMessageReceived = (message: IMessage) => {
 		console.warn("Received message");
 		const payload = JSON.parse(message.body);
@@ -64,7 +69,10 @@ export const useChatConnection = (user : UserType | null) => {
 				break;
 			case "LEAVE":
 				// Update the chat to indicate that a user has left
-				ChatRoomStore.removeUserFromChat(newMessage.messageLogId, newMessage.senderId);
+				if (newMessage.senderId === user.id) {
+					ChatRoomStore.leaveChat(newMessage.messageLogId);
+					updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
+				}
 				updateChatLogWithNewMessage(newMessage.messageLogId, newMessage);
 				break;
 			case "CHAT":

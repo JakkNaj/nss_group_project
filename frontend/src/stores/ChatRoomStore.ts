@@ -109,20 +109,18 @@ export const ChatRoomStore = {
 		const chatsData = mockData;
 		ChatRoomStore.initializeChats(chatsData);
 	},
-	removeUserFromChat: (chatId: number, userId: number) => {
+	leaveChat: (chatId: number) => {
+		console.log("leaving chat with id: ", chatId);
 		const chat = ChatRoomStore.findChat(chatId);
 		if (chat) {
-			const updatedChat = {
-				...chat,
-				members: chat.members.filter((memberId) => memberId !== userId),
-			};
 			useChatStore.setState({
-				chats: useChatStore.getState().chats.map((chat) => (chat.chatLogId === chatId ? updatedChat : chat)),
-				directChats: useChatStore.getState().directChats,
-				groupChats: useChatStore.getState().chats.filter((chat) => chat.type === EChatType.GROUP),
+				chats: useChatStore.getState().chats.filter((chat) => chat.chatLogId !== chatId),
+				directChats: useChatStore.getState().directChats.filter((chat) => chat.chatLogId !== chatId),
+				groupChats: useChatStore.getState().groupChats.filter((chat) => chat.chatLogId !== chatId),
 				activeChatRoom:
-					useChatStore.getState().activeChatRoom?.chatLogId === chatId ? updatedChat : useChatStore.getState().activeChatRoom,
+					useChatStore.getState().activeChatRoom?.chatLogId === chatId ? null : useChatStore.getState().activeChatRoom,
 			});
+			ChatLogStore.removeChatLog(chatId);
 		}
 	},
 	addUserToChat: (chatId: number, userId: number) => {

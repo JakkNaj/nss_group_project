@@ -105,7 +105,7 @@ export const ChatWindow = ({ rightSectionVisible, setRightSectionVisible, select
 
 	if (!activeChatLog) {
 		//activeChat is null only when there are no chats
-		return <div>Add friends to start chatting</div>;
+		return <div style={{margin: "4rem"}}>Join any chat to start chatting!</div>;
 	}
 
 	const handleSendMessage = (message: string) => {
