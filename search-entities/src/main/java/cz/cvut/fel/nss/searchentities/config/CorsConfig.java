@@ -1,4 +1,4 @@
-package cz.cvut.fel.nss.user_relations.config;
+package cz.cvut.fel.nss.searchentities.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -14,5 +14,6 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
+
     }
 }

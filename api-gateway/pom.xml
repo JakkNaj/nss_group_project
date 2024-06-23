@@ -20,6 +20,21 @@
             <artifactId>global_logging</artifactId>
             <version>${parent.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>cz.cvut.fel.nss</groupId>
+            <artifactId>chat</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cz.cvut.fel.nss</groupId>
+            <artifactId>user_management</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
+
     </dependencies>
 
     <build>

@@ -1,5 +1,6 @@
 package cz.cvut.fel.nss.chat.chat.controllers;
 
+import cz.cvut.fel.global_logging.LoggingClient;
 import cz.cvut.fel.nss.chat.chat.entities.ChatRoom;
 import cz.cvut.fel.nss.chat.chat.services.ChatService;
 import cz.cvut.fel.nss.chat.chat.entities.ChatMessage;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @MessageMapping("/chat")
 @RequestMapping("/chat")
 public class ChatController {
+    LoggingClient loggingClient = new LoggingClient("chat");
+
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatService chatService;
 
@@ -44,6 +47,7 @@ public class ChatController {
     @PostMapping("/addUserToChat")
     public ResponseEntity<ChatRoom> addUser(@RequestBody ChatMessage chatMessage) {
         ChatRoom chatRoom = chatService.addUserToChat(chatMessage);
+        loggingClient.logInfo("Added user to chat room: " + chatRoom);
         return new ResponseEntity<>(chatRoom, HttpStatus.OK);
     }
 
