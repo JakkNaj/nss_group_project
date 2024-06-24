@@ -17,29 +17,24 @@ public class BlockService {
         this.blockRepository = blockRepository;
     }
 
-    public void blockUser(String blockedUsername) {
+    public void blockUser(int blockedId) {
         //let's imagine our user is logged in
         //usually it would Principal.getUsername()
-        String loggedUser = "user1";
-
-        //check if the user is not trying to block himself
-        if (blockedUsername.equals(loggedUser)) {
-            throw new BadRequestException("You can't block yourself");
-        }
+        int loggedUser = 1;
 
         Block block = new Block();
-        block.setBlockedUsername(blockedUsername);
-        block.setBlockingUsername(loggedUser);
+        block.setBlockingId(loggedUser);
+        block.setBlockedId(blockedId);
 
         blockRepository.save(block);
     }
 
-    public void unblockUser(String username) {
+    public void unblockUser(int blockedId) {
         //let's imagine our user is logged in
         //usually it would Principal.getUsername()
-        String loggedUser = "user1";
+        int loggedUser = 1;
 
-        Optional<Block> block = blockRepository.findBlockByBlockedUsernameAndBlockedUsername(loggedUser, username);
+        Optional<Block> block = blockRepository.findByBlockingIdAndBlockedId(loggedUser, blockedId);
         if (block.isEmpty()) {
             throw new BadRequestException("You can't unblock a user you didn't block");
         }

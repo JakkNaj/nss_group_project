@@ -18,8 +18,8 @@ public class Friendship {
     private long id;
 
     @Column(name="friend1", nullable = false)
-    private String friend1;
+    private int friend1Id;
 
     @Column(name="friend2", nullable = false)
-    private String friend2;
+    private int friend2Id;
 }

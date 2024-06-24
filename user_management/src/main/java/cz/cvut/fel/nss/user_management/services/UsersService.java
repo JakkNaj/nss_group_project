@@ -89,10 +89,6 @@ public class UsersService {
             emailValidation(updateUserEntityDto.getEmail());
             existingUser.get().setEmail(updateUserEntityDto.getEmail());
         }
-        if (!Objects.equals(existingUser.get().getUsername(), updateUserEntityDto.getUsername())) {
-            usernameValidation(updateUserEntityDto.getUsername());
-            existingUser.get().setUsername(updateUserEntityDto.getUsername());
-        }
         if (!Objects.equals(existingUser.get().getName(), updateUserEntityDto.getName()))
             existingUser.get().setName(updateUserEntityDto.getName());
         if (!Objects.equals(existingUser.get().getAccountState(), updateUserEntityDto.getAccountState()))
@@ -160,7 +156,8 @@ public class UsersService {
                 }
                 userDetail.removeValue(UserDetailKey.PHONE_NUMBERS);
             }
-            for (PhoneNumber phoneNumber : userDetailDto.getPhones().getListOfPhoneNumbers()) {
+            List<PhoneNumber> listOfPhoneNumbers = userDetailDto.getPhones().getListOfPhoneNumbers() == null ? new ArrayList<>() : userDetailDto.getPhones().getListOfPhoneNumbers();
+            for (PhoneNumber phoneNumber : listOfPhoneNumbers) {
                 if (!isPhoneInValidFormat(phoneNumber.getTelephoneNumber()))
                     throw new BadRequestException("Phone number " + phoneNumber.getTelephoneNumber() + " with prefix " + phoneNumber.getCountry() + " is not in a valid format");
                 if (isPhoneNumberAssignedToDifferentUser(phoneNumber, user.getUserId()))

@@ -15,17 +15,27 @@ public class FriendService {
     private FriendshipRepository friendshipRepository;
 
 
-    public List<Friendship> getAllFriends(String username) {
-        return friendshipRepository.findAllFriendshipsForUsername(username);
+    public List<Integer> getAllFriendIds(int userId) {
+        List<Friendship> friendships = friendshipRepository.findAllFriendshipsForUserId(userId);
+
+        return friendships.stream().map(friendship -> {
+            if (friendship.getFriend1Id() == userId) {
+                return friendship.getFriend2Id();
+            } else {
+                return friendship.getFriend1Id();
+            }
+        }).toList();
     }
 
     @SneakyThrows
-    public void removeFriend(String loggedInUsername, String username) {
-        if (friendshipRepository.findAllByFriend1AndFriend2(loggedInUsername, username).isEmpty()) {
+    public void removeFriend(int deletedId) {
+        //let's imagine our user is logged in
+        //usually it would Principal.getUsername()
+        int loggedInId = 1;
+
+        if (friendshipRepository.findByFriend1IdAndFriend2Id(loggedInId, deletedId).isEmpty()) {
             throw new NotFoundException("Friendship does not exist");
         }
-        friendshipRepository.deleteFriendshipBetweenUsers(loggedInUsername, username);
+        friendshipRepository.deleteFriendshipBetweenUsers(loggedInId, deletedId);
     }
-
-
 }

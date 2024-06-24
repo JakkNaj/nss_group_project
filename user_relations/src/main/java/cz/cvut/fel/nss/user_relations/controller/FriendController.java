@@ -1,6 +1,5 @@
 package cz.cvut.fel.nss.user_relations.controller;
 
-import cz.cvut.fel.nss.user_relations.entity.Friendship;
 import cz.cvut.fel.nss.user_relations.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,16 +18,14 @@ public class FriendController {
     @Autowired
     FriendService friendService;
 
-    @GetMapping("/{username}")
-    public ResponseEntity<List<Friendship>> getAllFriends(@PathVariable String username){
-        return new ResponseEntity<>(friendService.getAllFriends(username), HttpStatus.OK);
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Integer>> getAllFriends(@PathVariable int userId){
+        return new ResponseEntity<>(friendService.getAllFriendIds(userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{username}")
-//    loggedInUser == Principal.getUsername()
-    public ResponseEntity<String> removeFriend(String loggedInUser, @PathVariable String username){
-        friendService.removeFriend(loggedInUser, username);
+    public ResponseEntity<String> removeFriend(@PathVariable int userId){
+        friendService.removeFriend(userId);
         return ResponseEntity.noContent().build();
     }
-
 }

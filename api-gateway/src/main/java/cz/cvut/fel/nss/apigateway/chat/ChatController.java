@@ -24,14 +24,14 @@ public class ChatController {
     private RestTemplate restTemplate;
 
     @GetMapping("/chatLogsForUser")
-    public ResponseEntity<List<ChatLog>> getChatHistoryForUser(@RequestParam("userId") Integer userId) {
-        String url = ServiceEnum.CHAT + "/chat-history/chatLogsForUser?userId=" + userId;
+    public ResponseEntity<ChatLogPage> getChatHistoryForUser(@RequestParam("userId") Integer userId, @RequestParam(defaultValue = "0") int page) {
+        String url = ServiceEnum.CHAT.getUrl() + "/chat-history/chatLogsForUser?userId=" + userId + "&page=" + page;
 
-        ResponseEntity<List<ChatLog>> response = restTemplate.exchange(
+        var response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<ChatLog>>() {}
+                new ParameterizedTypeReference<ChatLogPage>() {}
         );
 
         loggingClient.logInfo("Retrieved list of chat logs for user: " + userId + " - " + response.getBody());
@@ -40,13 +40,14 @@ public class ChatController {
 
     @GetMapping("/chatRoom")
     public ResponseEntity<List<ChatRoom>> getChatRoomsForUser(@RequestParam("userId") Integer userId, @RequestParam(defaultValue = "0") int page) {
-        String url = ServiceEnum.CHAT + "/chat-history/chatRoom?userId=" + userId + "&page=" + page;
+        String url = ServiceEnum.CHAT.getUrl() + "/chat-history/chatRoom?userId=" + userId + "&page=" + page;
 
         ResponseEntity<List<ChatRoom>> response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<ChatRoom>>() {}
+                new ParameterizedTypeReference<>() {
+                }
         );
 
         List<ChatRoom> chatRooms = response.getBody();
@@ -55,16 +56,16 @@ public class ChatController {
     }
 
     @GetMapping("/chatRoom/{chatRoomId}")
-    public ResponseEntity<ChatLog> getChatRoomById(@RequestParam("chatRoomId") Integer chatRoomId) {
-        String url = ServiceEnum.CHAT + "/chat-history/chatRoom/" + chatRoomId;
-        ResponseEntity<ChatLog> response = restTemplate.getForEntity(url, ChatLog.class);
+    public ResponseEntity<ChatRoom> getChatRoomById(@PathVariable("chatRoomId") Integer chatRoomId) {
+        String url = ServiceEnum.CHAT.getUrl() + "/chat-history/chatRoom/" + chatRoomId;
+        ResponseEntity<ChatRoom> response = restTemplate.getForEntity(url, ChatRoom.class);
         loggingClient.logInfo("retrieved chatRoom: " + response.getBody());
         return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
     }
 
     @GetMapping("/chatLog")
-    public ResponseEntity<ChatLog> getChatHistory(@RequestParam("chatLogId") String chatId) {
-        String url = ServiceEnum.CHAT + "/chat-history/chatLog?chatLogId=" + chatId;
+    public ResponseEntity<ChatLog> getChatHistory(@RequestParam("chatLogId") String chatLogId, @RequestParam int page) {
+        String url = ServiceEnum.CHAT.getUrl() + "/chat-history/chatLog?chatLogId=" + chatLogId + "&page=" + page;
         ResponseEntity<ChatLog> response = restTemplate.getForEntity(url, ChatLog.class);
         loggingClient.logInfo("retrieved chatLog: " + response.getBody());
         return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
@@ -74,7 +75,7 @@ public class ChatController {
     //chatController
     @PostMapping("/addUserToChat")
     public ResponseEntity<ChatRoom> addUser(@RequestBody ChatMessage chatMessage) {
-        String url = ServiceEnum.CHAT + "/chat-history/addUserToChat?chatMessage=" + chatMessage;
+        String url = ServiceEnum.CHAT.getUrl() + "/chat-history/addUserToChat?chatMessage=" + chatMessage;
         ResponseEntity<ChatRoom> response = restTemplate.postForEntity(url, null, ChatRoom.class);
         loggingClient.logInfo("Added user to chat room: " + response.getBody());
         return ResponseEntity.status(response.getStatusCode()).body(response.getBody());

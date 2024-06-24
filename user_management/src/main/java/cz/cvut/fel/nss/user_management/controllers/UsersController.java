@@ -1,5 +1,6 @@
 package cz.cvut.fel.nss.user_management.controllers;
 
+import cz.cvut.fel.global_logging.LoggingClient;
 import cz.cvut.fel.nss.user_management.entities.AccountState;
 import cz.cvut.fel.nss.user_management.entities.UserEntity;
 import cz.cvut.fel.nss.user_management.entities.dto.*;
@@ -7,9 +8,7 @@ import cz.cvut.fel.nss.user_management.exception.NotFoundException;
 import cz.cvut.fel.nss.user_management.services.PictureService;
 import cz.cvut.fel.nss.user_management.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +23,8 @@ public class UsersController {
     private final UsersService userService;
     private final PictureService pictureService;
 
+    LoggingClient loggingClient = new LoggingClient("user-management");
+
     @Autowired
     public UsersController(UsersService userService, PictureService pictureService) {
         this.userService = userService;
@@ -35,6 +36,7 @@ public class UsersController {
     public ResponseEntity<CombinedUserDto> addUser(@RequestBody SignUpDto credentials) {
         UserEntity user = userService.addUser(credentials);
         CombinedUserDto response = userService.getUserByUsername(credentials.getUsername());
+        loggingClient.logInfo("User added: " + user);
         return ResponseEntity.created(URI.create("/users" + user.getUsername())).body(response);
     }
 
@@ -42,6 +44,7 @@ public class UsersController {
     public ResponseEntity<CombinedUserDto> updateUser(@RequestBody UpdateUserEntityDto userDto) {
         userService.updateUser(userDto);
         CombinedUserDto updatedUserDetail = userService.getUserByUserid(userDto.getUserId());
+        loggingClient.logInfo("User updated: " + updatedUserDetail);
         return ResponseEntity.ok(updatedUserDetail);
     }
 
@@ -49,6 +52,7 @@ public class UsersController {
     public ResponseEntity<CombinedUserDto> updateUserDetails(@RequestBody UserDetailDto userDto) {
         userService.updateUserDetail(userDto);
         CombinedUserDto updatedUserDetail = userService.getUserByUserid(userDto.getUserId());
+        loggingClient.logInfo("User details updated: " + updatedUserDetail);
         return ResponseEntity.ok(updatedUserDetail);
     }
 
@@ -56,6 +60,7 @@ public class UsersController {
     public ResponseEntity<CombinedUserDto> loginUser(@RequestHeader("username") String username, @RequestHeader("password") String password) {
         userService.authenticateUser(username, password);
         CombinedUserDto loggedUser = userService.getUserByUsername(username);
+        loggingClient.logInfo("User logged in: " + loggedUser);
         return ResponseEntity.ok(loggedUser);
     }
 
@@ -67,6 +72,7 @@ public class UsersController {
     @GetMapping("/{id}")
     public ResponseEntity<CombinedUserDto> getUserDetails(@PathVariable int id) {
         CombinedUserDto user = userService.getUserByUserid(id);
+        loggingClient.logInfo("User details retrieved: " + user);
         return ResponseEntity.ok(user);
     }
 
@@ -78,18 +84,22 @@ public class UsersController {
     @GetMapping("/{id}/thumbnail")
     public ResponseEntity<String> getThumbnail(@PathVariable int id) throws IOException {
         if (userService.getUserByUserid(id).getAccountState() == AccountState.DELETED) {
+            loggingClient.logWarning("User with id " + id + " does not exist");
             throw new NotFoundException("User with id " + id + " does not exist");
         }
         String thumbnail = pictureService.getProfilePhotoThumbnailAsString(id);
+        loggingClient.logInfo("Thumbnail retrieved: " + thumbnail);
         return new ResponseEntity<>(thumbnail, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/profilePhoto")
     public ResponseEntity<String> getProfilePhoto(@PathVariable int id) throws IOException {
         if (userService.getUserByUserid(id).getAccountState() == AccountState.DELETED) {
+            loggingClient.logWarning("User with id " + id + " does not exist");
             throw new NotFoundException("User with id " + id + " does not exist");
         }
         String profilePhoto = pictureService.getProfilePhotoAsString(id);
+        loggingClient.logInfo("Profile photo retrieved: " + profilePhoto);
         return new ResponseEntity<>(profilePhoto, HttpStatus.OK);
     }
 
@@ -103,6 +113,7 @@ public class UsersController {
     public ResponseEntity<String> updateProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) throws IOException {
         pictureService.addPicture(file, id);
         String thumbnail = pictureService.getProfilePhotoThumbnailAsString(id);
+        loggingClient.logInfo("Profile photo updated: " + thumbnail);
         return new ResponseEntity<>(thumbnail, HttpStatus.OK);
     }
 
@@ -116,6 +127,7 @@ public class UsersController {
     public ResponseEntity<String> uploadProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) throws IOException {
         pictureService.addPicture(file, id);
         String thumbnail = pictureService.getProfilePhotoThumbnailAsString(id);
+        loggingClient.logInfo("Profile photo updated: " + thumbnail);
         return new ResponseEntity<>(thumbnail, HttpStatus.OK);
     }
 
@@ -127,6 +139,7 @@ public class UsersController {
     @DeleteMapping("/{id}/profilePhoto")
     public ResponseEntity<String> deleteProfilePhoto(@PathVariable int id) {
         pictureService.deletePicture(id);
+        loggingClient.logInfo("Profile photo deleted successfully");
         return ResponseEntity.ok("Profile photo deleted successfully");
     }
 }

@@ -4,15 +4,18 @@ import cz.cvut.fel.global_logging.LoggingClient;
 import cz.cvut.fel.nss.apigateway.utils.ServiceEnum;
 import cz.cvut.fel.nss.user_management.entities.dto.CombinedUserDto;
 import cz.cvut.fel.nss.user_management.entities.dto.SignUpDto;
+import cz.cvut.fel.nss.user_management.entities.dto.UpdateUserEntityDto;
+import cz.cvut.fel.nss.user_management.entities.dto.UserDetailDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -23,10 +26,18 @@ public class UserManagementController {
     @Autowired
     private RestTemplate restTemplate;
 
+    @PostMapping()
+    public ResponseEntity<CombinedUserDto> addUser(@RequestBody SignUpDto user) {
+        String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users";
+        ResponseEntity<CombinedUserDto> response = restTemplate.postForEntity(url, user, CombinedUserDto.class);
+        loggingClient.logInfo("User added: " + response.getBody());
+        return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+    }
+
 
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<CombinedUserDto> updateUser(@RequestBody SignUpDto user) {
+    public ResponseEntity<CombinedUserDto> updateUser(@RequestBody UpdateUserEntityDto user) {
         String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users";
         restTemplate.put(url, user);
         loggingClient.logInfo("User updated: " + user);
@@ -35,9 +46,9 @@ public class UserManagementController {
 
     @PutMapping("/details")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<CombinedUserDto> updateUserDetails(@RequestBody SignUpDto user) {
+    public ResponseEntity<CombinedUserDto> updateUserDetails(@RequestBody UserDetailDto user) {
         String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/details";
-        restTemplate.put(url, null);
+        restTemplate.put(url, user);
         loggingClient.logInfo("User details updated: " + user);
         return ResponseEntity.ok().build();
     }
@@ -46,14 +57,12 @@ public class UserManagementController {
     public ResponseEntity<CombinedUserDto> loginUser(@RequestHeader("username") String username, @RequestHeader("password") String password) {
         String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/login";
 
-        Map<String, String> loginPayload = new HashMap<>();
-        loginPayload.put("username", username);
-        loginPayload.put("password", password);
-
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(loginPayload, headers);
-        ResponseEntity<CombinedUserDto> response = restTemplate.exchange(url, HttpMethod.POST, request, CombinedUserDto.class);
+        headers.set("username", username);
+        headers.set("password", password);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<CombinedUserDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, CombinedUserDto.class);
         loggingClient.logInfo("User logged in: " + response.getBody());
         return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
     }
@@ -67,26 +76,49 @@ public class UserManagementController {
     }
 
     @GetMapping("/{id}/thumbnail")
-    public ResponseEntity<byte[]> getThumbnail(@PathVariable int id){
+    public ResponseEntity<String> getThumbnail(@PathVariable int id){
         String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/" + id + "/thumbnail";
-        ResponseEntity<byte[]> response = restTemplate.getForEntity(url, byte[].class);
-        loggingClient.logInfo("Thumbnail retrieved: " + Arrays.toString(response.getBody()));
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        loggingClient.logInfo("Thumbnail retrieved: " + Arrays.toString(response.getBody().toCharArray()));
         return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
     }
 
     @GetMapping("/{id}/profilePhoto")
-    public ResponseEntity<byte[]> getProfilePhoto(@PathVariable int id){
+    public ResponseEntity<String> getProfilePhoto(@PathVariable int id){
         String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/" + id + "/profilePhoto";
-        ResponseEntity<byte[]> response = restTemplate.getForEntity(url, byte[].class);
-        loggingClient.logInfo("Profile photo retrieved: " + Arrays.toString(response.getBody()));
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        loggingClient.logInfo("Profile photo retrieved: " + Arrays.toString(response.getBody().toCharArray()));
         return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
     }
 
     @PutMapping("/{id}/profilePhoto")
-    public ResponseEntity<byte[]> updateProfilePhoto(@PathVariable int id, @RequestParam("file")MultipartFile file){
+    public ResponseEntity<String> updateProfilePhoto(@PathVariable int id, @RequestParam("file")MultipartFile file){
         String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/" + id + "/profilePhoto";
-        ResponseEntity<byte[]> response = restTemplate.postForEntity(url, file, byte[].class);
-        loggingClient.logInfo("Profile photo updated: " + Arrays.toString(response.getBody()));
+        ResponseEntity<String> response = restTemplate.postForEntity(url, file, String.class);
+        loggingClient.logInfo("Profile photo updated: " + Arrays.toString(response.getBody().toCharArray()));
+        return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+    }
+
+    @PostMapping("/{id}/profilePhoto")
+    public ResponseEntity<String> uploadProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) throws IOException {
+        String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/" + id + "/profilePhoto";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        builder.part("file", new ByteArrayResource(file.getBytes()) {
+            @Override
+            public String getFilename() {
+                return file.getOriginalFilename();
+            }
+        }).header("Content-Disposition", "form-data; name=file; filename=" + file.getOriginalFilename());
+
+        var entity = new HttpEntity<>(builder.build(), headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+
+        loggingClient.logInfo("Profile photo updated: " + response.getBody());
         return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
     }
 
