@@ -217,6 +217,10 @@ public class UsersService {
         return getCombinedUserDtoFromUserEntity(findByUsername(username));
     }
 
+    public UserEntity getUserEntityByUsername(String username) {
+        return findByUsername(username);
+    }
+
     @SneakyThrows
     private CombinedUserDto getCombinedUserDtoFromUserEntity(UserEntity user) {
         if (user.getAccountState() == AccountState.DELETED) {

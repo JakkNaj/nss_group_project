@@ -2,6 +2,7 @@ package cz.cvut.fel.nss.apigateway.user_management;
 
 import cz.cvut.fel.global_logging.LoggingClient;
 import cz.cvut.fel.nss.apigateway.utils.ServiceEnum;
+import cz.cvut.fel.nss.user_management.entities.UserEntity;
 import cz.cvut.fel.nss.user_management.entities.dto.CombinedUserDto;
 import cz.cvut.fel.nss.user_management.entities.dto.SignUpDto;
 import cz.cvut.fel.nss.user_management.entities.dto.UpdateUserEntityDto;
@@ -53,20 +54,6 @@ public class UserManagementController {
         restTemplate.put(url, user);
         loggingClient.logInfo("User details updated: " + user);
         return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("login")
-    public ResponseEntity<CombinedUserDto> loginUser(@RequestHeader("username") String username, @RequestHeader("password") String password) {
-        String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/login";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("username", username);
-        headers.set("password", password);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<CombinedUserDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, CombinedUserDto.class);
-        loggingClient.logInfo("User logged in: " + response.getBody());
-        return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
     }
 
     @GetMapping("/{id}")

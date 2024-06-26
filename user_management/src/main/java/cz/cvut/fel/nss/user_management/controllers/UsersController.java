@@ -33,10 +33,10 @@ public class UsersController {
 
 
     @PostMapping()
-    public ResponseEntity<CombinedUserDto> addUser(@RequestBody SignUpDto credentials) {
+    public ResponseEntity<UserEntity> addUser(@RequestBody SignUpDto credentials) {
         UserEntity user = userService.addUser(credentials);
-        CombinedUserDto response = userService.getUserByUsername(credentials.getUsername());
-        loggingClient.logInfo("User added: " + user);
+        UserEntity response = userService.getUserEntityByUsername(credentials.getUsername());
+        //loggingClient.logInfo("User added: " + user);
         return ResponseEntity.created(URI.create("/users" + user.getUsername())).body(response);
     }
 
@@ -57,10 +57,10 @@ public class UsersController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<CombinedUserDto> loginUser(@RequestHeader("username") String username, @RequestHeader("password") String password) {
+    public ResponseEntity<UserEntity> loginUser(@RequestHeader("username") String username, @RequestHeader("password") String password) {
         userService.authenticateUser(username, password);
-        CombinedUserDto loggedUser = userService.getUserByUsername(username);
-        loggingClient.logInfo("User logged in: " + loggedUser);
+        UserEntity loggedUser = userService.getUserEntityByUsername(username);
+        //loggingClient.logInfo("User logged in: " + loggedUser);
         return ResponseEntity.ok(loggedUser);
     }
 
@@ -73,6 +73,13 @@ public class UsersController {
     public ResponseEntity<CombinedUserDto> getUserDetails(@PathVariable int id) {
         CombinedUserDto user = userService.getUserByUserid(id);
         loggingClient.logInfo("User details retrieved: " + user);
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/auth/{username}")
+    public ResponseEntity<UserEntity> getUserDetails(@PathVariable String username) {
+        UserEntity user = userService.getUserEntityByUsername(username);
+        //loggingClient.logInfo("User entity retrieved for auth: " + user);
         return ResponseEntity.ok(user);
     }
 
