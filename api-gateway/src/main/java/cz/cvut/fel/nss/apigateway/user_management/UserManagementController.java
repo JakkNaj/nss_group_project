@@ -10,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 @RestController
@@ -92,32 +94,18 @@ public class UserManagementController {
     }
 
     @PutMapping("/{id}/profilePhoto")
-    public ResponseEntity<String> updateProfilePhoto(@PathVariable int id, @RequestParam("file")MultipartFile file){
+    public ResponseEntity<String> updateProfilePhoto(@PathVariable int id, @RequestParam("file")MultipartFile file) throws IOException {
         String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/" + id + "/profilePhoto";
-        ResponseEntity<String> response = restTemplate.postForEntity(url, file, String.class);
-        loggingClient.logInfo("Profile photo updated: " + Arrays.toString(response.getBody().toCharArray()));
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, buildProfilePhotoHttpEntity(file), String.class);
+        loggingClient.logInfo("Profile photo updated: " + response.getBody());
         return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+
     }
 
     @PostMapping("/{id}/profilePhoto")
     public ResponseEntity<String> uploadProfilePhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) throws IOException {
         String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/" + id + "/profilePhoto";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("file", new ByteArrayResource(file.getBytes()) {
-            @Override
-            public String getFilename() {
-                return file.getOriginalFilename();
-            }
-        }).header("Content-Disposition", "form-data; name=file; filename=" + file.getOriginalFilename());
-
-        var entity = new HttpEntity<>(builder.build(), headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, buildProfilePhotoHttpEntity(file), String.class);
         loggingClient.logInfo("Profile photo updated: " + response.getBody());
         return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
     }
@@ -130,5 +118,24 @@ public class UserManagementController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Builds a HttpEntity with a MultipartFile as a part of a multipart request
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    private HttpEntity<MultiValueMap<String, HttpEntity<?>>> buildProfilePhotoHttpEntity(MultipartFile file) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        builder.part("file", new ByteArrayResource(file.getBytes()) {
+            @Override
+            public String getFilename() {
+                return file.getOriginalFilename();
+            }
+        }).header("Content-Disposition", "form-data; name=file; filename=" + file.getOriginalFilename());
+
+        return new HttpEntity<>(builder.build(), headers);
+    }
 }
