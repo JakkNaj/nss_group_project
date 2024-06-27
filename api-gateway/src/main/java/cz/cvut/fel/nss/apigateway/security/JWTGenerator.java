@@ -2,8 +2,11 @@ package cz.cvut.fel.nss.apigateway.security;
 
 import cz.cvut.fel.nss.apigateway.security.exception.InvalidTokenException;
 import cz.cvut.fel.nss.apigateway.security.exception.TokenExpiredException;
+import cz.cvut.fel.nss.apigateway.security.model.RefreshToken;
+import cz.cvut.fel.nss.apigateway.security.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -17,6 +20,8 @@ import static cz.cvut.fel.nss.apigateway.security.SecurityConstants.*;
 
 @Component
 public class JWTGenerator {
+    @Autowired
+    RefreshTokenRepository refreshTokenRepository;
 
     private final SecretKey secretKey = Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
 
@@ -29,9 +34,9 @@ public class JWTGenerator {
         Date expireDate = new Date(currentDate.getTime() + ACCESS_TOKEN_EXPIRATION);
 
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(currentDate)
-                .setExpiration(expireDate)
+                .subject(username)
+                .issuedAt(currentDate)
+                .expiration(expireDate)
                 .signWith(secretKey)
                 .compact();
     }
@@ -39,7 +44,13 @@ public class JWTGenerator {
     public String generateRefreshToken(){
         byte[] bytes = new byte[REFRESH_TOKEN_LENGTH];
         secureRandom.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        String refreshTokenString = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setToken(refreshTokenString);
+
+        refreshTokenRepository.save(refreshToken);
+
+        return refreshTokenString;
     }
 
     public String getUsernameFromJWT(String token){
@@ -95,24 +106,7 @@ public class JWTGenerator {
     }
 
     public boolean validateRefreshToken(String refreshToken) {
-        // for test purpose
-        return true;
-        // todo
-        /*// Assuming the refresh token is a SHA-256 hash of a random string
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashedToken = digest.digest(refreshToken.getBytes());
-
-            // Here you should retrieve the original refresh token from the database
-            // and compare it with the hashedToken
-            // For the sake of this example, let's assume the original token is stored in a variable called originalToken
-            byte[] originalToken = new byte[0]; // Replace this with the actual original token
-
-            return Arrays.equals(hashedToken, originalToken);
-        } catch (NoSuchAlgorithmException e) {
-            // Handle the exception
-            return false;
-        }*/
+        return refreshTokenRepository.existsById(refreshToken);
     }
 
 }
