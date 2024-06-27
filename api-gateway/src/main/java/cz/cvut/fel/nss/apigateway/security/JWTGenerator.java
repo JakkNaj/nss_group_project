@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
 
@@ -47,10 +49,20 @@ public class JWTGenerator {
         String refreshTokenString = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(refreshTokenString);
+        refreshToken.setExpiration(LocalDateTime.now().plus(REFRESH_TOKEN_EXPIRATION, ChronoUnit.MILLIS));
 
         refreshTokenRepository.save(refreshToken);
 
         return refreshTokenString;
+    }
+
+    public void deleteExpiredRefreshTokens() {
+        LocalDateTime now = LocalDateTime.now();
+        refreshTokenRepository.deleteAllByExpirationBefore(now);
+    }
+
+    public void deleteRefreshToken(String refreshToken) {
+        refreshTokenRepository.deleteById(refreshToken);
     }
 
     public String getUsernameFromJWT(String token){

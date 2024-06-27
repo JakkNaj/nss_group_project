@@ -4,7 +4,6 @@ import cz.cvut.fel.global_logging.LoggingClient;
 import cz.cvut.fel.nss.apigateway.security.dto.AuthResponseDto;
 import cz.cvut.fel.nss.apigateway.utils.ServiceEnum;
 import cz.cvut.fel.nss.user_management.entities.UserEntity;
-import cz.cvut.fel.nss.user_management.entities.dto.CombinedUserDto;
 import cz.cvut.fel.nss.user_management.entities.dto.SignUpDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -24,7 +23,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final RestTemplate restTemplate;
 
-    private JWTGenerator jwtGenerator;
+    private final JWTGenerator jwtGenerator;
 
 
     // private PasswordEncoder passwordEncoder;
@@ -52,6 +51,7 @@ public class AuthController {
         // Check the HTTP status code of the response
         if (response.getStatusCode().isError()) {
             // If the status code indicates an error, return the error response
+            loggingClient.logError("Error logging in user: " + response.getBody());
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         }
 
@@ -71,6 +71,7 @@ public class AuthController {
         // Create a response with the access token and refresh token
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("Set-Cookie", "refreshToken=" + refreshToken + "; HttpOnly; SameSite=Strict");
+        loggingClient.logInfo("User logged in: " + user);
         return ResponseEntity.ok().headers(responseHeaders).body(new AuthResponseDto(accessToken));
     }
 
@@ -114,6 +115,7 @@ public class AuthController {
         String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/auth/" + username;
         ResponseEntity<UserEntity> response = restTemplate.getForEntity(url, UserEntity.class);
         if (response.getStatusCode() != HttpStatus.OK) {
+            loggingClient.logError("Error refreshing token: " + response.getBody());
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         }
 
@@ -126,13 +128,17 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Generate an access token and a refresh token
+        // Generate an access token and a refresh token and delete the old refresh token
+        jwtGenerator.deleteRefreshToken(refreshToken);
+        loggingClient.logInfo("Deleted refresh token: " + refreshToken);
+        jwtGenerator.deleteExpiredRefreshTokens();
         String newAccessToken = jwtGenerator.generateAccessToken(authentication);
         String newRefreshToken = jwtGenerator.generateRefreshToken();
 
         // Create a response with the access token and refresh token
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("Set-Cookie", "refreshToken=" + newRefreshToken + "; HttpOnly; SameSite=Strict");
+        loggingClient.logInfo("User refreshed token: " + user);
         return ResponseEntity.ok().headers(responseHeaders).body(new AuthResponseDto(newAccessToken));
     }
 
