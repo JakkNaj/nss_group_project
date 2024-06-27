@@ -34,10 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             assert userEntity != null;
             return new User(
                     userEntity.getUsername(),
-                    //todo delete {noop} when using password encoder
                     "{noop}" + userEntity.getPassword(),
-                    // if using other roles, map userEntity.getRoles() to a list of roles
-                    // userEntity needs to have a roles field!
                     Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
             );
         } else {

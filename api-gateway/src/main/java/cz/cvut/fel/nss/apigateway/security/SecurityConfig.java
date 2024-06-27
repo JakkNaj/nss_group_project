@@ -12,16 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -39,14 +31,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        CorsConfiguration corsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
-        corsConfiguration.addAllowedMethod(HttpMethod.POST);
-        corsConfiguration.addAllowedMethod(HttpMethod.GET);
-        corsConfiguration.addAllowedMethod(HttpMethod.PUT);
-        corsConfiguration.addAllowedMethod(HttpMethod.DELETE);
-
         http
-                .cors(cors -> cors.configurationSource(request -> corsConfiguration))
                 //todo: enable csrf in production
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
@@ -56,21 +41,24 @@ public class SecurityConfig {
                 .formLogin(Customizer.withDefaults())
                 .logout(LogoutConfigurer::permitAll)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/auth/register", "auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register", "auth/login", "/auth/refresh").permitAll()
                         .anyRequest().authenticated());
+
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
-    // AuthenticationManager is responsible for authenticating the user
-    // The AuthenticationManager has a method authenticate(Authentication authentication) which takes the Authentication object as a parameter.
-    // This method is responsible for validating the provided credentials.
-    // If the credentials are valid, it returns a fully populated Authentication object;
-    // if the credentials are invalid, it throws an AuthenticationException.
     @Bean
     public AuthenticationManager authenticationManagerBean(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+
+    @Bean
+    public JWTAuthenticationFilter jwtAuthenticationFilter() {
+        return new JWTAuthenticationFilter();
     }
 
     // didn't find password encoder in the user_management microservice
@@ -82,9 +70,6 @@ public class SecurityConfig {
     }
     */
 
-    @Bean
-    public JWTAuthenticationFilter jwtAuthenticationFilter() {
-        return new JWTAuthenticationFilter();
-    }
+
 
 }

@@ -58,14 +58,20 @@ public class AuthController {
         // If the status code indicates success, log the user in
         UserEntity user = response.getBody();
 
-        // set the auth
+        // Authenticate the user
         assert user != null;
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtGenerator.generateToken(authentication);
 
-        return new ResponseEntity<>(new AuthResponseDto(token), HttpStatus.OK);
+        // Generate an access token and a refresh token
+        String accessToken = jwtGenerator.generateAccessToken(authentication);
+        String refreshToken = jwtGenerator.generateRefreshToken();
+
+        // Create a response with the access token and refresh token
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Set-Cookie", "refreshToken=" + refreshToken + "; HttpOnly; SameSite=Strict");
+        return ResponseEntity.ok().headers(responseHeaders).body(new AuthResponseDto(accessToken));
     }
 
     @PostMapping("/register")
@@ -92,6 +98,42 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return ResponseEntity.status(response.getStatusCode()).body(user);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@CookieValue("refreshToken") String refreshToken, @RequestHeader("Authorization") String accessToken) {
+        // Validate the refresh token
+        if (!jwtGenerator.validateRefreshToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+        }
+
+        // Extract the username from the access token (which is now invalid or expired) - problem
+        String username = jwtGenerator.getUsernameFromExpiredJWT(accessToken.substring(7));
+
+        // Fetch the UserEntity from the user_management backend
+        String url = ServiceEnum.USER_MANAGEMENT.getUrl() + "/users/auth/" + username;
+        ResponseEntity<UserEntity> response = restTemplate.getForEntity(url, UserEntity.class);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+        }
+
+        // If the status code indicates success, log the user in
+        UserEntity user = response.getBody();
+
+        // Authenticate the user
+        assert user != null;
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Generate an access token and a refresh token
+        String newAccessToken = jwtGenerator.generateAccessToken(authentication);
+        String newRefreshToken = jwtGenerator.generateRefreshToken();
+
+        // Create a response with the access token and refresh token
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Set-Cookie", "refreshToken=" + newRefreshToken + "; HttpOnly; SameSite=Strict");
+        return ResponseEntity.ok().headers(responseHeaders).body(new AuthResponseDto(newAccessToken));
     }
 
     @GetMapping("/test")

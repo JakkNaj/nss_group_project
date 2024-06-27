@@ -1,5 +1,7 @@
 package cz.cvut.fel.nss.apigateway.security;
 
+import cz.cvut.fel.nss.apigateway.security.exception.InvalidTokenException;
+import cz.cvut.fel.nss.apigateway.security.exception.TokenExpiredException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,14 +31,29 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException {
+
         String token = getJWTFromRequest(request);
-        if (StringUtils.hasText(token) && jwtGenerator.validateToken(token)) {
-            String username = jwtGenerator.getUsernameFromJWT(token);
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        if (StringUtils.hasText(token)) {
+            try {
+                if (jwtGenerator.validateAccessToken(token)) {
+                    String username = jwtGenerator.getUsernameFromJWT(token);
+                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+            } catch (TokenExpiredException e) {
+                // If the token is expired and the request is to the /refresh endpoint, let it proceed
+                if (!request.getRequestURI().equals("/auth/refresh")) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+                    return;
+                }
+            } catch (InvalidTokenException e) {
+                // If the token is invalid, return an Unauthorized response
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+                return;
+            }
         }
         filterChain.doFilter(request, response);
 
