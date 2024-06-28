@@ -2,7 +2,6 @@ import {create} from "zustand";
 import {EChatType} from "../model/enums/EChatType";
 import {ChatRoomType} from "../model/types/ChatRoomType.ts";
 import {UserType} from "../model/types/UserType.ts";
-import {chatRoomsData as mockData} from "../MockData.ts";
 import {ChatLogStore, useChatLogStore} from "./ChatLogStore.ts";
 import {MessageType} from "../model/types/MessageType.ts";
 import {EMessageType} from "../model/enums/EMessageType.ts";
@@ -104,11 +103,6 @@ export const ChatRoomStore = {
 		}
 		return "";
 	},
-	initializeStoreWithMockData: () => {
-		console.log("initializing chat store with mock data");
-		const chatsData = mockData;
-		ChatRoomStore.initializeChats(chatsData);
-	},
 	leaveChat: (chatId: number) => {
 		console.log("leaving chat with id: ", chatId);
 		const chat = ChatRoomStore.findChat(chatId);
@@ -197,6 +191,7 @@ export const ChatRoomStore = {
 			type: EMessageType.JOIN,
 			timestampInSeconds: Math.floor(Date.now() / 1000),
 			messageReference: null,
+			id: "doesn't matter, id will get generated on the backend",
 		};
 
 		//wait for response
