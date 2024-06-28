@@ -124,7 +124,7 @@ export const EditProfile = (props: EditProfileProps) => {
 			};
 
 			try {
-				const response = await fetch("http://localhost:8081/users", {
+				const response = await fetch("http://localhost:8085/users", {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
@@ -196,7 +196,7 @@ export const EditProfile = (props: EditProfileProps) => {
 		formData.append("file", selectedFile);
 
 		try {
-			const response = await fetch(`http://localhost:8081/users/${id}/profilePhoto`, {
+			const response = await fetch(`http://localhost:8085/users/${id}/profilePhoto`, {
 				method: "POST",
 				body: formData,
 				// include auth tokens

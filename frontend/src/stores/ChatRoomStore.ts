@@ -77,7 +77,7 @@ export const ChatRoomStore = {
 	},
 	initializeStore: async (userId: number) => {
 		try {
-			const chatResponse = await fetch(`http://localhost:8080/chat-history/chatRoom?userId=${userId}`, {
+			const chatResponse = await fetch(`http://localhost:8085/chat-history/chatRoom?userId=${userId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -147,7 +147,7 @@ export const ChatRoomStore = {
 	getChatRoom: async (chatId: number): Promise<ChatRoomType | null> => {
 		try {
 			console.log("Sending request to fetch chat room with id: ", chatId);
-			const response = await fetch(`http://localhost:8080/chat-history/chatRoom/${chatId}`, {
+			const response = await fetch(`http://localhost:8085/chat-history/chatRoom/${chatId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -202,7 +202,7 @@ export const ChatRoomStore = {
 
 		//wait for response
 		try {
-			const response = await fetch("http://localhost:8080/chat/addUserToChat", {
+			const response = await fetch("http://localhost:8085/chat/addUserToChat", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

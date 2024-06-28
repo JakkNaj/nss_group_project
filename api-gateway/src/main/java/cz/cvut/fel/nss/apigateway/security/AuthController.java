@@ -2,6 +2,7 @@ package cz.cvut.fel.nss.apigateway.security;
 
 import cz.cvut.fel.global_logging.LoggingClient;
 import cz.cvut.fel.nss.apigateway.security.dto.AuthResponseDto;
+import cz.cvut.fel.nss.apigateway.security.dto.AuthUserResponseDto;
 import cz.cvut.fel.nss.apigateway.utils.ServiceEnum;
 import cz.cvut.fel.nss.user_management.entities.UserEntity;
 import cz.cvut.fel.nss.user_management.entities.dto.SignUpDto;
@@ -51,28 +52,14 @@ public class AuthController {
         // Check the HTTP status code of the response
         if (response.getStatusCode().isError()) {
             // If the status code indicates an error, return the error response
-            loggingClient.logError("Error logging in user: " + response.getBody());
+            //loggingClient.logError("Error logging in user: " + response.getBody());
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         }
 
         // If the status code indicates success, log the user in
         UserEntity user = response.getBody();
 
-        // Authenticate the user
-        assert user != null;
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Generate an access token and a refresh token
-        String accessToken = jwtGenerator.generateAccessToken(authentication);
-        String refreshToken = jwtGenerator.generateRefreshToken();
-
-        // Create a response with the access token and refresh token
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Set-Cookie", "refreshToken=" + refreshToken + "; HttpOnly; SameSite=Strict");
-        loggingClient.logInfo("User logged in: " + user);
-        return ResponseEntity.ok().headers(responseHeaders).body(new AuthResponseDto(accessToken));
+        return authenticateUserAndSendBackTokens(user);
     }
 
     @PostMapping("/register")
@@ -92,13 +79,25 @@ public class AuthController {
         // If the status code indicates success, log the user in
         UserEntity user = response.getBody();
 
+        return authenticateUserAndSendBackTokens(user);
+    }
+
+    private ResponseEntity<?> authenticateUserAndSendBackTokens(UserEntity user) {
         // set the auth
         assert user != null;
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return ResponseEntity.status(response.getStatusCode()).body(user);
+        // Generate an access token and a refresh token
+        String accessToken = jwtGenerator.generateAccessToken(authentication);
+        String refreshToken = jwtGenerator.generateRefreshToken();
+
+        // Create a response with the access token and refresh token
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Set-Cookie", "refreshToken=" + refreshToken + "; HttpOnly; SameSite=Strict");
+        //loggingClient.logInfo("User logged in: " + user);
+        return ResponseEntity.ok().headers(responseHeaders).body(new AuthUserResponseDto(accessToken, user));
     }
 
     @PostMapping("/refresh")
@@ -144,6 +143,6 @@ public class AuthController {
 
     @GetMapping("/test")
     public ResponseEntity<String> test(){
-        return ResponseEntity.ok("Test successful");
+        return ResponseEntity.ok("Auth Test successful");
     }
 }
