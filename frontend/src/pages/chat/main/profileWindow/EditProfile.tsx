@@ -7,6 +7,7 @@ import { colors } from "../../../../styles/colors.ts";
 import { UserAvatar } from "../../../../components/UserAvatar.tsx";
 import { CircularProgress } from "@mui/material";
 import {mapResponseToUserType} from "../../../../model/types/UserType.ts";
+import {fetchWithTokens} from "../../../../FetchWithTokens.ts";
 
 const Styled = {
 	EditProfileContainer: styled("div")({
@@ -124,7 +125,7 @@ export const EditProfile = (props: EditProfileProps) => {
 			};
 
 			try {
-				const response = await fetch("http://localhost:8085/users", {
+				const response = await fetchWithTokens("http://localhost:8085/users", {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
@@ -196,7 +197,7 @@ export const EditProfile = (props: EditProfileProps) => {
 		formData.append("file", selectedFile);
 
 		try {
-			const response = await fetch(`http://localhost:8085/users/${id}/profilePhoto`, {
+			const response = await fetchWithTokens(`http://localhost:8085/users/${id}/profilePhoto`, {
 				method: "POST",
 				body: formData,
 				// include auth tokens

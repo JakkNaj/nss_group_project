@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { mapResponseToUserType, UserType } from "../model/types/UserType";
 import { SignupDto } from "../model/types/SignupDto.ts";
+import {fetchWithTokens} from "../FetchWithTokens.ts";
 
 export type UserState = {
 	loggedInUser: UserType | null;
@@ -65,7 +66,10 @@ export const UserStore = {
 	useStore: useUserStore,
 	updateLoggedInUser: (user: UserType) => useUserStore.setState({ loggedInUser: user }),
 	getLoggedInUser: () => useUserStore.getState().loggedInUser,
-	updateAccessToken: (token: string) => useUserStore.setState({ accessToken: token }),
+	updateAccessToken: (token: string) => {
+		useUserStore.setState({ accessToken: token })
+		localStorage.setItem('accessToken', token);
+	},
 	getAccessToken: () => useUserStore.getState().accessToken,
 	reset: () => useUserStore.setState(defaultUserState),
 	login: async (username: string, password: string) => {
@@ -139,7 +143,7 @@ export const UserStore = {
 	},
 	fetchUserDetails: async (userId: number) => {
 		try {
-			const response = await fetch(`http://localhost:8085/users/${userId}`, {
+			const response = await fetchWithTokens(`http://localhost:8085/users/${userId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
