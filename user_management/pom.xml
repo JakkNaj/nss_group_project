@@ -33,6 +33,10 @@
 			<version>4.2</version>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>cz.cvut.fel.nss</groupId>
 			<artifactId>global_logging</artifactId>
 			<version>${parent.version}</version>

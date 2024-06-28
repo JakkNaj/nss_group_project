@@ -28,7 +28,7 @@ Projekt se skládá z:<br/>
 |--------------------|--------------------------------------------------------------------------------------------------------------------------|
 | Vhodná technologie | Java, Spring Boot, React                                                                                                 |
 | Společná DB        | PostgreSQL pro uživatele, MongoDB pro uživatelské detaily, Elasticsearch pro události v chatu                            |
-| Cache              | TODO                                                                                                                     |
+| Cache              | @Cacheable                                                                                                               |
 | Messaging princip  | Kafka na události v chatu                                                                                                |
 | Security           | Autorizace přes JSON webtoken (viz api gateway)                                                                          |
 | Interceptors       | Logování (viz modul global_logging)                                                                                      |
