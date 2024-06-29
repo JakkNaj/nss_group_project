@@ -19,9 +19,10 @@ Projekt se skládá z:<br/>
 - Navigate to the project root directory
 - Run 'mvn clean install' in the root directory
   - if mvn clean install does not work, try running mvn idea:idea
+  - viz https://stackoverflow.com/questions/15213923/maven-package-does-not-exist
 - Run `docker-compose up`
 - Run 'npm ci' in the /frontend directory
-- Run 'npm run start' in the /frontend directory
+- Run 'npm run dev' in the /frontend directory
 - Start the chat application and any other component you want to use (bear the dependencies of the components in mind)
 
 ## Tabulka požadavků
