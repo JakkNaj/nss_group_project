@@ -5,16 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, Long> {
+    List<FriendRequest> findAllByRecipientId(int recipientId);
 
-    List<FriendRequest> findAllBySenderUsername(String senderUsername);
-
-    List<FriendRequest> findAllByRecipientUsername(String recipientUsername);
-
-    void deleteAllBySenderUsernameAndRecipientUsername(String senderUsername, String recipientUsername);
-
-    List<FriendRequest> findAllBySenderUsernameAndRecipientUsername(String senderUsername, String recipientUsername);
-
+    Optional<FriendRequest> findAllBySenderIdAndRecipientId(int senderId, int recipientId);
 }

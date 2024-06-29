@@ -38,11 +38,23 @@ interface ChatPageHeaderProps {
 }
 
 export const ChatPageHeader = ({ showProfileWindow }: ChatPageHeaderProps) => {
-	const { username, name, avatar } = UserStore.useStore((state) => ({
-		username: state.loggedInUser.username,
-		avatar: state.loggedInUser.avatar,
-		name: state.loggedInUser.name,
-	}));
+	const { username, name, avatar } = UserStore.useStore((state) => {
+		if (state.loggedInUser) {
+			return {
+				username: state.loggedInUser.username,
+				avatar: state.loggedInUser.avatar,
+				name: state.loggedInUser.name,
+			};
+		} else {
+			//should not happen
+			return {
+				username: 'failed to load',
+				avatar: '',
+				name: 'error',
+			};
+		}
+	});
+
 
 	const handleAccountClick = () => {
 		showProfileWindow();

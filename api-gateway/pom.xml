@@ -20,6 +20,44 @@
             <artifactId>global_logging</artifactId>
             <version>${parent.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>cz.cvut.fel.nss</groupId>
+            <artifactId>chat</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cz.cvut.fel.nss</groupId>
+            <artifactId>user_management</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cz.cvut.fel.nss</groupId>
+            <artifactId>user_relations</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.reactivestreams</groupId>
+            <artifactId>reactive-streams</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.12.5</version>
+        </dependency>
+
+
+
+
     </dependencies>
 
     <build>

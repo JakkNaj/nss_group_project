@@ -77,6 +77,7 @@ export const LoginPage = () => {
 		try {
 			const user = await UserStore.login(username, password);
 			console.log("User logged in: ", user);
+			console.log("Users access token: ", UserStore.getAccessToken());
 			await ChatRoomStore.initializeStore(user.id);
 			await ChatLogStore.initializeStore(user.id);
 			navigate("/chat");

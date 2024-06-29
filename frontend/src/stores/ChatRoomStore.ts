@@ -2,11 +2,11 @@ import {create} from "zustand";
 import {EChatType} from "../model/enums/EChatType";
 import {ChatRoomType} from "../model/types/ChatRoomType.ts";
 import {UserType} from "../model/types/UserType.ts";
-import {chatRoomsData as mockData} from "../MockData.ts";
 import {ChatLogStore, useChatLogStore} from "./ChatLogStore.ts";
 import {MessageType} from "../model/types/MessageType.ts";
 import {EMessageType} from "../model/enums/EMessageType.ts";
 import {UserStore} from "./UserStore.ts";
+import {fetchWithTokens} from "../FetchWithTokens.ts";
 
 export type State = {
 	chats: ChatRoomType[];
@@ -77,11 +77,10 @@ export const ChatRoomStore = {
 	},
 	initializeStore: async (userId: number) => {
 		try {
-			const chatResponse = await fetch(`http://localhost:8080/chat-history/chatRoom?userId=${userId}`, {
+			const chatResponse = await fetchWithTokens(`http://localhost:8085/chat-history/chatRoom?userId=${userId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					//todo auth headers
 				},
 			});
 
@@ -103,11 +102,6 @@ export const ChatRoomStore = {
 			return chat.name;
 		}
 		return "";
-	},
-	initializeStoreWithMockData: () => {
-		console.log("initializing chat store with mock data");
-		const chatsData = mockData;
-		ChatRoomStore.initializeChats(chatsData);
 	},
 	leaveChat: (chatId: number) => {
 		console.log("leaving chat with id: ", chatId);
@@ -147,11 +141,10 @@ export const ChatRoomStore = {
 	getChatRoom: async (chatId: number): Promise<ChatRoomType | null> => {
 		try {
 			console.log("Sending request to fetch chat room with id: ", chatId);
-			const response = await fetch(`http://localhost:8080/chat-history/chatRoom/${chatId}`, {
+			const response = await fetchWithTokens(`http://localhost:8085/chat-history/chatRoom/${chatId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					//todo auth headers
 				},
 			});
 
@@ -198,11 +191,12 @@ export const ChatRoomStore = {
 			type: EMessageType.JOIN,
 			timestampInSeconds: Math.floor(Date.now() / 1000),
 			messageReference: null,
+			id: "doesn't matter, id will get generated on the backend",
 		};
 
 		//wait for response
 		try {
-			const response = await fetch("http://localhost:8080/chat/addUserToChat", {
+			const response = await fetchWithTokens("http://localhost:8085/chat/addUserToChat", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

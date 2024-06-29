@@ -12,15 +12,15 @@ public class BlockController {
     @Autowired
     BlockService blockService;
 
-    @PostMapping("/{username}")
-    public ResponseEntity<Void> blockUser(@PathVariable String username){
-        blockService.blockUser(username);
+    @PostMapping("/{userId}")
+    public ResponseEntity<Void> blockUser(@PathVariable int userId){
+        blockService.blockUser(userId);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{username}")
-    public ResponseEntity<Void> unblockUser(@PathVariable String username){
-        blockService.unblockUser(username);
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> unblockUser(@PathVariable int userId){
+        blockService.unblockUser(userId);
         return ResponseEntity.noContent().build();
     }
 }

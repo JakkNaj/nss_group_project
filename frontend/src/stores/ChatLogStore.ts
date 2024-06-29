@@ -1,6 +1,7 @@
 import { ChatLogType } from "../model/types/ChatLogType.ts";
 import { MessageType } from "../model/types/MessageType.ts";
 import { create } from "zustand";
+import {fetchWithTokens} from "../FetchWithTokens.ts";
 
 type ChatLogStore = {
 	chatLogs: ChatLogType[];
@@ -44,7 +45,7 @@ export const useChatLogStore = create<ChatLogStore>((set) => ({
 	fetchChatLog: async (chatLogId: number) => {
 		try {
 			console.log("fetching chat log with id: ", chatLogId);
-			const response = await fetch(`http://localhost:8080/chat-history/chatLog?chatLogId=${chatLogId}&page=${0}`, {
+			const response = await fetchWithTokens(`http://localhost:8085/chat-history/chatLog?chatLogId=${chatLogId}&page=${0}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -103,11 +104,10 @@ export const ChatLogStore = {
 	reset: useChatLogStore.getState().reset,
 	initializeStore: async (userId: number) => {
 		try {
-			const chatResponse = await fetch(`http://localhost:8080/chat-history/chatLogsForUser?userId=${userId}`, {
+			const chatResponse = await fetchWithTokens(`http://localhost:8085/chat-history/chatLogsForUser?userId=${userId}`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					//todo auth headers
 				},
 			});
 

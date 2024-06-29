@@ -28,7 +28,7 @@ async function addUserToChat() {
 
     //wait for response
 
-    const response = fetch('http://localhost:8080/chat/addUserToChat', {
+    const response = fetch('http://localhost:8085/chat/addUserToChat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

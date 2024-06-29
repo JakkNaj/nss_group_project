@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -16,48 +15,44 @@ public class FriendRequestController {
     @Autowired
     FriendRequestService friendRequestService;
 
-    @GetMapping("/{username}")
+    @GetMapping("/{userId}")
     public ResponseEntity<List<FriendRequest>> getAllFriendRequests(
-            @PathVariable String username
+            @PathVariable int userId
     ){
-        List<FriendRequest> friendRequests = friendRequestService.getAllFriendRequestsForRecipient(username);
+        List<FriendRequest> friendRequests = friendRequestService.getAllFriendRequestsForRecipient(userId);
         return ResponseEntity.ok(friendRequests);
     }
 
 
-    @PostMapping("/{sender}/{recipient}")
+    @PostMapping("/{recipientId}")
     public ResponseEntity<String> sendFriendRequest(
-            @PathVariable String recipient,
-            @PathVariable String sender //// todo sender je Principal.getUsername()
+            @PathVariable int recipientId
     ){
-        friendRequestService.sendFriendRequest(sender, recipient);
+        friendRequestService.sendFriendRequestToUserId(recipientId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/accept/{sender}/{recipient}")
+    @PostMapping("/accept/{senderId}")
     public ResponseEntity<String> acceptFriendRequest(
-            @PathVariable String sender,
-            @PathVariable String recipient //// todo recipient je Principal.getUsername()
+            @PathVariable int senderId
     ){
-        friendRequestService.acceptFriendRequest(sender, recipient);
+        friendRequestService.acceptFriendRequestFromUserId(senderId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/decline/{sender}/{recipient}")
+    @PostMapping("/decline/{senderId}")
     public ResponseEntity<String> declineFriendRequest(
-            @PathVariable String sender,
-            @PathVariable String recipient //// todo recipient je Principal.getUsername()
+            @PathVariable int senderId
     ){
-        friendRequestService.declineFriendRequest(sender, recipient);
+        friendRequestService.declineFriendRequestFromUserId(senderId);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/delete/{recipient}")
+    @DeleteMapping("/delete/{recipientId}")
     public ResponseEntity<String> deleteFriendRequest(
-            @PathVariable String recipient,
-            String sender ////sender je Principal.getUsername()
+            @PathVariable int recipientId
     ){
-        friendRequestService.deleteFriendRequest(sender, recipient);
+        friendRequestService.deleteFriendRequestToUserId(recipientId);
         return ResponseEntity.noContent().build();
     }
 }

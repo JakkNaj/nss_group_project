@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FriendRequestService {
@@ -21,42 +22,55 @@ public class FriendRequestService {
         this.friendshipRepository = friendshipRepository;
     }
 
-    public List<FriendRequest> getAllFriendRequests(String username) {
-        return friendRequestRepository.findAllBySenderUsername(username);
+    public List<FriendRequest> getAllFriendRequestsForRecipient(int userId) {
+        return friendRequestRepository.findAllByRecipientId(userId);
     }
 
-    public List<FriendRequest> getAllFriendRequestsForRecipient(String username) {
-        return friendRequestRepository.findAllByRecipientUsername(username);
-    }
-
-    public void sendFriendRequest(String sender, String recipient) {
+    public void sendFriendRequestToUserId(int recipient) {
         FriendRequest newFriendRequest = new FriendRequest();
-        newFriendRequest.setSenderUsername(sender);
-        newFriendRequest.setRecipientUsername(recipient);
+
+        //let's imagine our user is logged in
+        //usually it would Principal.getUsername()
+        int sender = 1;
+
+        newFriendRequest.setSenderId(sender);
+        newFriendRequest.setRecipientId(recipient);
         friendRequestRepository.save(newFriendRequest);
     }
 
     @Transactional
-    public void acceptFriendRequest(String sender, String recipient) {
+    public void acceptFriendRequestFromUserId(int sender) {
+        int recipient = 1;
+        Optional<FriendRequest> optionalFriendRequest = friendRequestRepository.findAllBySenderIdAndRecipientId(sender, recipient);
+        if (optionalFriendRequest.isEmpty()) {
+            throw new NotFoundException("You can't accept a friend request which does not exist");
+        }
+        FriendRequest friendRequest = optionalFriendRequest.get();
         Friendship friendship = new Friendship();
-        friendship.setFriend1(sender);
-        friendship.setFriend2(recipient);
+        friendship.setFriend1Id(friendRequest.getSenderId());
+        friendship.setFriend2Id(friendRequest.getRecipientId());
+
         friendshipRepository.save(friendship);
-        //remove friend request instance from friend request table
-        friendRequestRepository.deleteAllBySenderUsernameAndRecipientUsername(sender, recipient);
+        friendRequestRepository.delete(friendRequest);
     }
 
-    public void declineFriendRequest(String sender, String recipient) {
-        if (friendRequestRepository.findAllBySenderUsernameAndRecipientUsername(sender, recipient).isEmpty()) {
+    public void declineFriendRequestFromUserId(int sender) {
+        int recipient = 1;
+
+        Optional<FriendRequest> optionalFriendRequest = friendRequestRepository.findAllBySenderIdAndRecipientId(sender, recipient);
+        if (optionalFriendRequest.isEmpty()) {
             throw new NotFoundException("You can't decline a friend request which does not exist");
         }
-        friendRequestRepository.deleteAllBySenderUsernameAndRecipientUsername(sender, recipient);
+        friendRequestRepository.delete(optionalFriendRequest.get());
     }
 
-    public void deleteFriendRequest(String sender, String recipient) {
-        if (friendRequestRepository.findAllBySenderUsernameAndRecipientUsername(sender, recipient).isEmpty()) {
-            throw new NotFoundException("You can't decline a friend request which does not exist");
+    public void deleteFriendRequestToUserId(int recipient) {
+        int sender = 1;
+
+        Optional<FriendRequest> optionalFriendRequest = friendRequestRepository.findAllBySenderIdAndRecipientId(sender, recipient);
+        if (optionalFriendRequest.isEmpty()) {
+            throw new NotFoundException("You can't delete a friend request which does not exist");
         }
-        friendRequestRepository.deleteAllBySenderUsernameAndRecipientUsername(sender, recipient);
+        friendRequestRepository.delete(optionalFriendRequest.get());
     }
 }

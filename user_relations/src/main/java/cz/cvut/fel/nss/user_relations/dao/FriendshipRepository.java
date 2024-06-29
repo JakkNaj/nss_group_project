@@ -6,17 +6,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FriendshipRepository extends JpaRepository<Friendship, Integer> {
-    @Query("SELECT f FROM Friendship f WHERE f.friend1 = ?1 OR f.friend2 = ?1")
-    List<Friendship> findAllFriendshipsForUsername(String username);
+    @Query("SELECT f FROM Friendship f WHERE f.friend1Id = ?1 OR f.friend2Id = ?1")
+    List<Friendship> findAllFriendshipsForUserId(int userId);
 
-    @Query("DELETE FROM Friendship f WHERE (f.friend1 = ?1 AND f.friend2 = ?2) OR (f.friend1 = ?2 AND f.friend2 = ?1)")
-    void deleteFriendshipBetweenUsers(String username1, String username2);
+    @Query("SELECT f FROM Friendship f WHERE (f.friend1Id = ?1 AND f.friend2Id = ?2) OR (f.friend1Id = ?2 AND f.friend2Id = ?1)")
+    Optional<Friendship> findByFriend1IdAndFriend2Id(int friend1Id, int friend2Id);
 
-    @Query("SELECT f FROM Friendship f WHERE (f.friend1 = ?1 AND f.friend2 = ?2) OR (f.friend1 = ?2 AND f.friend2 = ?1)")
-//    List<Friendship> existsFriendshipByFriend1AndFriend2(String username1, String username2);
-//
-    List<Friendship> findAllByFriend1AndFriend2(String friend1, String friend2);
+    @Query("DELETE FROM Friendship f WHERE (f.friend1Id = ?1 AND f.friend2Id = ?2) OR (f.friend1Id = ?2 AND f.friend2Id = ?1)")
+    void deleteFriendshipBetweenUsers(int loggedInId, int deletedId);
 }

@@ -17,8 +17,8 @@ public class FriendRequest {
     private Long id;
 
     @Column(name = "sender", nullable = false)
-    private String senderUsername;
+    private int senderId;
 
     @Column(name = "recipient", nullable = false)
-    private String recipientUsername;
+    private int recipientId;
 }
