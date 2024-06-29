@@ -11,6 +11,11 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,35 +32,39 @@ public class PictureService {
     private final PictureEntityRepository pictureRepository;
     private final UserRepository userRepository;
     private final ImageResizingService imageResizingService;
+    private final CacheManager cacheManager;
 
     @Autowired
-    public PictureService(PictureEntityRepository pictureRepository, UserRepository userRepository, ImageResizingService imageResizingService) {
+    public PictureService(PictureEntityRepository pictureRepository, UserRepository userRepository,
+                          ImageResizingService imageResizingService, CacheManager cacheManager) {
         this.pictureRepository = pictureRepository;
         this.userRepository = userRepository;
         this.imageResizingService = imageResizingService;
+        this.cacheManager = cacheManager;
     }
 
     @Value("${profilephoto.max.size}")
     private int maxProfilePhotoSize;
 
     @SneakyThrows
-    public void addPicture(MultipartFile file, int id) {
+    public void addPicture(MultipartFile file, int userId) {
         if (file == null) {
             throw new WrongFileException("File is null");
         }
-        validateUser(id);
+        validateUser(userId);
         validateFile(file);
-        PictureEntity pictureEntity = pictureRepository.findById(id).orElse(new PictureEntity());
+        PictureEntity pictureEntity = pictureRepository.findById(userId).orElse(new PictureEntity());
         byte[] thumbnail = imageResizingService.createThumbnail(file.getBytes());
-        pictureEntity.savePicture(file.getBytes(), thumbnail, id, file.getContentType());
-        log.info("Saving picture for user with id {}", id);
+        pictureEntity.savePicture(file.getBytes(), thumbnail, userId, file.getContentType());
+        log.info("Saving picture for user with id {}", userId);
         pictureRepository.save(pictureEntity);
+        updateCacheManually(userId);
     }
 
-    private void validateUser(int id) {
-        Optional<UserEntity> user = userRepository.findById(id);
+    private void validateUser(int userId) {
+        Optional<UserEntity> user = userRepository.findById(userId);
         if (user.isEmpty() || user.get().getAccountState() == AccountState.DELETED) {
-            throw new NotFoundException("User with id " + id + " does not exist");
+            throw new NotFoundException("User with id " + userId + " does not exist");
         }
     }
 
@@ -70,12 +79,13 @@ public class PictureService {
         }
     }
 
-    public void deletePicture(int id) {
-        Optional<PictureEntity> picture = pictureRepository.findById(id);
+    @CacheEvict(cacheNames = "profilePhotoThumbnail", key = "#userId")
+    public void deletePicture(int userId) {
+        Optional<PictureEntity> picture = pictureRepository.findById(userId);
         if (picture.isEmpty()) {
-            throw new NotFoundException("User with id " + id + " does not have a profile photo");
+            throw new NotFoundException("User with id " + userId + " does not have a profile photo");
         }
-        pictureRepository.deleteById(id);
+        pictureRepository.deleteById(userId);
     }
 
     @SneakyThrows
@@ -112,8 +122,16 @@ public class PictureService {
         return Base64.getEncoder().encodeToString(profilePhoto);
     }
 
-    public String getProfilePhotoThumbnailAsString(int userId) throws IOException {
+    //@Cacheable(cacheNames = "profilePhotoThumbnail", key = "#userId")
+    public String getProfilePhotoThumbnailAsString(int userId) {
         byte[] profilePhotoThumbnail = getProfilePhotoThumbnail(userId);
         return Base64.getEncoder().encodeToString(profilePhotoThumbnail);
+    }
+
+    private void updateCacheManually(int userId) {
+        Cache cache = cacheManager.getCache("profilePhotoThumbnail");
+        if (cache != null) {
+            cache.put(userId, getProfilePhotoThumbnailAsString(userId));
+        }
     }
 }

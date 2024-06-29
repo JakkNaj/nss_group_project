@@ -11,6 +11,10 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -28,6 +32,7 @@ public class UsersService {
     private final UserDetailRepository userDetailRepository;
     private final MongoTemplate mongoTemplate;
     private final PictureService pictureService;
+    private final CacheManager cacheManager;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 
@@ -39,11 +44,12 @@ public class UsersService {
 
     @Autowired
     public UsersService(UserRepository userRepository, UserDetailRepository userDetailRepository,
-                        MongoTemplate mongoTemplate, PictureService pictureService) {
+                        MongoTemplate mongoTemplate, PictureService pictureService, CacheManager cacheManager) {
         this.userRepository = userRepository;
         this.userDetailRepository = userDetailRepository;
         this.mongoTemplate = mongoTemplate;
         this.pictureService = pictureService;
+        this.cacheManager = cacheManager;
     }
 
     public UserEntity findByUsername(String username) {
@@ -79,7 +85,6 @@ public class UsersService {
         return user;
     }
 
-
     public void updateUser(UpdateUserEntityDto updateUserEntityDto) {
         Optional<UserEntity> existingUser = userRepository.findById(updateUserEntityDto.getUserId());
         if (existingUser.isEmpty() || existingUser.get().getAccountState() == AccountState.DELETED) {
@@ -94,6 +99,7 @@ public class UsersService {
         if (!Objects.equals(existingUser.get().getAccountState(), updateUserEntityDto.getAccountState()))
             existingUser.get().setAccountState(updateUserEntityDto.getAccountState());
         userRepository.save(existingUser.get());
+        updateCacheManually(updateUserEntityDto.getUserId());
     }
 
     private void emailValidation (String email) {
@@ -145,6 +151,7 @@ public class UsersService {
         updatePhoneNumbers(userDetailDto, user, userDetail);
         updateBirthdate(userDetailDto, userDetail);
         userDetailRepository.save(userDetail);
+        updateCacheManually(user.getUserId());
     }
 
     private void updatePhoneNumbers(UserDetailDto userDetailDto, UserEntity user, UserDetail userDetail) {
@@ -209,6 +216,7 @@ public class UsersService {
         }
     }
 
+    @Cacheable(cacheNames = "users", key = "#userId")
     public CombinedUserDto getUserByUserid(int userId) {
         return getCombinedUserDtoFromUserEntity(findByUserId(userId));
     }
@@ -240,5 +248,12 @@ public class UsersService {
         String encodedImage = Base64.getEncoder().encodeToString(pictureService.getProfilePhotoThumbnail(user.getUserId()));
         combinedUserDto.setThumbnail(encodedImage);
         return combinedUserDto;
+    }
+
+    private void updateCacheManually(int userId) {
+        Cache usersCache = cacheManager.getCache("users");
+        if (usersCache != null) {
+            usersCache.put(userId, getCombinedUserDtoFromUserEntity(findByUserId(userId)));
+        }
     }
 }
