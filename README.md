@@ -18,6 +18,7 @@ Projekt se skládá z:<br/>
 - Clone the repository
 - Navigate to the project root directory
 - Run 'mvn clean install' in the root directory
+  - if mvn clean install does not work, try running mvn idea:idea
 - Run `docker-compose up`
 - Run 'npm ci' in the /frontend directory
 - Run 'npm run start' in the /frontend directory
