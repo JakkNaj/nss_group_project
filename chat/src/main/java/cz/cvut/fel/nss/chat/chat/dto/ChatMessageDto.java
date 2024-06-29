@@ -4,9 +4,12 @@ import cz.cvut.fel.nss.chat.chat.entities.ChatMessage;
 import cz.cvut.fel.nss.chat.chat.entities.MessageReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-    @AllArgsConstructor
+
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChatMessageDto {
     private String id;
     private Integer messageLogId;
