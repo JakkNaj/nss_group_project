@@ -15,4 +15,14 @@ public class ChatMessageDto {
     private ChatMessage.MessageType type;
     private long timestampInSeconds;
     private MessageReference messageReference;
-}
+
+        @Override
+        public String toString() {
+            return "ChatMessageDto{" +
+                    "content='" + content + '\'' +
+                    ", type=" + type +
+                    ", timestampInSeconds=" + timestampInSeconds +
+                    ", senderId=" + senderId +
+                    '}';
+        }
+    }

@@ -5,6 +5,7 @@ import cz.cvut.fel.nss.chat.chat.entities.ChatRoom;
 import cz.cvut.fel.nss.chat.chat.services.ChatHistoryService;
 import cz.cvut.fel.nss.chat.chat.entities.ChatLog;
 import cz.cvut.fel.nss.chat.config.ChatConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("chat-history")
+@Slf4j
 public class ChatHistoryController {
     LoggingClient loggingClient = new LoggingClient("chat");
 
@@ -33,9 +35,10 @@ public class ChatHistoryController {
             @RequestParam(defaultValue = "0") int page
     ) {
         PageRequest pageRequest = PageRequest.of(page, chatConfig.getPageSize());
-        loggingClient.logInfo("retrieved list of chat logs of user: " + chatHistoryService.getChatHistoryForUser(userId, Pageable.ofSize(1)));
-
-        return chatHistoryService.getChatHistoryForUser(userId, pageRequest);
+        Page<ChatLog> chatHistoryForUser = chatHistoryService.getChatHistoryForUser(userId, pageRequest);
+        loggingClient.logInfo("retrieved list of chat logs of user: " + userId);
+        log.info("retrieved list of chat logs of user: " + chatHistoryForUser.getContent().toString());
+        return chatHistoryForUser;
     }
 
     @GetMapping("/chatRoom")
