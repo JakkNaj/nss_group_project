@@ -2,7 +2,6 @@ package cz.cvut.fel.nss.apigateway.user_management;
 
 import cz.cvut.fel.global_logging.LoggingClient;
 import cz.cvut.fel.nss.apigateway.utils.ServiceEnum;
-import cz.cvut.fel.nss.user_management.entities.UserEntity;
 import cz.cvut.fel.nss.user_management.entities.dto.CombinedUserDto;
 import cz.cvut.fel.nss.user_management.entities.dto.SignUpDto;
 import cz.cvut.fel.nss.user_management.entities.dto.UpdateUserEntityDto;
@@ -17,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 @RestController
