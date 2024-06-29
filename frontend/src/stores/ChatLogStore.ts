@@ -49,7 +49,6 @@ export const useChatLogStore = create<ChatLogStore>((set) => ({
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					//todo auth headers
 				},
 			});
 

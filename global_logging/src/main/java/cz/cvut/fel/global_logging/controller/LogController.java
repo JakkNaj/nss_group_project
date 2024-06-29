@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/log")
 public class LogController {
 
-    //todo: provolavat rest endpoint elasticSearche
-
     private final LogService logService;
 
     @Autowired

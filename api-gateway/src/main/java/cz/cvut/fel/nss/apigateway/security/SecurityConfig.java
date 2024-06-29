@@ -32,7 +32,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                //todo: enable csrf in production
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(jwtAuthEntryPoint))
@@ -61,8 +60,7 @@ public class SecurityConfig {
         return new JWTAuthenticationFilter();
     }
 
-    // didn't find password encoder in the user_management microservice
-    // are we saving passwords in plaintext?!?
+    // Improvement: Use password encoder to not save passwords in plain text
     /*
     @Bean
     public PasswordEncoder passwordEncoder() {

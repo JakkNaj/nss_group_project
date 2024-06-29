@@ -26,10 +26,6 @@ public class AuthController {
 
     private final JWTGenerator jwtGenerator;
 
-
-    // private PasswordEncoder passwordEncoder;
-
-    // todo add PasswordEncoder to constructor
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, RestTemplate restTemplate, JWTGenerator jwtGenerator) {
         this.authenticationManager = authenticationManager;
